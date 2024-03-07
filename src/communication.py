@@ -5,27 +5,13 @@ import json
 import ssl
 from enum import Enum
 import logging
+from builder import MessageBuilder, PayloadBuilder
 
 import paho.mqtt.client as mqtt
 
+from src.enums import MessageType, MessageFrom, PathStatus
 
-class MessageTyp(Enum):
-    READY = "ready"
-    PLANET = "planet"
-    PATH = "path"
-    PATH_SELECT = "pathSelect"
-    PATH_UNVEILED = "pathUnveiled"
-    TARGET = "target"
-    TARGET_REACHED = "targetReached"
-    EXPLORATION_COMPLETE = "explorationCompleted"
-    DONE = "done"
-    SYNTAX = "syntax"
-
-
-class MessageFrom(Enum):
-    CLIENT = "client"
-    SERVER = "server"
-    DEBUG = "debug"
+GROUP = "003"
 
 
 class Communication:
@@ -61,13 +47,27 @@ class Communication:
         :param message: Object
         :return: void
         """
+
         payload = json.loads(message.payload.decode('utf-8'))
-        self.logger.debug(f"Topic: {message.topic}")
-        self.logger.debug(json.dumps(payload, indent=2))
+        msg_type = MessageType(payload["type"])
+        msg_from = MessageFrom(payload["from"])
 
-        self.logger.info(MessageFrom(payload["from"]))
-        self.logger.info(MessageTyp(payload["type"]))
+        if msg_from == MessageFrom.SERVER:
+            self.logger.debug(f"Received on topic: {message.topic}")
+            self.logger.debug(json.dumps(payload, indent=2))
 
+            if msg_type == MessageType.PLANET:
+                pass
+            elif msg_type == MessageType.PATH:
+                pass
+            elif msg_type == MessageType.PATH_SELECT:
+                pass
+            elif msg_type == MessageType.PATH_UNVEILED:
+                pass
+            elif msg_type == MessageType.TARGET:
+                pass
+            elif msg_type == MessageType.DONE:
+                pass
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
@@ -82,9 +82,74 @@ class Communication:
         """
         self.logger.debug('Send to: ' + topic)
         self.logger.debug(json.dumps(message, indent=2))
-        self.client.publish(topic, payload=message, qos=2)
+        self.client.publish(topic, json.dumps(message), qos=2)
 
         # TODO: Impl syntax checker
+
+    def send_ready(self):
+        self.send_message(f"explorer/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.READY)
+                          .build())
+
+    def send_test_planet(self, planet_name: str):
+        self.send_message(f"explorer/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.TEST_PLANET)
+                          .payload(
+                              PayloadBuilder()
+                              .planet_name(planet_name)
+                              .build())
+                          .build())
+
+    def send_path(self, planet: str, start_x: int, start_y: int, start_direction: int, end_x: int, end_y: int,
+                  end_direction: int, path_status: PathStatus):
+        self.send_message(f"planet/{planet}/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.PATH)
+                          .payload(
+                              PayloadBuilder()
+                              .start_x(start_x)
+                              .start_y(start_y)
+                              .start_direction(start_direction)
+                              .end_x(end_x)
+                              .end_y(end_y)
+                              .end_direction(end_direction)
+                              .path_status(path_status)
+                              .build())
+                          .build())
+
+    def send_path_select(self, planet: str, start_x: int, start_y: int, start_direction: int):
+        self.send_message(f"planet/{planet}/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.PATH_SELECT)
+                          .payload(
+                              PayloadBuilder()
+                              .start_x(start_x)
+                              .start_y(start_y)
+                              .start_direction(start_direction)
+                              .build())
+                          .build())
+
+    def send_target_reached(self, message: str):
+        self.send_message(f"explorer/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.TARGET_REACHED)
+                          .payload(
+                              PayloadBuilder()
+                              .message(message)
+                              .build())
+                          .build())
+
+    def send_complete(self, message: str):
+        self.send_message(f"explorer/{GROUP}",
+                          MessageBuilder()
+                          .type(MessageType.EXPLORATION_COMPLETE)
+                          .payload(
+                              PayloadBuilder()
+                              .message(message)
+                              .build())
+                          .build())
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
     #

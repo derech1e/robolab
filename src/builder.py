@@ -1,4 +1,4 @@
-from communication import MessageType, MessageFrom, PathStatus
+from enums import MessageType, MessageFrom, PathStatus
 
 
 class PayloadBuilder:
@@ -49,7 +49,7 @@ class PayloadBuilder:
 class MessageBuilder:
 
     def __init__(self):
-        self.json = {"form": MessageFrom.CLIENT.value}
+        self.json = {"from": MessageFrom.CLIENT.value}
 
     def type(self, message_type: MessageType):
         self.json["type"] = message_type.value
