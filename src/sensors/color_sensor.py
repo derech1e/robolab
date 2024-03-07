@@ -46,7 +46,7 @@ class ColorSensor:
             input(f'put the rover on {color}')
             self.colorData[color] = self.get_color()
 
-        with open("../resources/colorData.json", "w") as data:
+        with open("../../resources/colorData.json", "w") as data:
             json.dump(self.colorData, data)
 
         print("calibration completed")
