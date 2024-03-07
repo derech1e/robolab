@@ -65,6 +65,8 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet.add_path(((3, 3), Direction.WEST), ((1, 1), Direction.SOUTH), 5)
         self.planet.add_path(((3, 2), Direction.EAST), ((4, 1), Direction.SOUTH), 1)
         self.planet.add_path(((3, 3), Direction.NORTH), ((3, 2), Direction.SOUTH), 4)
+        self.planet.add_path(((4, 1), Direction.NORTH), ((2, 1), Direction.NORTH), 0)
+        self.planet.add_open_path(((0, 0), Direction.WEST))
 
     def test_integrity(self):
         """

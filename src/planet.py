@@ -37,6 +37,15 @@ class Planet:
         """ Initializes the data structure """
         self.paths: path_list = {}
 
+    # add unexplored path
+    def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
+        # TODO store unexplored, blocked and normal paths separately
+        if start[0] not in self.paths:
+            self.paths[start[0]] = {}
+        self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
+
+    # TODO Implement: block_path, unblock_path, add_blocked_path
+
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
                  weight: int):
@@ -51,7 +60,7 @@ class Planet:
         :return: void
         """
 
-        # TODO add reverse path ?when possible (not if server sends paths on new node)
+        # TODO Check if path is in unexplored and remove from there
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -96,7 +105,7 @@ class Planet:
         # YOUR CODE FOLLOWS (remove pass, please!)
 
         # {destination_node: path_to_node}
-        fin_paths: Dict[Tuple[int, int], DijkstraPath] = {}
+        final_paths: Dict[Tuple[int, int], DijkstraPath] = {}
         options: List[DijkstraPath] = []
 
         # return none if start or target are not nodes or if start is target
@@ -124,13 +133,13 @@ class Planet:
                     options.remove(option)
 
             # update paths if more efficient option is found
-            if selected.destination in fin_paths:
-                if selected.weight < fin_paths[selected.destination].weight:
-                    difference = fin_paths[selected.destination].weight - selected.weight
-                    fin_paths = update_paths(selected, difference, fin_paths)
+            if selected.destination in final_paths:
+                if selected.weight < final_paths[selected.destination].weight:
+                    difference = final_paths[selected.destination].weight - selected.weight
+                    final_paths = update_paths(selected, difference, final_paths)
 
             # push selected to final paths
-            fin_paths[selected.destination] = selected
+            final_paths[selected.destination] = selected
 
             # get options of selected destination
             new_options = extract_options(selected.destination, selected.weight, self.paths[selected.destination])
@@ -138,23 +147,23 @@ class Planet:
             # add only unvisited or more efficient options
             while new_options:
                 option = new_options.pop()
-                if option.destination not in fin_paths or option.weight < fin_paths[option.destination].weight:
+                if option.destination not in final_paths or option.weight < final_paths[option.destination].weight:
                     options.append(option)
 
             options.extend(new_options)
 
-        if target not in fin_paths:
+        if target not in final_paths:
             return None
 
         # reconstruct most efficient path to destination
         return_path = []
-        return_path.insert(0, (fin_paths[target].start, fin_paths[target].direction_start))
+        return_path.insert(0, (final_paths[target].start, final_paths[target].direction_start))
 
         # backtrack from target to start in finial paths
         while return_path[0][0] != start:
             last_element = return_path[0][0]
-            return_path.insert(0, (fin_paths[last_element].start,
-                                   fin_paths[last_element].direction_start))
+            return_path.insert(0, (final_paths[last_element].start,
+                                   final_paths[last_element].direction_start))
 
         return return_path
 
@@ -175,7 +184,9 @@ class DijkstraPath:
 def extract_options(point: Tuple[int, int], current_weight,
                     out_paths: Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]) -> List[DijkstraPath]:
     paths: List[DijkstraPath] = []
-    for orientation, path in out_paths:
+    for orientation, path in out_paths.items():
+        if path[0] == (-1, -1):
+            continue
         paths.append(DijkstraPath(path[0], path[2] + current_weight, point, path[1], orientation))
     return paths
 
