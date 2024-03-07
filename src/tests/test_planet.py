@@ -50,20 +50,20 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet = Planet()
         # self.planet.add_path(((0, 0), Direction.NORTH), ((0, 0), Direction.NORTH), 0)
         self.planet.add_path(((0, 0), Direction.SOUTH), ((1, 1), Direction.WEST), 1)
-        self.planet.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.EAST), 2)
+        self.planet.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.WEST), 2)
         self.planet.add_path(((2, 1), Direction.EAST), ((4, 1), Direction.WEST), 1)
+        self.planet.add_path(((2, 1), Direction.SOUTH), ((3, 2), Direction.WEST), 3)
         self.planet.add_path(((4, 1), Direction.EAST), ((3, 3), Direction.EAST), 4)
         self.planet.add_path(((1, 1), Direction.SOUTH), ((3, 3), Direction.WEST), 5)
-        self.planet.add_path(((4, 1), Direction.SOUTH), ((3, 2), Direction.EAST), 1)
-        self.planet.add_path(((3, 1), Direction.SOUTH), ((3, 2), Direction.WEST), 3)
+        self.planet.add_path(((4, 1), Direction.SOUTH), ((3, 2), Direction.WEST), 1)
         self.planet.add_path(((3, 2), Direction.SOUTH), ((3, 3), Direction.NORTH), 4)
         self.planet.add_path(((1, 1), Direction.WEST), ((0, 0), Direction.SOUTH), 1)
-        self.planet.add_path(((2, 1), Direction.EAST), ((1, 1), Direction.EAST), 2)
+        self.planet.add_path(((2, 1), Direction.WEST), ((1, 1), Direction.EAST), 2)
+        self.planet.add_path(((3, 2), Direction.EAST), ((2, 1), Direction.SOUTH), 3)
         self.planet.add_path(((4, 1), Direction.WEST), ((2, 1), Direction.EAST), 1)
         self.planet.add_path(((3, 3), Direction.EAST), ((4, 1), Direction.EAST), 4)
         self.planet.add_path(((3, 3), Direction.WEST), ((1, 1), Direction.SOUTH), 5)
         self.planet.add_path(((3, 2), Direction.EAST), ((4, 1), Direction.SOUTH), 1)
-        self.planet.add_path(((3, 2), Direction.WEST), ((3, 1), Direction.SOUTH), 3)
         self.planet.add_path(((3, 3), Direction.NORTH), ((3, 2), Direction.SOUTH), 4)
 
     def test_integrity(self):
@@ -86,7 +86,9 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum distance is three nodes (two paths in list returned)
         """
-        self.fail('implement me!')
+        self.assertEqual(self.planet.shortest_path((0, 0), (3, 2)), [((0, 0), Direction.SOUTH),
+                                                                     ((1, 1), Direction.EAST), ((2, 1), Direction.EAST),
+                                                                     ((4, 1), Direction.SOUTH)])
 
     def test_target_not_reachable(self):
         """
