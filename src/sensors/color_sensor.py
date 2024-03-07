@@ -2,7 +2,7 @@ import ev3dev.ev3 as ev3
 import json
 
 
-class Sensors:
+class ColorSensor:
     def __init__(self):
         self.cs = ev3.ColorSensor()
         self.cs.mode = "RGB-RAW"
@@ -34,7 +34,7 @@ class Sensors:
 
     # read color Data from file
     def load_color_data(self):
-        with open("resources/colorData.json", "r") as data:
+        with open("../resources/colorData.json", "r") as data:
             self.colorData = json.load(data)
 
     # save color Data to file
@@ -46,7 +46,7 @@ class Sensors:
             input(f'put the rover on {color}')
             self.colorData[color] = self.get_color()
 
-        with open("resources/colorData.json", "w") as data:
+        with open("../resources/colorData.json", "w") as data:
             json.dump(self.colorData, data)
 
         print("calibration completed")
