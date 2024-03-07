@@ -50,7 +50,9 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        if start[0] not in self.paths:
+            self.paths[start[0]] = {}
+        self.paths[start[0]][start[1]] = (target, Direction, weight)
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -74,7 +76,7 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        return self.paths
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
