@@ -6,35 +6,34 @@ class Sensors:
     def __init__(self):
         self.cs = ev3.ColorSensor()
         self.cs.mode = "RGB-RAW"
-        self.colorData = {"white": (0,0,0), "black": (0,0,0), "blue": (0,0,0), "red": (0,0,0,0)}
+        self.colorData = {"white": (0, 0, 0), "black": (0, 0, 0), "blue": (0, 0, 0), "red": (0, 0, 0, 0)}
 
         # set the range in which the read value is accepted as a color
-        self.acceptenceRange = (10,10,10)
+        self.acceptanceRange = (10, 10, 10)
 
-    # retruns the color read by the sensor (R,G,B) 1020
-    def getColor(self): #->tuple[int,int,int]
+    # returns the color read by the sensor (R,G,B) 1020
+    def get_color(self):  # ->tuple[int,int,int]
         return self.cs.raw
 
-    def checkColor(self):
-        #TODO: schoener machen evtl anderer farbraum
-        rawColor = self.cs.raw
+    def check_color(self):
+        # TODO: schoener machen evtl anderer farbraum
+        raw_color = self.cs.raw
 
         value = self.colorData["blue"]
-        if rawColor[0] > value[0] - self.acceptenceRange[0] and rawColor[0] < value[0] + self.acceptenceRange[0]:
-            if rawColor[1] > value[1] - self.acceptenceRange[1] and rawColor[1] < value[1] + self.acceptenceRange[1]:
-                if rawColor[2] > value[2] - self.acceptenceRange[2] and rawColor[2] < value[2] + self.acceptenceRange[2]:
+        if value[0] - self.acceptanceRange[0] < raw_color[0] < value[0] + self.acceptanceRange[0]:
+            if value[1] - self.acceptanceRange[1] < raw_color[1] < value[1] + self.acceptanceRange[1]:
+                if value[2] - self.acceptanceRange[2] < raw_color[2] < value[2] + self.acceptanceRange[2]:
                     return "blue"
 
         value = self.colorData["red"]
-        if rawColor[0] > value[0] - self.acceptenceRange[0] and rawColor[0] < value[0] + self.acceptenceRange[0]:
-            if rawColor[1] > value[1] - self.acceptenceRange[1] and rawColor[1] < value[1] + self.acceptenceRange[1]:
-                if rawColor[2] > value[2] - self.acceptenceRange[2] and rawColor[2] < value[2] + self.acceptenceRange[2]:
+        if value[0] - self.acceptanceRange[0] < raw_color[0] < value[0] + self.acceptanceRange[0]:
+            if value[1] - self.acceptanceRange[1] < raw_color[1] < value[1] + self.acceptanceRange[1]:
+                if value[2] - self.acceptanceRange[2] < raw_color[2] < value[2] + self.acceptanceRange[2]:
                     return "red"
         return False
-        
 
     # read color Data from file
-    def loadColorData(self):
+    def load_color_data(self):
         with open("resources/colorData.json", "r") as data:
             self.colorData = json.load(data)
 
@@ -42,10 +41,10 @@ class Sensors:
     def calibrate(self):
         # read white, read black, read blue, read red
         print("calibrating...")
-        
+
         for color, value in self.colorData.items():
             input(f'put the rover on {color}')
-            self.colorData[color] = self.getColor()
+            self.colorData[color] = self.get_color()
 
         with open("resources/colorData.json", "w") as data:
             json.dump(self.colorData, data)
