@@ -7,11 +7,11 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import json
 
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
+from sensors.motor_sensor import *
 
 client = None  # DO NOT EDIT
 
@@ -43,43 +43,6 @@ def run():
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("Hello World!")
-    print("Client id: " + client_id)
-
-    def on_message_excepthandler(client, data, message):
-        try:
-            on_message(client, data, message)
-        except:
-            import traceback
-            traceback.print_exc()
-            raise
-
-    # Callback function for receiving messages
-    def on_message(client, data, message):
-        print('Got message with topic "{}":'.format(message.topic))
-        data = json.loads(message.payload.decode('utf-8'))
-        print(json.dumps(data, indent=2))
-        print("\n")
-
-    client.on_message = on_message_excepthandler
-    client.tls_set(tls_version=ssl.PROTOCOL_TLS)
-    client.username_pw_set('003', password='PYuoI4T4Mv')
-    client.connect('mothership.inf.tu-dresden.de', port=8883)
-    client.subscribe('explorer/003', qos=2)
-    client.loop_start()
-
-
-    while True:
-        user_input = input('Enter disconnect to close the connection...\n')
-
-        if user_input == 'disconnect':
-            break
-
-        # you could add some code to send a message here
-
-    client.loop_stop()
-    client.disconnect()
-    print("Connection closed, program ended!")
-
 
 # DO NOT EDIT
 def signal_handler(sig=None, frame=None, raise_interrupt=True):
