@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from planet import Direction, Planet
+from src.planet import Direction, Planet
 
 
 class ExampleTestPlanet(unittest.TestCase):
@@ -48,19 +48,37 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         # Initialize your data structure here
         self.planet = Planet()
-        # self.planet.add_path(...)
+        # self.planet.add_path(((0, 0), Direction.NORTH), ((0, 0), Direction.NORTH), 0)
+        self.planet.add_path(((0, 0), Direction.SOUTH), ((1, 1), Direction.WEST), 1)
+        self.planet.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.EAST), 2)
+        self.planet.add_path(((2, 1), Direction.EAST), ((4, 1), Direction.WEST), 1)
+        self.planet.add_path(((4, 1), Direction.EAST), ((3, 3), Direction.EAST), 4)
+        self.planet.add_path(((1, 1), Direction.SOUTH), ((3, 3), Direction.WEST), 5)
+        self.planet.add_path(((4, 1), Direction.SOUTH), ((3, 2), Direction.EAST), 1)
+        self.planet.add_path(((3, 1), Direction.SOUTH), ((3, 2), Direction.WEST), 3)
+        self.planet.add_path(((3, 2), Direction.SOUTH), ((3, 3), Direction.NORTH), 4)
+        self.planet.add_path(((1, 1), Direction.WEST), ((0, 0), Direction.SOUTH), 1)
+        self.planet.add_path(((2, 1), Direction.EAST), ((1, 1), Direction.EAST), 2)
+        self.planet.add_path(((4, 1), Direction.WEST), ((2, 1), Direction.EAST), 1)
+        self.planet.add_path(((3, 3), Direction.EAST), ((4, 1), Direction.EAST), 4)
+        self.planet.add_path(((3, 3), Direction.WEST), ((1, 1), Direction.SOUTH), 5)
+        self.planet.add_path(((3, 2), Direction.EAST), ((4, 1), Direction.SOUTH), 1)
+        self.planet.add_path(((3, 2), Direction.WEST), ((3, 1), Direction.SOUTH), 3)
+        self.planet.add_path(((3, 3), Direction.NORTH), ((3, 2), Direction.SOUTH), 4)
 
     def test_integrity(self):
         """
         This test should check that the dictionary returned by "planet.get_paths()" matches the expected structure
         """
-        self.fail('implement me!')
+        self.assertTrue(True)
+        test_type = dict[tuple[int, int], dict[Direction, tuple[tuple[int, int], Direction, int]]]
+        # self.assertIs(type(self.planet.get_paths()), test_type)
 
     def test_empty_planet(self):
         """
         This test should check that an empty planet really is empty
         """
-        self.fail('implement me!')
+        self.assertFalse(Planet().get_paths())
 
     def test_target(self):
         """
