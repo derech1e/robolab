@@ -39,45 +39,26 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(consoleHandler)
+
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("Hello World!")
     print("Client id: " + client_id)
 
-    def on_message_excepthandler(client, data, message):
-        try:
-            on_message(client, data, message)
-        except:
-            import traceback
-            traceback.print_exc()
-            raise
-
-    # Callback function for receiving messages
-    def on_message(client, data, message):
-        print('Got message with topic "{}":'.format(message.topic))
-        data = json.loads(message.payload.decode('utf-8'))
-        print(json.dumps(data, indent=2))
-        print("\n")
-
-    client.on_message = on_message_excepthandler
-    client.tls_set(tls_version=ssl.PROTOCOL_TLS)
-    client.username_pw_set('003', password='PYuoI4T4Mv')
-    client.connect('mothership.inf.tu-dresden.de', port=8883)
-    client.subscribe('explorer/003', qos=2)
-    client.loop_start()
-
+    communication = Communication(client, logger)
+    logger.debug("Test")
 
     while True:
-        user_input = input('Enter disconnect to close the connection...\n')
+        user_input = input('Enter stop to close the connection...\n')
 
-        if user_input == 'disconnect':
+        if user_input == 'stop':
             break
 
-        # you could add some code to send a message here
-
     client.loop_stop()
-    client.disconnect()
     print("Connection closed, program ended!")
 
 

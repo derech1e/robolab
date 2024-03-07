@@ -3,6 +3,29 @@
 # Attention: Do not import the ev3dev.ev3 module in this file
 import json
 import ssl
+from enum import Enum
+import logging
+
+import paho.mqtt.client as mqtt
+
+
+class MessageTyp(Enum):
+    READY = "ready"
+    PLANET = "planet"
+    PATH = "path"
+    PATH_SELECT = "pathSelect"
+    PATH_UNVEILED = "pathUnveiled"
+    TARGET = "target"
+    TARGET_REACHED = "targetReached"
+    EXPLORATION_COMPLETE = "explorationCompleted"
+    DONE = "done"
+    SYNTAX = "syntax"
+
+
+class MessageFrom(Enum):
+    CLIENT = "client"
+    SERVER = "server"
+    DEBUG = "debug"
 
 
 class Communication:
@@ -13,7 +36,7 @@ class Communication:
     """
 
     # DO NOT EDIT THE METHOD SIGNATURE
-    def __init__(self, mqtt_client, logger):
+    def __init__(self, mqtt_client: mqtt.Client, logger: logging.Logger):
         """
         Initializes communication module, connect to server, subscribe, etc.
         :param mqtt_client: paho.mqtt.client.Client
@@ -23,8 +46,10 @@ class Communication:
         self.client = mqtt_client
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
         self.client.on_message = self.safe_on_message_handler
-        # Add your client setup here
-
+        self.client.username_pw_set('003', password='PYuoI4T4Mv')
+        self.client.connect('mothership.inf.tu-dresden.de', port=8883)
+        self.client.subscribe('explorer/003', qos=2)
+        self.client.loop_start()
         self.logger = logger
 
     # DO NOT EDIT THE METHOD SIGNATURE
@@ -37,10 +62,12 @@ class Communication:
         :return: void
         """
         payload = json.loads(message.payload.decode('utf-8'))
+        self.logger.debug(f"Topic: {message.topic}")
         self.logger.debug(json.dumps(payload, indent=2))
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        self.logger.info(MessageFrom(payload["from"]))
+        self.logger.info(MessageTyp(payload["type"]))
+
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
@@ -55,9 +82,9 @@ class Communication:
         """
         self.logger.debug('Send to: ' + topic)
         self.logger.debug(json.dumps(message, indent=2))
+        self.client.publish(topic, payload=message, qos=2)
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        # TODO: Impl syntax checker
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
     #
