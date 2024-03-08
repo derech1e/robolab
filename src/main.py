@@ -46,10 +46,13 @@ def run():
 
 
     sensorC = ColorSensor()
-    sensorC.calibrate_HLS()
+    # sensorC.calibrate_HLS()
+    while True:
+        print(sensorC.check_color_HLS())
+        time.sleep(0.5)
 
-    follower = Follow()
-    follower.follow()
+    # follower = Follow()
+    # follower.follow()
 
     print("Hello World!")
 
