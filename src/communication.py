@@ -9,7 +9,7 @@ from builder import MessageBuilder, PayloadBuilder
 
 import paho.mqtt.client as mqtt
 
-from src.enums import MessageType, MessageFrom, PathStatus
+from enums import MessageType, MessageFrom, PathStatus
 
 GROUP = "003"
 
@@ -37,6 +37,7 @@ class Communication:
         self.client.subscribe('explorer/003', qos=2)
         self.client.loop_start()
         self.logger = logger
+        self.syntax_response = {}
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
@@ -68,6 +69,10 @@ class Communication:
                 pass
             elif msg_type == MessageType.DONE:
                 pass
+        elif msg_from == MessageFrom.DEBUG:
+            if msg_type == MessageType.SYNTAX:
+                self.syntax_response = json.dumps(payload)
+
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
@@ -150,6 +155,9 @@ class Communication:
                               .message(message)
                               .build())
                           .build())
+
+    def send_com_test(self, message):
+        self.send_message(f"comtest/{GROUP}", message)
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
     #

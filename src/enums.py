@@ -19,6 +19,7 @@ class MessageFrom(Enum):
     CLIENT = "client"
     SERVER = "server"
     DEBUG = "debug"
+    SYNTAX = "syntax"
 
 
 class PathStatus(Enum):
