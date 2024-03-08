@@ -10,6 +10,7 @@ from builder import MessageBuilder, PayloadBuilder
 import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
+from planet import Planet
 
 GROUP = "003"
 
@@ -38,6 +39,7 @@ class Communication:
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
+        self.planet = None
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
@@ -49,30 +51,45 @@ class Communication:
         :return: void
         """
 
-        payload = json.loads(message.payload.decode('utf-8'))
-        msg_type = MessageType(payload["type"])
-        msg_from = MessageFrom(payload["from"])
+        response = json.loads(message.payload.decode('utf-8'))
+        msg_type = MessageType(response["type"])
+        msg_from = MessageFrom(response["from"])
 
         if msg_from == MessageFrom.SERVER:
             self.logger.debug(f"Received on topic: {message.topic}")
-            self.logger.debug(json.dumps(payload, indent=2))
+            self.logger.debug(json.dumps(response, indent=2))
+
+            payload = response["payload"]
 
             if msg_type == MessageType.PLANET:
-                pass
+                self.logger.debug("Received planet")
+                self.client.subscribe(f"planet/{payload['planetName']}")
+                # TODO: set startX, startY and startOrientation on planet
             elif msg_type == MessageType.PATH:
-                pass
+                self.logger.debug("Received current path")
+                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
+                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                # TODO: Impl logic for pathStatus 'free|blocked‘
             elif msg_type == MessageType.PATH_SELECT:
-                pass
+                self.logger.debug("Received new path")
+                # TODO: set new Path(startDirection) on planet
             elif msg_type == MessageType.PATH_UNVEILED:
-                pass
+                self.logger.debug("Received unveiled path")
+                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
+                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                # TODO: Check if just add_path works !!
             elif msg_type == MessageType.TARGET:
-                pass
+                self.logger.debug("Received target")
+                shortest_path = self.planet.path_target((payload["targetX"], payload["targetY"]))
+                # TODO: Check impl and handle new mission
             elif msg_type == MessageType.DONE:
-                pass
+                self.logger.debug("Finished mission")
+                # TODO: Impl logic
         elif msg_from == MessageFrom.DEBUG:
             if msg_type == MessageType.SYNTAX:
-                self.syntax_response = json.dumps(payload)
-
+                self.syntax_response = json.dumps(response)
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
@@ -158,6 +175,9 @@ class Communication:
 
     def send_com_test(self, message):
         self.send_message(f"comtest/{GROUP}", message)
+
+    def set_planet(self, planet: Planet):
+        self.planet = planet
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
     #
