@@ -100,7 +100,9 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum distance is three nodes (two paths in list returned)
         """
-        self.assertEqual(len(self.planet.shortest_path((0, 0), (3, 2))), 3)
+        self.assertEqual(self.planet.shortest_path((2, 1), (3, 3)), [((2, 1), Direction.EAST),
+                                                                     ((4, 1), Direction.SOUTH),
+                                                                     ((3, 2), Direction.SOUTH)])
 
     def test_target_not_reachable(self):
         """
@@ -115,7 +117,14 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        self.assertEqual(type(self.planet.shortest_path((0, 0), (3, 2))), list)
+        result = self.planet.shortest_path((0, 0), (3, 2))
+        self.assertEqual(type(result), list)
+        for entry in result:
+            self.assertEqual(type(entry), tuple)
+            self.assertEqual(type(entry[0]), tuple)
+            self.assertEqual(type(entry[1]), Direction)
+            self.assertEqual(type(entry[0][0]), int)
+            self.assertEqual(type(entry[0][1]), int)
         self.assertEqual(len(self.planet.shortest_path((0, 0), (3, 2))), 3)
 
     def test_target_with_loop(self):
