@@ -82,6 +82,9 @@ class Planet:
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = (target[0], target[1], weight)
+        if target[0] not in self.paths:
+            self.paths[target[0]] = {}
+        self.paths[target[0]][target[1]] = (start[0], start[1], weight)
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
