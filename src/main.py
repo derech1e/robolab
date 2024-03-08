@@ -7,6 +7,7 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
+import json
 
 from communication import Communication
 from odometry import Odometry
@@ -39,10 +40,28 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(consoleHandler)
+
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("Hello World!")
+    print("Client id: " + client_id)
+
+    communication = Communication(client, logger)
+    logger.debug("Test")
+
+    while True:
+        user_input = input('Enter stop to close the connection...\n')
+
+        if user_input == 'stop':
+            break
+
+    client.loop_stop()
+    print("Connection closed, program ended!")
+
 
 # DO NOT EDIT
 def signal_handler(sig=None, frame=None, raise_interrupt=True):
