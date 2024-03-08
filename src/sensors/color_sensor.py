@@ -1,55 +1,78 @@
-import ev3dev.ev3 as ev3
+import colorsys
 import json
+
+import ev3dev.ev3 as ev3
 
 
 class ColorSensor:
     def __init__(self):
         self.cs = ev3.ColorSensor()
         self.cs.mode = "RGB-RAW"
-        self.colorData = {"white": (0, 0, 0), "black": (0, 0, 0), "blue": (0, 0, 0), "red": (0, 0, 0, 0)}
+        self.color_data = {
+            "white": (0.1, 0.1, 0.1),
+            "black": (0.1, 0.1, 0.1),
+            "blue": (0.1, 0.1, 0.1),
+            "red": (0.1, 0.1, 0.1),
+        }
 
         # set the range in which the read value is accepted as a color
-        self.acceptanceRange = (10, 10, 10)
+        self.acceptance_range = (0.2, 10, .2)
 
-    # returns the color read by the sensor (R,G,B) 1020
-    def getColor(self):  # ->tuple[int,int,int]
-        return self.cs.raw
-
-    def returnColor(self):
-        return self.colorData
-
-    def checkColor(self):
-        # TODO: schoener machen evtl anderer farbraum
-        raw_color = self.cs.raw
-
-        value = self.colorData["blue"]
-        if value[0] - self.acceptanceRange[0] < raw_color[0] < value[0] + self.acceptanceRange[0]:
-            if value[1] - self.acceptanceRange[1] < raw_color[1] < value[1] + self.acceptanceRange[1]:
-                if value[2] - self.acceptanceRange[2] < raw_color[2] < value[2] + self.acceptanceRange[2]:
-                    return "blue"
-
-        value = self.colorData["red"]
-        if value[0] - self.acceptanceRange[0] < raw_color[0] < value[0] + self.acceptanceRange[0]:
-            if value[1] - self.acceptanceRange[1] < raw_color[1] < value[1] + self.acceptanceRange[1]:
-                if value[2] - self.acceptanceRange[2] < raw_color[2] < value[2] + self.acceptanceRange[2]:
-                    return "red"
-        return False
+    def return_color(self):
+        return self.color_data
 
     # read color Data from file
-    def loadColorData(self):
-        with open("../resources/colorData.json", "r") as data:
-            self.colorData = json.load(data)
+    def load_color_data(self):
+        with open("sensors/color_data.json", "r") as data:
+            self.color_data = json.load(data)
+
+    # if we want to use hls
+    def get_color_HLS(self) -> tuple[float, float, float]:
+        color = self.cs.raw
+        try:
+            color_HLS = colorsys.rgb_to_hls(color[0], color[1], color[2])
+        except Exception as e:
+            color_HLS = (0.1, 0.1, 0.1)
+        return color_HLS
+
+    def check_color_HLS(self):
+        raw_color = self.get_color_HLS()
+        if(
+            self.color_data["white"][0] - 0.05
+            < raw_color[0]
+            < self.color_data["white"][0] + 0.05
+        ):
+            return False
+        else:
+            value = self.color_data["blue"]
+            if (
+                value[0] - self.acceptance_range[0]
+                < raw_color[0]
+                < value[0] + self.acceptance_range[0]
+            ):
+                return "blue"
+
+            value = self.color_data["red"]
+            if (
+                value[0] - self.acceptance_range[0]
+                < raw_color[0]
+                < value[0] + self.acceptance_range[0]
+            ):
+                return "red"
+            return False
+
 
     # save color Data to file
-    def calibrate(self):
+    def calibrate_HLS(self):
         # read white, read black, read blue, read red
         print("calibrating...")
 
-        for color, value in self.colorData.items():
-            input(f'put the rover on {color}')
-            self.colorData[color] = self.get_color()
+        for color, _ in self.color_data.items():
+            input(f"put the rover on {color}")
+            self.color_data[color] = self.get_color_HLS()
+            print(self.get_color_HLS())
 
-        with open("../../resources/colorData.json", "w") as data:
-            json.dump(self.colorData, data)
+        with open("sensors/color_data.json", "w") as dataFile:
+            json.dump(self.color_data, dataFile)
 
         print("calibration completed")

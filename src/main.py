@@ -7,11 +7,11 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
+import time
 
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
-from sensors.motor_sensor import *
 
 client = None  # DO NOT EDIT
 
