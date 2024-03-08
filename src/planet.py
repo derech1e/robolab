@@ -24,6 +24,23 @@ Value:  -1 if blocked path
 """
 
 
+class DijkstraPath:
+
+    def __init__(self, start_xy: Tuple[int, int], start_direction: Direction, target_xy: Tuple[int, int],
+                 target_direction: Direction, weight: int):
+        self.start_xy = start_xy
+        self.start_direction = start_direction
+        self.target_xy = target_xy
+        self.target_direction = target_direction
+        self.weight = weight
+
+    def get_start_target_path(self):
+        return self.target_xy, self.target_direction, self.weight
+
+    def get_target_start_path(self):
+        return self.start_xy, self.start_direction, self.weight
+
+
 class Planet:
     """
     Contains the representation of the map and provides certain functions to manipulate or extend
@@ -49,8 +66,15 @@ class Planet:
         :return: void
         """
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        path = DijkstraPath(start[0], start[1], target[0], target[1], weight)
+        # if the Node isn't discovered yet init it with a empty object
+        if path.start_xy not in self.paths:
+            self.paths[path.start_xy] = {}
+        if path.target_xy not in self.paths:
+            self.paths[path.target_xy] = {}
+        self.paths[path.start_xy][path.start_direction] = path.get_start_target_path()
+        self.paths[path.target_xy][path.target_direction] = path.get_target_start_path()
+
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -72,12 +96,11 @@ class Planet:
             }
         :return: Dict
         """
-
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        return self.paths
 
     # DO NOT EDIT THE METHOD SIGNATURE
-    def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
+    def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
+        List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -89,5 +112,19 @@ class Planet:
         :return: None, List[] or List[Tuple[Tuple[int, int], Direction]]
         """
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
+        # check if a calculation of the shortest path can be done
+        if target not in self.paths:
+            print("Path dictionary does not contain target node")
+            return None
+
+        # return an empty array if the start is the target; no shortest path algorythm needed
+        if start == target:
+            return []
+
+        return self.dijkstra(start, target)
+
+    def dijkstra(self, start: Tuple[int, int], target: Tuple[int, int]):
         pass
+
+
+
