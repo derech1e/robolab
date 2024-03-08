@@ -39,12 +39,10 @@ class Planet:
 
     # add unexplored path
     def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
-        # TODO store unexplored, blocked and normal paths separately
+        # Store unexplored path with end coordinates as (-1, -1)
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
-
-    # TODO Implement: block_path, unblock_path, add_blocked_path
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
@@ -60,7 +58,6 @@ class Planet:
         :return: void
         """
 
-        # TODO Check if path is in unexplored and remove from there
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -185,7 +182,7 @@ def extract_options(point: Tuple[int, int], current_weight,
                     out_paths: Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]) -> List[DijkstraPath]:
     paths: List[DijkstraPath] = []
     for orientation, path in out_paths.items():
-        if path[0] == (-1, -1):
+        if path[2] < 0:
             continue
         paths.append(DijkstraPath(path[0], path[2] + current_weight, point, path[1], orientation))
     return paths
@@ -203,4 +200,3 @@ def update_paths(new_path: DijkstraPath, difference: int,
         paths = update_paths(paths[path_destination], difference, paths)
 
     return paths
-
