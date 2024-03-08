@@ -190,33 +190,41 @@ class Planet:
 
     def explore_next(self, current_position: Tuple[int, int],
                      current_direction: Direction) -> Tuple[Tuple[int, int], Direction]:
-        # TODO find unexplored paths
+        # find unexplored paths
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
                 if path[0] == (-1, -1):
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
-        # TODO find closest nodes with unexplored path
+        # find closest (minimum weight) nodes with unexplored path
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
                 min_distance_paths.append((distances[path.start].weight, path))
-                continue
-
-            if distances[path.start].weight < min_distance_paths[0][1].weight:
+            elif distances[path.start].weight < min_distance_paths[0][1].weight:
                 min_distance_paths = [(distances[path.start].weight, path)]
-                continue
-
-            if distances[path.start].weight == min_distance_paths[0][1].weight:
+            elif distances[path.start].weight == min_distance_paths[0][1].weight:
                 min_distance_paths.append((distances[path.start].weight, path))
-                continue
 
-        # TODO if multiple are fond, select the one with least unexplored nearby or if on current_pos based on min rot
+        # return if only one path is found
+        if len(min_distance_paths) == 1:
+            return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
-        return (-1, -1), Direction.NORTH
+        # if current node has unexplored paths, select path with the least rotational difference
+        if min_distance_paths[0][1].start == current_position:
+            minimum_rotation = 360
+            selected_path = min_distance_paths[0][1]
+            for weight, path in min_distance_paths:
+                if abs(path.direction_start - current_direction) < minimum_rotation:
+                    selected_path = path
+
+            return selected_path.start, selected_path.direction_start
+
+        # TODO smart decision which path is taken
+        return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
     # return path from current position to a target
     def path_target(self, target: tuple[int, int]) -> Optional[list[tuple[tuple[int, int], Direction]]]:

@@ -2,6 +2,7 @@
 
 import unittest
 from src.planet import Direction, Planet
+import random
 
 
 class ExampleTestPlanet(unittest.TestCase):
@@ -136,6 +137,16 @@ class TestRoboLabPlanet(unittest.TestCase):
         Result: Target is not reachable
         """
         self.assertFalse(self.planet.shortest_path((0, 0), (2, 0)))
+
+    def test_speed(self):
+        """
+        This test should run a large amount of interations of the shortest-path algorithm to determine its speed
+        """
+        test_count: int = 1_000
+        nodes = list(self.planet.paths.keys())
+        for _ in range(test_count):
+            start, target = random.choices(nodes, k=2)
+            self.planet.shortest_path(start, target)
 
 
 if __name__ == "__main__":
