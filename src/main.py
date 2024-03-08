@@ -12,6 +12,8 @@ import time
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
+from follow import *
+from sensors.color_sensor import *
 
 client = None  # DO NOT EDIT
 
@@ -41,6 +43,13 @@ def run():
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
+
+
+    sensorC = ColorSensor()
+    sensorC.calibrate_HLS()
+
+    follower = Follow()
+    follower.follow()
 
     print("Hello World!")
 
