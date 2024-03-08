@@ -42,6 +42,7 @@ class Robot:
     def __init__(self):
         self.position: tuple[int, int] = (-1, -1)
         self.rotation: Direction = Direction.NORTH
+        self.current_target: Optional[Tuple[int, int]] = None
 
 
 class Planet:

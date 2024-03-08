@@ -10,7 +10,7 @@ from builder import MessageBuilder, PayloadBuilder
 import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
-from planet import Planet
+from planet import Planet, Direction
 
 GROUP = "003"
 
@@ -39,7 +39,7 @@ class Communication:
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
-        self.planet = None
+        self.planet = Planet()
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
@@ -65,12 +65,16 @@ class Communication:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 # TODO: set startX, startY and startOrientation on planet
+                # TODO-f check
+                self.planet.robot.position = (payload['startX'], payload['startY'])
+                self.planet.robot.rotation = Direction(payload['startOrientation'])
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
-                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
-                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
+                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
                 self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 # TODO: Impl logic for pathStatus 'free|blocked‘
+                # TODO-f already implemented
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
                 # TODO: set new Path(startDirection) on planet
@@ -80,10 +84,14 @@ class Communication:
                 target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
                 self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 # TODO: Check if just add_path works !!
+                # TODO-f this works too
             elif msg_type == MessageType.TARGET:
                 self.logger.debug("Received target")
-                shortest_path = self.planet.path_target((payload["targetX"], payload["targetY"]))
+                target = (payload["targetX"], payload["targetY"])
+                self.planet.robot.target = target
+                shortest_path = self.planet.path_target(target)
                 # TODO: Check impl and handle new mission
+                # TODO-f added local target storage in robot
             elif msg_type == MessageType.DONE:
                 self.logger.debug("Finished mission")
                 # TODO: Impl logic
