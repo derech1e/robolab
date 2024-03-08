@@ -224,6 +224,12 @@ class Planet:
             return selected_path.start, selected_path.direction_start
 
         # TODO smart decision which path is taken
+        """
+        options:
+            - Decide over min rotation on arrival
+            - Decide on departure min rotation
+            - Decide on path with least unexplored paths nearby (complicated)
+        """
         return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
     # return path from current position to a target
