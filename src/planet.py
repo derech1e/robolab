@@ -26,6 +26,24 @@ Value:  -1 if blocked path
 path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]
 
 
+class DijkstraPath:
+    def __init__(self, destination, weight, start, direction_destination, direction_start):
+        self.destination: Tuple[int, int] = destination
+        self.weight: weight = weight
+        self.start: Tuple[int, int] = start
+        self.direction_destination: Direction = direction_destination
+        self.direction_start: Direction = direction_start
+
+    def update_weight(self, new_weight: int):
+        self.weight = new_weight
+
+
+class Robot:
+    def __init__(self):
+        self.position: tuple[int, int] = (-1, -1)
+        self.rotation: Direction = Direction.NORTH
+
+
 class Planet:
     """
     Contains the representation of the map and provides certain functions to manipulate or extend
@@ -36,6 +54,7 @@ class Planet:
     def __init__(self):
         """ Initializes the data structure """
         self.paths: path_list = {}
+        self.robot: Robot = Robot()
 
     # add unexplored path
     def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
@@ -99,15 +118,33 @@ class Planet:
         :return: None, List[] or List[Tuple[Tuple[int, int], Direction]]
         """
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
-
-        # {destination_node: path_to_node}
-        final_paths: Dict[Tuple[int, int], DijkstraPath] = {}
-        options: List[DijkstraPath] = []
-
         # return none if start or target are not nodes or if start is target
         if start not in self.paths or target not in self.paths or start is target:
             return None
+
+        # get most efficient paths to every node
+        final_paths: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(start)
+
+        if target not in final_paths:
+            return None
+
+        # reconstruct most efficient path to destination
+        return_path = []
+        return_path.insert(0, (final_paths[target].start, final_paths[target].direction_start))
+
+        # backtrack from target to start in finial paths
+        while return_path[0][0] != start:
+            last_element = return_path[0][0]
+            return_path.insert(0, (final_paths[last_element].start,
+                                   final_paths[last_element].direction_start))
+
+        return return_path
+
+    # Dijkstra algorithm known map
+    def dijkstra_final_paths(self, start: Tuple[int, int]) -> Dict[Tuple[int, int], DijkstraPath]:
+        # {destination_node: path_to_node}
+        final_paths: Dict[Tuple[int, int], DijkstraPath] = {}
+        options: List[DijkstraPath] = []
 
         # add outward paths of starting node
         options.extend(extract_options(start, 0, self.paths[start]))
@@ -149,32 +186,41 @@ class Planet:
 
             options.extend(new_options)
 
-        if target not in final_paths:
-            return None
+        return final_paths
 
-        # reconstruct most efficient path to destination
-        return_path = []
-        return_path.insert(0, (final_paths[target].start, final_paths[target].direction_start))
+    def explore_next(self, current_position: Tuple[int, int],
+                     current_direction: Direction) -> Tuple[Tuple[int, int], Direction]:
+        # TODO find unexplored paths
+        unexplored_paths: List[DijkstraPath] = []
+        for node_position, node_directions in self.paths.items():
+            for direction, path in node_directions.items():
+                if path[0] == (-1, -1):
+                    unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
-        # backtrack from target to start in finial paths
-        while return_path[0][0] != start:
-            last_element = return_path[0][0]
-            return_path.insert(0, (final_paths[last_element].start,
-                                   final_paths[last_element].direction_start))
+        # TODO find closest nodes with unexplored path
+        distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
+        min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
-        return return_path
+        for path in unexplored_paths:
+            if len(min_distance_paths) == 0:
+                min_distance_paths.append((distances[path.start].weight, path))
+                continue
 
+            if distances[path.start].weight < min_distance_paths[0][1].weight:
+                min_distance_paths = [(distances[path.start].weight, path)]
+                continue
 
-class DijkstraPath:
-    def __init__(self, destination, weight, start, direction_destination, direction_start):
-        self.destination: Tuple[int, int] = destination
-        self.weight: weight = weight
-        self.start: Tuple[int, int] = start
-        self.direction_destination: Direction = direction_destination
-        self.direction_start: Direction = direction_start
+            if distances[path.start].weight == min_distance_paths[0][1].weight:
+                min_distance_paths.append((distances[path.start].weight, path))
+                continue
 
-    def update_weight(self, new_weight: int):
-        self.weight = new_weight
+        # TODO if multiple are fond, select the one with least unexplored nearby or if on current_pos based on min rot
+
+        return (-1, -1), Direction.NORTH
+
+    # return path from current position to a target
+    def path_target(self, target: tuple[int, int]) -> Optional[list[tuple[tuple[int, int], Direction]]]:
+        return self.shortest_path(self.robot.position, target)
 
 
 # get all outgoing paths from point with current weight added
