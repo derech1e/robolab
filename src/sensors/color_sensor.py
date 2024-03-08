@@ -12,10 +12,13 @@ class ColorSensor:
         self.acceptanceRange = (10, 10, 10)
 
     # returns the color read by the sensor (R,G,B) 1020
-    def get_color(self):  # ->tuple[int,int,int]
+    def getColor(self):  # ->tuple[int,int,int]
         return self.cs.raw
 
-    def check_color(self):
+    def returnColor(self):
+        return self.colorData
+
+    def checkColor(self):
         # TODO: schoener machen evtl anderer farbraum
         raw_color = self.cs.raw
 
@@ -33,7 +36,7 @@ class ColorSensor:
         return False
 
     # read color Data from file
-    def load_color_data(self):
+    def loadColorData(self):
         with open("../resources/colorData.json", "r") as data:
             self.colorData = json.load(data)
 

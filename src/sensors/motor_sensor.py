@@ -16,10 +16,10 @@ class Driver(object):
 
     # input from -100 to 100
     def drive(self, vml, vmr):
-        self.ml.duty_cycle_sp = vml
-        self.ml.command = "run-direct"
-        self.ml.duty_cycle_sp = vmr
-        self.ml.command = "run-direct"
+        self.ml.speed_sp = vml
+        self.ml.command = "run-forever"
+        self.mr.speed_sp = vmr
+        self.mr.command = "run-forever"
         pass
 
     def stop(self):
