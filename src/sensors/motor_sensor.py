@@ -15,6 +15,8 @@ class MotorSensor:
 
         self.ROTATION_PER_DEGREE = 1.694392166
 
+        self.motor_positions = [(self.motor_left.position, self.motor_right.position)]
+
     # 155 = 90°
     # 310 = 180°
     # 620 = 370°
@@ -22,9 +24,12 @@ class MotorSensor:
     # 1220 = 730
     # 1210 = 720
 
-    # TODO: Impl stepper logic for rotation based on the values above
-    def degree_to_rotation(self):
-        pass
+    def save_motor_positions(self):
+        self.motor_positions.append((self.motor_left.position, self.motor_right.position))
+
+    def get_motor_positions(self) -> list[tuple]:
+        return self.motor_positions
+
 
     def turn(self, deg, clockwise=True):
 

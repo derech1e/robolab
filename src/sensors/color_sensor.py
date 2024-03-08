@@ -17,6 +17,7 @@ class ColorSensor:
         self.load_color_data()
 
         # set the range in which the read value is accepted as a color
+        # TODO: das passt so nicht, der wert muss noch veraendert werden
         self.acceptance_range = (0.2, 10, .2)
 
     def return_color(self):
