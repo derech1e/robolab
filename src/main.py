@@ -48,8 +48,12 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    #sensorC = ColorSensor()
-    #sensorC.calibrate_HLS()
+    sensorC = ColorSensor()
+    # sensorC.calibrate_hls()
+
+    # while True:
+    #     print(sensorC.get_color_hls()[0])
+    #     time.sleep(0.1)
 
     follower = Follow()
     follower.follow()

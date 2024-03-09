@@ -18,7 +18,8 @@ class ColorSensor:
 
         # set the range in which the read value is accepted as a color
         # TODO: das passt so nicht, der wert muss noch veraendert werden
-        self.acceptance_range = (0.2, 10, .2)
+        self.ACCEPTANCE_RANGE = 0.02 
+        self.ACCEPTANCE_NO_COLOR = 0.15
 
     def return_color(self):
         return self.color_data
@@ -39,15 +40,15 @@ class ColorSensor:
 
     def get_hls_color_name(self):
         raw_color = self.get_color_hls()
-        if self.color_data["white"][0] - 0.05 < raw_color[0] < self.color_data["white"][0] + 0.05:
+        if self.color_data["white"][0] - self.ACCEPTANCE_NO_COLOR < raw_color[0] < self.color_data["white"][0] + self.ACCEPTANCE_NO_COLOR:
             return False
         else:
             value = self.color_data["blue"]
-            if value[0] - self.acceptance_range[0] < raw_color[0] < value[0] + self.acceptance_range[0]:
+            if value[0] - self.ACCEPTANCE_RANGE < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE:
                 return "blue"
 
             value = self.color_data["red"]
-            if value[0] - self.acceptance_range[0] < raw_color[0] < value[0] + self.acceptance_range[0]:
+            if value[0] - self.ACCEPTANCE_RANGE < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE:
                 return "red"
             return False
 

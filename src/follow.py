@@ -70,31 +70,31 @@ class Follow:
             if self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue":
                 self.motor_sensor.stop()
                 self.speaker_sensor.play_beep()
-                break
+                print(self.color_sensor.get_hls_color_name())
                 # time.sleep(2)
                 # self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
             self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
-            while self.sensorT.is_pressed():
-                self.state = True
-                pass
-            if self.state:
-                self.KP += 0.05
-                self.dataPlot = []
-                print(f"KI: {self.KI}")
-                self.state = False
-
+            # while self.sensorT.is_pressed():
+            #     self.state = True
+            #     pass
+            # if self.state:
+            #     self.KP += 0.05
+            #     self.dataPlot = []
+            #     print(f"KI: {self.KI}")
+            #     self.state = False
+            #
         #writing data to csv
             # if self.sensorT.is_pressed():
             #     break
 
-        print("writing")
-        with open('sensors/data.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(["t", f"KP={self.KP}", f"KI={self.KI}", f"KD={self.KD}","turn"])
-            writer.writerows(self.dataPlot)
-        print("finished writing")
+        # print("writing")
+        # with open('sensors/data.csv', 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerow(["t", f"KP={self.KP}", f"KI={self.KI}", f"KD={self.KD}","turn"])
+        #     writer.writerows(self.dataPlot)
+        # print("finished writing")
 
 
             
