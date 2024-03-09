@@ -156,25 +156,40 @@ class Planet:
             previous_vertex_map[vertex] = None  # Set previous vertex to None
             remaining_paths.append(vertex)  # Add the vertex to the working array of remaining paths
 
+        print(remaining_paths)
+        distance_map[start] = 1
+
         while remaining_paths:
             lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths,
                                                                   distance_map)  # Select lowest weight of remaining_paths
+            print(lowest_weight_vertex)
             remaining_paths.remove(lowest_weight_vertex)  # Remove the paths from remaining paths
 
             if lowest_weight_vertex == target:  # Stop the algorithm if the current vertex is the target vertex
                 break  # TODO: Impl logic here
 
-            for vertex_neighbor in self.paths[
-                lowest_weight_vertex].values():  # for each neighbour of the current lowest vertex
+            for vertex_neighbor in self.paths[lowest_weight_vertex].values():  # for each neighbour of the current lowest vertex
                 if vertex_neighbor[2] != -1:  # Check if path is blocked
-                    if vertex_neighbor[
-                        0] != lowest_weight_vertex:  # Check if the lowest vertex is not the current neighbour
+                    if vertex_neighbor[0] != lowest_weight_vertex:  # Check if the lowest vertex is not the current neighbour
                         alternative_vertex = distance_map[lowest_weight_vertex] + vertex_neighbor[2]
                         if alternative_vertex < distance_map[vertex_neighbor[0]]:
                             distance_map[vertex_neighbor[0]] = alternative_vertex
 
                             previous_vertex_map[vertex_neighbor[0]] = (
-                            lowest_weight_vertex, self.get_direction(lowest_weight_vertex, vertex_neighbor))
+                                lowest_weight_vertex, self.get_direction(lowest_weight_vertex, vertex_neighbor))
+
+        # Path mapping
+        weight_sum = 0
+        next_target = target
+
+        if previous_vertex_map[next_target] is not None or next_target == start:
+            while previous_vertex_map[next_target]:
+                weight_sum += distance_map[next_target]
+                path.append(previous_vertex_map[next_target])
+                next_target = previous_vertex_map[next_target][0]
+
+        path.reverse()
+        return path
 
     def get_direction(self, lowest_weight_vertex: Tuple[int, int], vertex_neighbor: Tuple[int, int]):
         for next_vertex in self.paths[lowest_weight_vertex]:
