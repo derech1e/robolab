@@ -48,11 +48,11 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    #sensorC = ColorSensor()
-    #sensorC.calibrate_HLS()
+    sensorC = ColorSensor()
+    sensorC.calibrate_hls()
 
-    follower = Follow()
-    follower.follow()
+    # follower = Follow()
+    # follower.follow()
 
 
 print("Hello World!")
