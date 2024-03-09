@@ -70,7 +70,7 @@ class Follow:
             if self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue":
                 self.motor_sensor.stop()
                 self.speaker_sensor.play_beep()
-                break
+                print(self.color_sensor.get_hls_color_name())
                 # time.sleep(2)
                 # self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
