@@ -41,6 +41,10 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(consoleHandler)
+
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
