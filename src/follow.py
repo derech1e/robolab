@@ -24,9 +24,9 @@ class Follow:
         self.normalSpeed = 200
         self.KA = 1 # to skale all
         self.KP = 0.75
-        self.KI = 0.04
-        self.KD = 0.4
-        self.KEEP_INTEGRAL = 0.9
+        self.KI = 0
+        self.KD = 0
+        self.KEEP_INTEGRAL = 1
 
         #test
         self.state = False
@@ -76,8 +76,19 @@ class Follow:
 
             self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
-            if self.sensorT.is_pressed():
-                break
+            while self.sensorT.is_pressed():
+                self.state = True
+                pass
+            if self.state:
+                self.KP += 0.05
+                self.dataPlot = []
+                print(f"KI: {self.KI}")
+                self.state = False
+
+        #writing data to csv
+            # if self.sensorT.is_pressed():
+            #     break
+
         print("writing")
         with open('sensors/data.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
@@ -88,11 +99,4 @@ class Follow:
 
             
 
-            # while self.sensorT.is_pressed():
-            #     self.state = True
-            #     pass
-            # if self.state:
-            #     self.KI += 0.0001
-            #     print(f"KI: {self.KI}")
-            #     self.state = False
             

@@ -56,6 +56,7 @@ class MotorSensor:
     def forward(self, speed_left: int, speed_right: int):
         self.__update_speed(self.motor_left, speed_left)
         self.__update_speed(self.motor_right, speed_right)
+        self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
     def stop(self):
         self.motor_left.stop()
