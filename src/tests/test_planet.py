@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from planet import Direction, Planet
+from src.planet import Direction, Planet
 
 
 class TestRoboLabPlanet(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.unreachable_path_planet.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
         self.unreachable_path_planet.add_path(((0, 1), Direction.EAST), ((1, 1), Direction.WEST), 5)
         self.unreachable_path_planet.add_path(((1, 0), Direction.NORTH), ((1, 1), Direction.SOUTH), 6)
-        self.unreachable_path_planet.add_path(((2, 1), Direction.EAST), ((2, 1), Direction.WEST), 1)
+        # self.unreachable_path_planet.add_path(((2, 1), Direction.EAST), ((2, 1), Direction.WEST), 1)
 
         self.blocked_path_planet = Planet()
 
@@ -119,7 +119,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         This test should check that a target outside the map or at an unexplored node is not reachable
         """
-        self.fail('implement me!')
+        self.assertIsNone(self.unreachable_path_planet.shortest_path((0, 0), (2, 1)))
 
     def test_same_length(self):
         """
@@ -128,7 +128,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        self.fail('implement me!')
+        target_shortest_path = [((0, 0), Direction.EAST)]
+        self.assertEqual(target_shortest_path, self.planet_path_loop.shortest_path((0, 0), (1, 0)))
 
     def test_target_with_loop(self):
         """
@@ -137,7 +138,9 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is reachable
         """
-        self.fail('implement me!')
+        # TODO: Add further checks
+        target_shortest_path = [((1, 0), Direction.WEST)]
+        self.assertEqual(target_shortest_path, self.planet_path_loop.shortest_path((1, 0), (0, 0)))
 
     def test_target_not_reachable_with_loop(self):
         """
@@ -146,7 +149,7 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is not reachable
         """
-        self.fail('implement me!')
+        self.assertIsNone(self.planet_path_loop.shortest_path((1, 0), (4, 3)))
 
 
 if __name__ == "__main__":

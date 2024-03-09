@@ -156,17 +156,14 @@ class Planet:
             previous_vertex_map[vertex] = None  # Set previous vertex to None
             remaining_paths.append(vertex)  # Add the vertex to the working array of remaining paths
 
-        print(remaining_paths)
         distance_map[start] = 1
 
         while remaining_paths:
-            lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths,
-                                                                  distance_map)  # Select lowest weight of remaining_paths
-            print(lowest_weight_vertex)
+            lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths, distance_map)  # Select lowest weight of remaining_paths
             remaining_paths.remove(lowest_weight_vertex)  # Remove the paths from remaining paths
 
             if lowest_weight_vertex == target:  # Stop the algorithm if the current vertex is the target vertex
-                break  # TODO: Impl logic here
+                break
 
             for vertex_neighbor in self.paths[lowest_weight_vertex].values():  # for each neighbour of the current lowest vertex
                 if vertex_neighbor[2] != -1:  # Check if path is blocked
@@ -175,8 +172,7 @@ class Planet:
                         if alternative_vertex < distance_map[vertex_neighbor[0]]:
                             distance_map[vertex_neighbor[0]] = alternative_vertex
 
-                            previous_vertex_map[vertex_neighbor[0]] = (
-                                lowest_weight_vertex, self.get_direction(lowest_weight_vertex, vertex_neighbor))
+                            previous_vertex_map[vertex_neighbor[0]] = (lowest_weight_vertex, self.get_direction(lowest_weight_vertex, vertex_neighbor))
 
         # Path mapping
         weight_sum = 0
