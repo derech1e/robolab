@@ -41,6 +41,13 @@ class DijkstraPath:
         return self.start_xy, self.start_direction, self.weight
 
 
+# class Vertex:
+#     def __init__(self, xy: Tuple[int, int], direction: Direction, weight: int):
+#         self.xy = xy
+#         self.direction = direction
+#         self.weight = weight
+#
+
 class Planet:
     """
     Contains the representation of the map and provides certain functions to manipulate or extend
@@ -136,21 +143,41 @@ class Planet:
 
     def dijkstra(self, start: Tuple[int, int], target: Tuple[int, int]):
         remaining_paths = []
-        current_vertex = start
         # Use two objects to easily access individual vertices
         distance_map = {}  # Saves the distance for each vertex
-        previous_vertex = {}  # Saves the previous vertex for each vertex
+        previous_vertex_map = {}  # Saves the previous vertex for each vertex
+        path = []
 
+        # Structure
+        # (Vertex, Direction, Weight)
         # Iterate over all node and set them to infinity distance
         for vertex in self.paths.keys():
             distance_map[vertex] = math.inf  # Set current distance to max
-            previous_vertex[vertex] = None  # Set previous vertex to None
+            previous_vertex_map[vertex] = None  # Set previous vertex to None
             remaining_paths.append(vertex)  # Add the vertex to the working array of remaining paths
 
         while remaining_paths:
-            lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths, distance_map)
-            remaining_paths.remove(lowest_weight_vertex)
+            lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths,
+                                                                  distance_map)  # Select lowest weight of remaining_paths
+            remaining_paths.remove(lowest_weight_vertex)  # Remove the paths from remaining paths
 
-            if lowest_weight_vertex == target:
-                return target
+            if lowest_weight_vertex == target:  # Stop the algorithm if the current vertex is the target vertex
+                break  # TODO: Impl logic here
 
+            for vertex_neighbor in self.paths[
+                lowest_weight_vertex].values():  # for each neighbour of the current lowest vertex
+                if vertex_neighbor[2] != -1:  # Check if path is blocked
+                    if vertex_neighbor[
+                        0] != lowest_weight_vertex:  # Check if the lowest vertex is not the current neighbour
+                        alternative_vertex = distance_map[lowest_weight_vertex] + vertex_neighbor[2]
+                        if alternative_vertex < distance_map[vertex_neighbor[0]]:
+                            distance_map[vertex_neighbor[0]] = alternative_vertex
+
+                            previous_vertex_map[vertex_neighbor[0]] = (
+                            lowest_weight_vertex, self.get_direction(lowest_weight_vertex, vertex_neighbor))
+
+    def get_direction(self, lowest_weight_vertex: Tuple[int, int], vertex_neighbor: Tuple[int, int]):
+        for next_vertex in self.paths[lowest_weight_vertex]:
+            if vertex_neighbor == self.paths[lowest_weight_vertex][next_vertex]:
+                return next_vertex
+        return Direction.NORTH
