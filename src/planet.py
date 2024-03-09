@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import math
 # Attention: Do not import the ev3dev.ev3 module in this file
 from enum import IntEnum, unique
 from typing import Optional, List, Tuple, Dict
@@ -75,7 +75,6 @@ class Planet:
         self.paths[path.start_xy][path.start_direction] = path.get_start_target_path()
         self.paths[path.target_xy][path.target_direction] = path.get_target_start_path()
 
-
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
@@ -123,8 +122,35 @@ class Planet:
 
         return self.dijkstra(start, target)
 
+    # TODO: Impl better type for remaining_paths
+    def find_lowest_weight_vertex(self, remaining_paths: [], distance_map: Dict[any, float]):
+        current_min_weight = math.inf
+        current_min_vertex = None
+
+        for vertex in remaining_paths:
+            weight = distance_map[vertex]
+            if weight < current_min_weight:
+                current_min_vertex = vertex
+                current_min_weight = weight
+        return current_min_vertex
+
     def dijkstra(self, start: Tuple[int, int], target: Tuple[int, int]):
-        pass
+        remaining_paths = []
+        current_vertex = start
+        # Use two objects to easily access individual vertices
+        distance_map = {}  # Saves the distance for each vertex
+        previous_vertex = {}  # Saves the previous vertex for each vertex
 
+        # Iterate over all node and set them to infinity distance
+        for vertex in self.paths.keys():
+            distance_map[vertex] = math.inf  # Set current distance to max
+            previous_vertex[vertex] = None  # Set previous vertex to None
+            remaining_paths.append(vertex)  # Add the vertex to the working array of remaining paths
 
+        while remaining_paths:
+            lowest_weight_vertex = self.find_lowest_weight_vertex(remaining_paths, distance_map)
+            remaining_paths.remove(lowest_weight_vertex)
+
+            if lowest_weight_vertex == target:
+                return target
 
