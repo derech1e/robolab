@@ -7,12 +7,13 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import json
+import time
 
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
-from sensors.motor_sensor import *
+from follow import *
+from sensors.color_sensor import *
 
 client = None  # DO NOT EDIT
 
@@ -47,20 +48,14 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    print("Hello World!")
-    print("Client id: " + client_id)
+    #sensorC = ColorSensor()
+    #sensorC.calibrate_HLS()
 
-    communication = Communication(client, logger)
-    logger.debug("Test")
+    follower = Follow()
+    follower.follow()
 
-    while True:
-        user_input = input('Enter stop to close the connection...\n')
 
-        if user_input == 'stop':
-            break
-
-    client.loop_stop()
-    print("Connection closed, program ended!")
+print("Hello World!")
 
 
 # DO NOT EDIT
