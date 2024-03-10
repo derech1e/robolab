@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from src.planet import Direction, Planet
+from src.planet import Direction, Planet, NodeColor
 import random
 
 
@@ -65,6 +65,14 @@ class TestRoboLabPlanet(unittest.TestCase):
         # Initialize your data structure here
         self.planet = Planet()
         for node in self.nodes:
+            if node[0][0][0] + node[0][0][1] % 2 == 0:
+                self.planet.add_node(node[0][0], NodeColor.RED)
+            else:
+                self.planet.add_node(node[0][0], NodeColor.BLUE)
+            if node[1][0][0] + node[1][0][1] % 2 == 0:
+                self.planet.add_node(node[1][0], NodeColor.RED)
+            else:
+                self.planet.add_node(node[1][0], NodeColor.BLUE)
             self.planet.add_path(node[0], node[1], node[2])
         self.planet.add_open_path(((0, 0), Direction.WEST))
 

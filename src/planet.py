@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Attention: Do not import the ev3dev.ev3 module in this file
-from enum import IntEnum, unique
+from enum import IntEnum, unique, StrEnum
 from typing import Optional, List, Tuple, Dict
 
 
@@ -12,6 +12,12 @@ class Direction(IntEnum):
     EAST = 90
     SOUTH = 180
     WEST = 270
+
+
+@unique
+class NodeColor(StrEnum):
+    RED = "red"
+    BLUE = "blue"
 
 
 Weight = int
@@ -43,6 +49,7 @@ class Robot:
         self.position: tuple[int, int] = (-1, -1)
         self.rotation: Direction = Direction.NORTH
         self.current_target: Optional[Tuple[int, int]] = None
+        self.nodes: Dict[Tuple[int, int]:]
 
 
 class Planet:
@@ -56,6 +63,7 @@ class Planet:
         """ Initializes the data structure """
         self.paths: path_list = {}
         self.robot: Robot = Robot()
+        self.nodes: Dict[Tuple[int, int], NodeColor] = {}
 
     # add unexplored path
     def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
@@ -79,12 +87,20 @@ class Planet:
         """
 
         # Initialize dict if node is not registered
-        if start[0] not in self.paths:
-            self.paths[start[0]] = {}
+        if start[0] not in self.paths or target[0] not in self.paths:
+            raise KeyError("Node is not initialized")
         self.paths[start[0]][start[1]] = (target[0], target[1], weight)
-        if target[0] not in self.paths:
-            self.paths[target[0]] = {}
         self.paths[target[0]][target[1]] = (start[0], start[1], weight)
+
+    # stores a node with its color
+    def add_node(self, coordinates: Tuple[int, int], color: NodeColor):
+        self.nodes[coordinates] = color
+        if coordinates not in self.paths.keys():
+            self.paths[coordinates] = {}
+
+    # checks if the node color is the expected one
+    def check_node(self, coordinates: Tuple[int, int], color: NodeColor) -> bool:
+        return self.nodes[coordinates] and self.nodes[coordinates] == color
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -110,7 +126,8 @@ class Planet:
         return self.paths
 
     # DO NOT EDIT THE METHOD SIGNATURE
-    def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
+    def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
+        List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
