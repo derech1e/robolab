@@ -7,11 +7,11 @@ class MotorSensor:
     def __init__(self):
         self.motor_left = ev3.LargeMotor("outA")
         self.motor_left.reset()
-        self.motor_left.stop_action = "brake"
+        self.motor_left.stop_action = "hold"
 
         self.motor_right = ev3.LargeMotor("outD")
         self.motor_right.reset()
-        self.motor_right.stop_action = "brake"
+        self.motor_right.stop_action = "hold"
 
         self.ROTATION_PER_DEGREE = 1.694392166
 
@@ -26,7 +26,7 @@ class MotorSensor:
     # Battery level: cat /sys/devices/platform/battery/power_supply/lego-ev3-battery/voltage_now
 
     def __angle_multiplier(self, angle):
-        angle = angle % 360
+        angle = int(round(angle + 360)) % 360
         print(angle)
         # 155 = 90° => 1.722222
         # 150 = 90° ONLY on full charge  => 1.66667
@@ -44,6 +44,9 @@ class MotorSensor:
             return 1.65
         else:
             return 1.62
+
+    def position_to_angle(self, position):
+        return position / 1.694
 
     def __update_relative(self, motor, position, speed):
         motor.position_sp = position
@@ -74,6 +77,9 @@ class MotorSensor:
         self.__update_speed(self.motor_left, -speed)
         self.__update_speed(self.motor_right, speed)
 
+    def get_position(self):
+        return self.motor_right.position
+
     def __update_speed(self, motor: ev3.LargeMotor, speed):
         motor.speed_sp = speed
         motor.command = "run-forever"
@@ -84,6 +90,13 @@ class MotorSensor:
         self.__update_speed(self.motor_right, speed_right)
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
+    def forward_relative(self, position, speed):
+        self.__update_relative(self.motor_left, position, speed)
+        self.__update_relative(self.motor_right, position, speed)
+
+        self.motor_left.wait_until_not_moving()
+        self.motor_right.wait_until_not_moving()
+
     def is_running(self):
         return self.motor_right.is_running or self.motor_left.is_running
 
@@ -91,6 +104,6 @@ class MotorSensor:
         self.motor_left.stop()
         self.motor_right.stop()
         self.motor_right.reset()
-        self.motor_right.stop_action = "brake"
+        self.motor_right.stop_action = "hold"
         self.motor_left.reset()
-        self.motor_left.stop_action = "brake"
+        self.motor_left.stop_action = "hold"
