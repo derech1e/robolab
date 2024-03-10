@@ -17,25 +17,52 @@ class MotorSensor:
 
         self.motor_positions = [(self.motor_left.position, self.motor_right.position)]
 
-    # 155 = 90°
-    # 310 = 180°
-    # 620 = 370°
-    # 610 = 360°
-    # 1220 = 730
-    # 1210 = 720
-
     def save_motor_positions(self):
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
     def get_motor_positions(self) -> list[tuple]:
         return self.motor_positions
 
+    # Battery level: cat /sys/devices/platform/battery/power_supply/lego-ev3-battery/voltage_now
 
-    def turn(self, deg, clockwise=True):
+    def __angle_multiplier(self, angle):
+        angle = angle % 360
+        print(angle)
+        # 155 = 90° => 1.722222
+        # 150 = 90° ONLY on full charge  => 1.66667
+        # 300 = 180° ONLY on full charge
+        # 310 = 180°
+        # 610 = 360°
+        # 620 = 370°
+        # 1210 = 720°
+        # 1220 = 730°
+        if angle <= 90:
+            return 1.64667
+        elif 90 < angle <= 180:
+            return 1.6677
+        elif angle <= 270:
+            return 1.65
+        else:
+            return 1.62
 
-        self.__update_speed(self.motor_left, 50 if clockwise else -50)
-        self.__update_speed(self.motor_right, -50 if clockwise else 50)
-        offset = deg * self.ROTATION_PER_DEGREE
+    def __update_relative(self, motor, position, speed):
+        motor.position_sp = position
+        motor.speed_sp = speed
+        motor.command = "run-to-rel-pos"
+
+    def turn_relative_angle(self, angle):
+        offset = angle * self.__angle_multiplier(angle)
+
+        self.__update_relative(self.motor_left, offset, 50)
+        self.__update_relative(self.motor_right, -offset, 50)
+
+        self.motor_left.wait_until_not_moving()
+        self.motor_right.wait_until_not_moving()
+
+    def turn(self, deg):
+        self.__update_speed(self.motor_left, 50)
+        self.__update_speed(self.motor_right, -50)
+        offset = deg * self.__angle_multiplier(deg)
         while True:
             # TODO: Impl reverse pre sign on the line below for counter clockwise rotation
             if not (self.motor_left.position < offset or self.motor_right.position > -offset):
