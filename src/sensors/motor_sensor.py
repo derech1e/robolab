@@ -50,16 +50,16 @@ class MotorSensor:
         motor.speed_sp = speed
         motor.command = "run-to-rel-pos"
 
-    def turn_relative_angle(self, angle):
+    def turn_relative_angle(self, angle, speed=50):
         offset = angle * self.__angle_multiplier(angle)
 
-        self.__update_relative(self.motor_left, offset, 50)
-        self.__update_relative(self.motor_right, -offset, 50)
+        self.__update_relative(self.motor_left, offset, speed)
+        self.__update_relative(self.motor_right, -offset, speed)
 
         self.motor_left.wait_until_not_moving()
         self.motor_right.wait_until_not_moving()
 
-    def turn(self, deg):
+    def turn_offset_angle(self, deg):
         self.__update_speed(self.motor_left, 50)
         self.__update_speed(self.motor_right, -50)
         offset = deg * self.__angle_multiplier(deg)
@@ -68,12 +68,11 @@ class MotorSensor:
             if not (self.motor_left.position < offset or self.motor_right.position > -offset):
                 self.stop()
                 break
-            # print(f"Left: {self.motor_left.position}, Right: {self.motor_right.position}")
-            # time.sleep(0.1)
-        # self.stop()
 
-    def turn_180(self):
-        pass
+    def beyblade(self, speed):
+        #if not self.is_running():
+        self.__update_speed(self.motor_left, -speed)
+        self.__update_speed(self.motor_right, speed)
 
     def __update_speed(self, motor: ev3.LargeMotor, speed):
         motor.speed_sp = speed
@@ -85,6 +84,9 @@ class MotorSensor:
         self.__update_speed(self.motor_right, speed_right)
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
+    def is_running(self):
+        return self.motor_right.is_running or self.motor_left.is_running
+
     def stop(self):
         self.motor_left.stop()
         self.motor_right.stop()
@@ -92,5 +94,3 @@ class MotorSensor:
         self.motor_right.stop_action = "brake"
         self.motor_left.reset()
         self.motor_left.stop_action = "brake"
-
-        # TODO: Might impl. reset function
