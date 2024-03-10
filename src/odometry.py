@@ -1,6 +1,7 @@
 # !/usr/bin/env python3
 
 import math
+from typing import Tuple, List
 
 from sensors.motor_sensor import MotorSensor
 
@@ -12,39 +13,55 @@ class Odometry:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        self.AXLE_LENGTH = 0
-        self.WHEEL_RADIUS = 0
-        self.ROT_TO_CM = 0.1
+        self.AXLE_LENGTH = 10
+        self.WHEEL_RADIUS = 5.54 / 2
+        self.ROT_TO_CM = 0.0494  #needs fixing
 
         self.motor_sensor = MotorSensor()
         self.motor_positions = self.motor_sensor.get_motor_positions()
-        self.local_koordinates = (0, 0)
-        self.local_orientation = 0
+        self.local_coordinates:List[float]
 
-        #convert position data to distance driven per position
-        # self.delta_positions_cm = [(self.motor_positions[i][j]-self.motor_positions[i][j]) * self.ROT_TO_CM for i in range(0,len(self.motor_positions)) for j in range(0,1)]
+        self.local_x_coordinat = 0
+        self.local_y_coordinat = 0
+        self.local_oriantation = 0
+
+    def __get_diff_in_cm(self, tu1:Tuple[int,int], tu2:Tuple[int,int]) -> Tuple[float, float]:
+        return((tu1[0]-tu2[0]) * self.ROT_TO_CM, (tu1[1]-tu2[1]) * self.ROT_TO_CM)
+
+    def update_position(self, motor_positions):
+        for i in range(0, len(motor_positions)-1):
+            dl, dr = self.__get_diff_in_cm(motor_positions[i+1], motor_positions[i])
+
+            #update oriantation
+            alpha = (dr - dl) / self.AXLE_LENGTH
+            self.local_oriantation += alpha
+
+            #update koordinates
+            if not dr == dl:
+                s = self.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * self.AXLE_LENGTH))
+                delta_x = s * (-1) * math.sin(self.local_oriantation)
+                delta_y = s * math.cos(self.local_oriantation)
+                self.local_x_coordinat += delta_x
+                self.local_y_coordinat += delta_y
 
 
-    def __update_orientation(self):
-        #convert motor positions to cm
-        # self.local_orientations = self.delta_positions_cm[(self.delta_positions_cm[i][1] - self.delta_positions_cm[i][0]) / self.AXLE_LENGTH for i in range(0,len(self.motor_positions))]
-        pass
+        # print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
+            
 
-    def __update_position(self):
-        pass
 
-    def __radian_to_angle(self):
-        pass
+    def __radian_to_angle(self, rad):
+        return rad / math.pi * 180
+        
 
-    def set_koordinates(self, x: int, y: int, angle: float):
+    def set_coordinates(self, x: int, y: int, angle: float):
         """
         Set the position of the robot in coordinates from muther shipp
         """
         pass
 
-    def get_koordinates(self) -> tuple[int, int, float]:
+    def get_coordinates(self) -> Tuple[int, int, float]:
         """
         Get the position of the robot in coordinates from muther shipp
         """
-        return (0, 0, 0)
+        return (self.local_coordinates[0], self.local_coordinates[1], self.__radian_to_angle(self.local_oriantation))
 
