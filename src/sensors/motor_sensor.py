@@ -20,7 +20,7 @@ class MotorSensor:
     def save_motor_positions(self):
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
-    def get_motor_positions(self) -> list[tuple]:
+    def get_motor_positions(self) -> list[tuple[int, int]]:
         return self.motor_positions
 
     # Battery level: cat /sys/devices/platform/battery/power_supply/lego-ev3-battery/voltage_now

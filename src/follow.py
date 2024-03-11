@@ -8,6 +8,8 @@ from sensors.touch_sensor import *
 from sensors.sonar_sensor import SonarSensor
 from planet import Direction
 
+from odometry import Odometry
+
 
 class Follow:
     def __init__(self, color_sensor: ColorSensor) -> None:
@@ -34,6 +36,7 @@ class Follow:
         self.state = False
         self.sensorT = TouchSensor()
         self.dataPlot = []
+        self.odo = Odometry()
 
         # Collision detection
         self.line_detection_in_progress = False
