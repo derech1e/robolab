@@ -75,6 +75,7 @@ class Follow:
                 self.speaker_sensor.play_beep()
                 # print(self.motor_sensor.get_motor_positions())
                 self.odo.update_position(self.motor_sensor.get_motor_positions())
+                print(self.odo.get_coordinates())
                 
                 break
                 # time.sleep(2)

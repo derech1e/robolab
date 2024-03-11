@@ -54,7 +54,6 @@ def run():
     # sensorC.calibrate_hls()
 
     follower = Follow()
-    odo = Odometry()
     follower.follow()
     # motor = MotorSensor()
 
