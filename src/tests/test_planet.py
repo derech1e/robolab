@@ -64,6 +64,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         ]
         # Initialize your data structure here
         self.planet = Planet()
+        self.planet.group3mode = True
         for node in self.nodes:
             if node[0][0][0] + node[0][0][1] % 2 == 0:
                 self.planet.add_node(node[0][0], NodeColor.RED)

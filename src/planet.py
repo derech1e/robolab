@@ -64,9 +64,14 @@ class Planet:
         self.paths: path_list = {}
         self.robot: Robot = Robot()
         self.nodes: Dict[Tuple[int, int], NodeColor] = {}
+        self.group3mode: bool = False
 
     # add unexplored path
     def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
+        # enforce group3mode
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
+
         # Store unexplored path with end coordinates as (-1, -1)
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -86,6 +91,12 @@ class Planet:
         :return: void
         """
 
+        if self.group3mode:
+            if start[0] not in self.paths:
+                raise KeyError(f'Node {start[0]} was not initialized with add_node')
+            if target[0] not in self.paths:
+                raise KeyError(f'Node {target[0]} was not initialized with add_node')
+
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -96,12 +107,18 @@ class Planet:
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: NodeColor):
+        # enforce group3mode
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
         self.nodes[coordinates] = color
         if coordinates not in self.paths.keys():
             self.paths[coordinates] = {}
 
     # checks if the node color is the expected one
     def check_node(self, coordinates: Tuple[int, int], color: NodeColor) -> bool:
+        # enforce group3mode
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
         return self.nodes[coordinates] and self.nodes[coordinates] == color
 
     # DO NOT EDIT THE METHOD SIGNATURE
@@ -129,7 +146,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-        List[Tuple[Tuple[int, int], Direction]]]:
+            List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -213,6 +230,10 @@ class Planet:
 
     def explore_next(self, current_position: Tuple[int, int],
                      current_direction: Direction) -> Tuple[Tuple[int, int], Direction]:
+        # enforce group3mode
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
+
         # find unexplored paths
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
