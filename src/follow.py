@@ -4,7 +4,6 @@ from typing import Tuple
 
 from sensors.color_sensor import *
 from sensors.motor_sensor import *
-from sensors.speaker_sensor import SpeakerSensor
 from sensors.touch_sensor import *
 from sensors.sonar_sensor import SonarSensor
 from planet import Direction
@@ -68,7 +67,7 @@ class Follow:
 
     def turn_until_line_detected(self):
         self.line_detection_in_progress = True
-        self.motor_sensor.turn_relative_angle(200, 350)
+        self.motor_sensor.turn_angle_blocking(200, 350)
         self.motor_sensor.beyblade(-100)
         while True:
             color = self.color_sensor.get_hls_color_name()
@@ -99,7 +98,7 @@ class Follow:
 
     def scan_node(self):
         self.motor_sensor.stop()
-        self.motor_sensor.forward_relative(100, 100)
+        self.motor_sensor.forward_relative_blocking(100, 100)
         self.motor_sensor.beyblade(50)
         scanned_nodes = []
 
@@ -119,17 +118,16 @@ class Follow:
                 print("EXIT")
                 break
 
-        self.motor_sensor.forward_relative(100, 100)
+        self.motor_sensor.forward_relative_blocking(-500, 100)
 
     def follow(self):
         # print(self.color_sensor.get_color_hls())
         # time.sleep(5)
-        if (
-                self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue") and not self.node_scan_done:
+        if (self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue") and not self.node_scan_done:
             self.motor_sensor.stop()
             print("Color detected!")
             time.sleep(3)
             self.node_scan_done = True
             self.scan_node()
         else:
-            self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
+            self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())

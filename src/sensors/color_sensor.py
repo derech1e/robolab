@@ -31,7 +31,7 @@ class ColorSensor:
 
     # if we want to use hls
     def get_color_hls(self) -> tuple[float, float, float]:
-        color = self.cs.bin_data("hhhh")
+        color = self.cs.raw  # Range: 0-1020
         try:
             color_hls = colorsys.rgb_to_hls(color[0], color[1], color[2])
         except ZeroDivisionError:
