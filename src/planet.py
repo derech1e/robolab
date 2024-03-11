@@ -276,9 +276,14 @@ class Planet:
         """
         return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
-    # return path from current position to a target
-    def path_target(self, target: tuple[int, int]) -> Optional[list[tuple[tuple[int, int], Direction]]]:
-        return self.shortest_path(self.robot.position, target)
+    # returns first step towards target
+    def get_to_target(self, current_position: tuple[tuple[int, int], Direction],
+                      target: tuple[int, int]) -> tuple[tuple[int, int], Direction]:
+        path = self.shortest_path(current_position[0], target)
+        if path is not None:
+            return path[0]
+        else:
+            return self.explore_next(current_position[0], current_position[1])
 
 
 # get all outgoing paths from point with current weight added
