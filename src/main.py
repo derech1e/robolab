@@ -14,7 +14,9 @@ from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
 from follow import *
+
 from sensors.color_sensor import *
+from sensors.motor_sensor import MotorSensor
 
 client = None  # DO NOT EDIT
 
