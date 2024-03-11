@@ -50,7 +50,10 @@ class Odometry:
 
 
     def __radian_to_angle(self, rad):
-        return  360 - rad / math.pi * 180
+        angle = 360 - rad / math.pi * 180
+        while angle > 360:
+            angle = angle - 360
+        return angle
 
     def __clip_orientation(self, rad) -> int:
         angle = self.__radian_to_angle(rad)
