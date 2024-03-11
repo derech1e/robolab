@@ -89,6 +89,17 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.p2.add_path(((1, 0), Direction.NORTH), ((1, 1), Direction.SOUTH), 6)
         self.p2.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.WEST), 1)
 
+        self.p3 = Planet()
+        # (0,0)---2---(0,1)---2---(0,2)
+        #                |
+        #                1
+        #                |
+        #               / \
+        #               \_/
+        self.p3.add_path(((0, 0), Direction.EAST), ((0, 1), Direction.WEST), 2)
+        self.p3.add_path(((0, 1), Direction.EAST), ((0, 2), Direction.WEST), 2)
+        self.p3.add_path(((0, 1), Direction.SOUTH), ((0, 1), Direction.SOUTH), 1)
+
     def test_integrity(self):
         """
         This test should check that the dictionary returned by "planet.get_paths()" matches the expected structure
@@ -150,8 +161,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is reachable
         """
-        self.assertEqual(self.planet.shortest_path((0, 0), (2, 1)), [((0, 0), Direction.EAST),
-                                                                     ((1, 1), Direction.EAST)])
+        self.assertEqual(self.p3.shortest_path((0, 0), (0, 2)),
+                         [((0, 0), Direction.EAST), ((0, 1), Direction.EAST)])
 
     def test_target_not_reachable_with_loop(self):
         """

@@ -233,7 +233,6 @@ class Planet:
                 if option.destination not in final_paths or option.weight < final_paths[option.destination].weight:
                     options.append(option)
 
-
         return final_paths
 
     def explore_next(self, current_position: Tuple[int, int],
