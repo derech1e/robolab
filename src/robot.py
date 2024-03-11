@@ -18,7 +18,6 @@ class Robot:
         self.speaker_sensor = SpeakerSensor()
         self.color_sensor = ColorSensor()
 
-
         self.planet = Planet()
         self.communication = communication
         self.odometry = Odometry()
@@ -26,28 +25,26 @@ class Robot:
 
         self.active = True
         self.button_pressed = False
-        self.collision_detected = False
+        self.should_follow = False
 
     def robot(self):
 
         print("Press button to start exploration")
 
-        #while not self.button.is_pressed():
+        # while not self.button.is_pressed():
         #    continue
 
         # TODO: Impl color calibration before running
 
         while self.active:
-
-            if self.sonar_sensor.is_colliding() and not self.collision_detected:
+            if self.sonar_sensor.is_colliding():
                 self.speaker_sensor.play_tone()
                 self.follow.stop()
-                self.collision_detected = True
+                self.should_follow = False
 
-            if not self.collision_detected and not self.follow.line_detection_in_progress:
+            if self.should_follow and not self.follow.line_detection_in_progress:
                 self.follow.follow()
             else:
                 if not self.follow.line_detection_in_progress:
                     self.follow.turn_until_line_detected()
-                    self.collision_detected = False
-
+                    self.should_follow = False
