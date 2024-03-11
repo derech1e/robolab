@@ -58,7 +58,7 @@ class Planet:
         self.robot: Robot = Robot()
 
     # add unexplored path
-    def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
+    def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
         # Store unexplored path with end coordinates as (-1, -1)
         if start[0] not in self.paths:
             self.paths[start[0]] = {}

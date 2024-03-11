@@ -66,7 +66,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet = Planet()
         for node in self.nodes:
             self.planet.add_path(node[0], node[1], node[2])
-        self.planet.add_open_path(((0, 0), Direction.WEST))
+        self.planet.add_unexplored_path(((0, 0), Direction.WEST))
 
     def test_integrity(self):
         """
