@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Attention: Do not import the ev3dev.ev3 module in this file
-from enum import IntEnum, unique, StrEnum
+from enum import IntEnum, unique
 from typing import Optional, List, Tuple, Dict
 
 
@@ -15,9 +15,9 @@ class Direction(IntEnum):
 
 
 @unique
-class NodeColor(StrEnum):
-    RED = "red"
-    BLUE = "blue"
+class NodeColor(IntEnum):
+    RED = 1
+    BLUE = 0
 
 
 Weight = int
