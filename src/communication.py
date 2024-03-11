@@ -10,7 +10,7 @@ from builder import MessageBuilder, PayloadBuilder
 import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
-from planet import Planet, Direction
+from robot import Robot
 
 GROUP = "003"
 
@@ -39,7 +39,7 @@ class Communication:
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
-        self.planet = Planet()
+        self.robot: Robot = None
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
@@ -50,6 +50,9 @@ class Communication:
         :param message: Object
         :return: void
         """
+
+        if self.robot is None:
+            self.logger.warning("Not robot instance found!")
 
         response = json.loads(message.payload.decode('utf-8'))
         msg_type = MessageType(response["type"])
@@ -65,36 +68,30 @@ class Communication:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 # TODO: set startX, startY and startOrientation on planet
-                # TODO-f check
-                self.planet.robot.position = (payload['startX'], payload['startY'])
-                self.planet.robot.rotation = Direction(payload['startOrientation'])
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
-                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
-                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
-                self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
+                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.play_tone()
                 # TODO: Impl logic for pathStatus 'free|blocked‘
-                # TODO-f already implemented
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
-                # TODO: set new Path(startDirection) on planet
+                self.robot.update_target_direction(payload["startDirection"])
             elif msg_type == MessageType.PATH_UNVEILED:
                 self.logger.debug("Received unveiled path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
                 target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
-                self.planet.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 # TODO: Check if just add_path works !!
-                # TODO-f this works too
             elif msg_type == MessageType.TARGET:
                 self.logger.debug("Received target")
-                target = (payload["targetX"], payload["targetY"])
-                self.planet.robot.target = target
-                shortest_path = self.planet.path_target(target)
-                # TODO: Check impl and handle new mission
-                # TODO-f added local target storage in robot
+                self.robot.set_current_target((payload["targetX"], payload["targetY"]))
             elif msg_type == MessageType.DONE:
+                self.send_complete("Planet fully discovered!")
+            elif msg_type == MessageType.EXPLORATION_COMPLETE:
                 self.logger.debug("Finished mission")
-                # TODO: Impl logic
+
         elif msg_from == MessageFrom.DEBUG:
             if msg_type == MessageType.SYNTAX:
                 self.syntax_response = json.dumps(response)
@@ -184,8 +181,8 @@ class Communication:
     def send_com_test(self, message: str):
         self.send_message(f"comtest/{GROUP}", message)
 
-    def set_planet(self, planet: Planet):
-        self.planet = planet
+    def set_robot(self, robot: Robot):
+        self.robot = robot
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
     #
