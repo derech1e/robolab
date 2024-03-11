@@ -42,6 +42,7 @@ class Robot:
     def __init__(self):
         self.position: tuple[int, int] = (-1, -1)
         self.rotation: Direction = Direction.NORTH
+        self.current_target: Optional[Tuple[int, int]] = None
 
 
 class Planet:
@@ -57,7 +58,7 @@ class Planet:
         self.robot: Robot = Robot()
 
     # add unexplored path
-    def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
+    def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
         # Store unexplored path with end coordinates as (-1, -1)
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -81,6 +82,9 @@ class Planet:
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = (target[0], target[1], weight)
+        if target[0] not in self.paths:
+            self.paths[target[0]] = {}
+        self.paths[target[0]][target[1]] = (start[0], start[1], weight)
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
