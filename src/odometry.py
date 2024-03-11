@@ -50,18 +50,40 @@ class Odometry:
 
 
     def __radian_to_angle(self, rad):
-        return rad / math.pi * 180
-        
+        return  360 - rad / math.pi * 180
+
+    def __clip_orientation(self, rad) -> int:
+        angle = self.__radian_to_angle(rad)
+
+        if angle < 45:
+            return 0
+        elif angle < 135:
+            return 90
+        elif angle < 225:
+            return 180
+        elif angle < 315:
+            return 270
+        elif angle <= 360:
+            return 0
+        else:
+            return 999
+
+    def __clip_coordinat(self, x:float) -> int:
+        return int(round (x / 50))
 
     def set_coordinates(self, x: int, y: int, angle: float):
         """
         Set the position of the robot in coordinates from muther shipp
         """
+        self.local_x_coordinat = x * 50
+        self.local_y_coordinat = y * 50
+        self.local_oriantation = 360 - angle / 180 * math.pi
+
         pass
 
-    def get_coordinates(self) -> Tuple[int, int, float]:
+    def get_coordinates(self) -> Tuple[int, int, int]:
         """
         Get the position of the robot in coordinates from muther shipp
         """
-        return (self.local_coordinates[0], self.local_coordinates[1], self.__radian_to_angle(self.local_oriantation))
+        return (self.__clip_coordinat(self.local_x_coordinat), self.__clip_coordinat(self.local_y_coordinat), self.__clip_orientation(self.local_oriantation))
 
