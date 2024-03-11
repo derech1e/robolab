@@ -6,6 +6,8 @@ from sensors.motor_sensor import *
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.touch_sensor import *
 
+from odometry import Odometry
+
 
 class Follow:
     def __init__(self) -> None:
@@ -32,6 +34,7 @@ class Follow:
         self.state = False
         self.sensorT = TouchSensor()
         self.dataPlot = []
+        self.odo = Odometry()
 
     # 350 = WHITE
     # 50 = BLACK
@@ -70,20 +73,23 @@ class Follow:
             if self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue":
                 self.motor_sensor.stop()
                 self.speaker_sensor.play_beep()
+                # print(self.motor_sensor.get_motor_positions())
+                self.odo.update_position(self.motor_sensor.get_motor_positions())
+                
                 break
                 # time.sleep(2)
                 # self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
             self.motor_sensor.forward(self.calc_speed_left(), self.calc_speed_right())
 
-            while self.sensorT.is_pressed():
-                self.state = True
-                pass
-            if self.state:
-                self.KP += 0.05
-                self.dataPlot = []
-                print(f"KI: {self.KI}")
-                self.state = False
+            # while self.sensorT.is_pressed():
+            #     self.state = True
+            #     pass
+            # if self.state:
+            #     self.KP += 0.05
+            #     self.dataPlot = []
+            #     print(f"KI: {self.KI}")
+            #     self.state = False
 
         #writing data to csv
             # if self.sensorT.is_pressed():

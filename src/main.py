@@ -13,7 +13,9 @@ from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
 from follow import *
+
 from sensors.color_sensor import *
+from sensors.motor_sensor import MotorSensor
 
 client = None  # DO NOT EDIT
 
@@ -48,11 +50,21 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    sensorC = ColorSensor()
-    sensorC.calibrate_hls()
+    # sensorC = ColorSensor()
+    # sensorC.calibrate_hls()
 
-    # follower = Follow()
-    # follower.follow()
+    follower = Follow()
+    odo = Odometry()
+    follower.follow()
+    # motor = MotorSensor()
+
+    # for _ in range(0, 2000):
+    #     motor.forward(200, 200)
+
+    # print(motor.get_motor_positions())
+    # odo.update_koord()
+
+
 
 
 print("Hello World!")
