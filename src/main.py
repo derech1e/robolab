@@ -9,6 +9,7 @@ import uuid
 import signal
 import time
 
+from robot import Robot
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
@@ -43,30 +44,17 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
-    logger.addHandler(consoleHandler)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(console_handler)
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    # sensorC = ColorSensor()
-    # sensorC.calibrate_hls()
-
-    follower = Follow()
-    follower.follow()
-    # motor = MotorSensor()
-
-    # for _ in range(0, 2000):
-    #     motor.forward(200, 200)
-
-    # print(motor.get_motor_positions())
-    # odo.update_koord()
-
-
-
-
-print("Hello World!")
+    print("***** RoboLab started *****")
+    communication = Communication(client, logger)
+    robot = Robot(communication)
+    robot.robot()
 
 
 # DO NOT EDIT
