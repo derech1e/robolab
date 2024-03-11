@@ -13,11 +13,11 @@ from odometry import Odometry
 
 
 class Follow:
-    def __init__(self, color_sensor: ColorSensor) -> None:
-        self.motor_sensor = MotorSensor()
+    def __init__(self, color_sensor: ColorSensor, motor_sensor: MotorSensor) -> None:
         self.sonar_sensor = SonarSensor()
         self.color_sensor = color_sensor
         self.colorData = self.color_sensor.return_color()
+        self.motor_sensor = motor_sensor
         # self.avrColor = (self.colorData["white"][0] + self.colorData["white"][1] + self.colorData["white"][2] \
         #                 + self.colorData["black"][0] + self.colorData["black"][1] + self.colorData["black"][2]) // 2
         self.avrLightness = (self.colorData["white"][1] + self.colorData["black"][1]) / 2

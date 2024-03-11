@@ -49,7 +49,7 @@ class MotorSensor:
         return position / 1.694
 
     def turn_angle_blocking(self, angle, speed=50):
-        offset = angle * self.__angle_multiplier(angle)
+        offset = angle * 1.64667
 
         self.__update_speed_position_relative(self.motor_left, -offset, speed)
         self.__update_speed_position_relative(self.motor_right, offset, speed)
@@ -102,6 +102,6 @@ class MotorSensor:
         self.motor_left.stop()
         self.motor_right.stop()
         #self.motor_right.reset()
-        #self.motor_right.stop_action = "hold"
+        self.motor_right.stop_action = "hold"
         #self.motor_left.reset()
-        #self.motor_left.stop_action = "hold"
+        self.motor_left.stop_action = "hold"

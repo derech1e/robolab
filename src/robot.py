@@ -9,6 +9,7 @@ from sensors.sonar_sensor import SonarSensor
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
 from enums import StopReason
+from sensors.motor_sensor import MotorSensor
 
 
 class Robot:
@@ -18,12 +19,13 @@ class Robot:
         self.button = TouchSensor()
         self.speaker_sensor = SpeakerSensor()
         self.color_sensor = ColorSensor()
+        self.motor_sensor = MotorSensor()
 
         self.planet = Planet()
         self.communication = communication
         self.communication.set_robot(self)
         self.odometry = Odometry()
-        self.follow = Follow(self.color_sensor)
+        self.follow = Follow(self.color_sensor, self.motor_sensor)
 
         self.active = True
         self.should_follow = False
@@ -44,7 +46,7 @@ class Robot:
     def set_current_target(self, target: Tuple[int, int]):
         # 1. Memo target
         # 2. If current node == target?
-        # 3. If not => Check if target is already discovered -> Calculate shortest path =>  drive to target
+        # 3. If not => Check if target is already discovered -> Calculate the shortest path =>  drive to target
         # 4. If not continue exploring
         #
         # Check on each node if the target is reached; handle target override
@@ -72,15 +74,18 @@ class Robot:
         # TODO: Impl color calibration before running
 
         while self.active:
-
             stop_reason = self.follow.follow()
             self.follow.stop()
-            self.speaker_sensor.play_tone()
+            #self.speaker_sensor.play_tone()
 
             if stop_reason is StopReason.COLLISION:
                 self.follow.turn_until_line_detected()
             elif stop_reason is StopReason.NODE:
-                self.handle_node()
+                self.odometry.update_position(self.motor_sensor.motor_positions)
+                print(self.odometry.get_coordinates())
+                self.active = False
+                self.motor_sensor.stop()
+                # self.handle_node()
             else:
                 raise NotImplementedError("Unknown stop")
 
