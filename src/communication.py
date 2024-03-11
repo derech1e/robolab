@@ -181,7 +181,7 @@ class Communication:
                               .build())
                           .build())
 
-    def send_com_test(self, message):
+    def send_com_test(self, message: str):
         self.send_message(f"comtest/{GROUP}", message)
 
     def set_planet(self, planet: Planet):
