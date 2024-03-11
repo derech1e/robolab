@@ -75,7 +75,19 @@ class TestRoboLabPlanet(unittest.TestCase):
             else:
                 self.planet.add_node(node[1][0], NodeColor.BLUE)
             self.planet.add_path(node[0], node[1], node[2])
-        self.planet.add_open_path(((0, 0), Direction.WEST))
+        self.planet.add_unexplored_path(((0, 0), Direction.WEST))
+
+        self.p2 = Planet()
+        # (0,1)---5---(1,1)---1---(2,1)
+        #   |           |
+        #   1           6
+        #   |           |
+        # (0,0)---1---(1,0)
+        self.p2.add_path(((0, 0), Direction.NORTH), ((0, 1), Direction.SOUTH), 1)
+        self.p2.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
+        self.p2.add_path(((0, 1), Direction.EAST), ((1, 1), Direction.WEST), 5)
+        self.p2.add_path(((1, 0), Direction.NORTH), ((1, 1), Direction.SOUTH), 6)
+        self.p2.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.WEST), 1)
 
     def test_integrity(self):
         """
@@ -109,9 +121,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum distance is three nodes (two paths in list returned)
         """
-        self.assertEqual(self.planet.shortest_path((2, 1), (3, 3)), [((2, 1), Direction.EAST),
-                                                                     ((4, 1), Direction.SOUTH),
-                                                                     ((3, 2), Direction.SOUTH)])
+        target_shortest_path = [((0, 0), Direction.NORTH), ((0, 1), Direction.EAST), ((1, 1), Direction.EAST)]
+        self.assertEqual(target_shortest_path, self.p2.shortest_path((0, 0), (2, 1)))
 
     def test_target_not_reachable(self):
         """

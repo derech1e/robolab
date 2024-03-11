@@ -67,7 +67,7 @@ class Planet:
         self.group3mode: bool = False
 
     # add unexplored path
-    def add_open_path(self, start: Tuple[Tuple[int, int], Direction]):
+    def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
@@ -76,6 +76,16 @@ class Planet:
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
+
+    # adds unexplored paths from a list
+    def add_unexplored_node(self, position: Tuple[int, int], color: NodeColor, directions: List[Direction]):
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
+
+        self.add_node(position, color)
+
+        for direction in directions:
+            self.add_unexplored_path((position, direction))
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
@@ -202,7 +212,7 @@ class Planet:
                 break
 
             # remove selected and backtracking paths from options
-            for option in options:
+            for option in options.copy():
                 if selected.destination == option.destination or option.destination == start:
                     options.remove(option)
 
@@ -219,12 +229,10 @@ class Planet:
             new_options = extract_options(selected.destination, selected.weight, self.paths[selected.destination])
 
             # add only unvisited or more efficient options
-            while new_options:
-                option = new_options.pop()
+            for option in new_options:
                 if option.destination not in final_paths or option.weight < final_paths[option.destination].weight:
                     options.append(option)
 
-            options.extend(new_options)
 
         return final_paths
 
