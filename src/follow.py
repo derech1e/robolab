@@ -6,6 +6,7 @@ from sensors.color_sensor import *
 from sensors.motor_sensor import *
 from sensors.touch_sensor import *
 from sensors.sonar_sensor import SonarSensor
+from enums import StopReason
 from planet import Direction
 
 from odometry import Odometry
@@ -71,7 +72,7 @@ class Follow:
     def turn_until_line_detected(self):
         self.line_detection_in_progress = True
         self.motor_sensor.turn_angle_blocking(200, 350)
-        self.motor_sensor.beyblade(-100)
+        self.motor_sensor.beyblade(100)
         while True:
             color = self.color_sensor.get_hls_color_name()
             time.sleep(0.1)
@@ -100,7 +101,6 @@ class Follow:
             return 0
 
     def scan_node(self):
-        self.motor_sensor.stop()
         self.motor_sensor.forward_relative_blocking(100, 100)
         self.motor_sensor.beyblade(50)
         scanned_nodes = []
@@ -121,16 +121,12 @@ class Follow:
                 print("EXIT")
                 break
 
-        self.motor_sensor.forward_relative_blocking(-500, 100)
+    def follow(self) -> StopReason:
+        while True:
+            if self.color_sensor.is_node():
+                return StopReason.NODE  # Stop following if node is detected
 
-    def follow(self):
-        # print(self.color_sensor.get_color_hls())
-        # time.sleep(5)
-        if (self.color_sensor.get_hls_color_name() == "red" or self.color_sensor.get_hls_color_name() == "blue") and not self.node_scan_done:
-            self.motor_sensor.stop()
-            print("Color detected!")
-            time.sleep(3)
-            self.node_scan_done = True
-            self.scan_node()
-        else:
+            if self.sonar_sensor.is_colliding():
+                return StopReason.COLLISION  # Stop following collision is detected
+
             self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
