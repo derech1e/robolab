@@ -125,15 +125,11 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        result = self.planet.shortest_path((0, 0), (3, 2))
-        self.assertEqual(type(result), list)
-        for entry in result:
-            self.assertEqual(type(entry), tuple)
-            self.assertEqual(type(entry[0]), tuple)
-            self.assertEqual(type(entry[1]), Direction)
-            self.assertEqual(type(entry[0][0]), int)
-            self.assertEqual(type(entry[0][1]), int)
-        self.assertEqual(len(self.planet.shortest_path((0, 0), (3, 2))), 3)
+        self.assertIn(self.planet.shortest_path((0, 0), (3, 2)), [
+            [((0, 0), Direction.EAST), ((1, 1), Direction.EAST), ((2, 1), Direction.EAST), ((4, 1), Direction.SOUTH)],
+            [((0, 0), Direction.EAST), ((1, 1), Direction.NORTH), ((4, 1), Direction.SOUTH)],
+            [((0, 0), Direction.SOUTH), ((0, 1), Direction.SOUTH), ((0, 3), Direction.EAST)]
+        ])
 
     def test_target_with_loop(self):
         """
@@ -142,7 +138,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is reachable
         """
-        self.assertEqual(len(self.planet.shortest_path((0, 0), (2, 1))), 2)
+        self.assertEqual(self.planet.shortest_path((0, 0), (2, 1)), [((0, 0), Direction.EAST),
+                                                                     ((1, 1), Direction.EAST)])
 
     def test_target_not_reachable_with_loop(self):
         """

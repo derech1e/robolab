@@ -87,9 +87,11 @@ class Planet:
         """
 
         # Initialize dict if node is not registered
-        if start[0] not in self.paths or target[0] not in self.paths:
-            raise KeyError("Node is not initialized")
+        if start[0] not in self.paths:
+            self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = (target[0], target[1], weight)
+        if target[0] not in self.paths:
+            self.paths[target[0]] = {}
         self.paths[target[0]][target[1]] = (start[0], start[1], weight)
 
     # stores a node with its color
