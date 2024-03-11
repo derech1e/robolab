@@ -88,8 +88,6 @@ class Communication:
                 self.logger.debug("Received target")
                 self.robot.set_current_target((payload["targetX"], payload["targetY"]))
             elif msg_type == MessageType.DONE:
-                self.send_complete("Planet fully discovered!")
-            elif msg_type == MessageType.EXPLORATION_COMPLETE:
                 self.logger.debug("Finished mission")
 
         elif msg_from == MessageFrom.DEBUG:
@@ -168,7 +166,7 @@ class Communication:
                               .build())
                           .build())
 
-    def send_complete(self, message: str):
+    def send_exploration_complete(self, message: str):
         self.send_message(f"explorer/{GROUP}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)

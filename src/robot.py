@@ -53,10 +53,19 @@ class Robot:
         self.current_target = target
 
     def handle_node(self):
+
+        # TODO: CHECK IF NODE IS EQUAL TO TARGET
+        # TODO: if so remember to send path message with last driven path first!!!!
+
         if self.is_first_node:
             self.communication.send_ready()
             self.is_first_node = False
             return
+        else:
+            # TODO: REMOVE PASS AND IMPL
+            # send path message with last driven path
+            # scan node
+            pass
 
     def add_path(self, start, target, weight):
         self.planet.add_path(start, target, weight)
@@ -80,12 +89,17 @@ class Robot:
 
             if stop_reason is StopReason.COLLISION:
                 self.follow.turn_until_line_detected()
+                # Memorize collision
+                # Send on next node collision
             elif stop_reason is StopReason.NODE:
                 self.odometry.update_position(self.motor_sensor.motor_positions)
                 print(self.odometry.get_coordinates())
-                self.active = False
                 self.motor_sensor.stop()
-                # self.handle_node()
+                self.handle_node()
+                # Handle exploration
+                # wait for response
+                # may correct direction (on_message)
+                # handle direction update
             else:
                 raise NotImplementedError("Unknown stop")
 
@@ -93,4 +107,5 @@ class Robot:
             # Handle direction alignment
 
         # Mission done
-        # self.communication.send_complete() # TODO: Check if this can stay in communication
+        # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
+        #self.communication.send_exploration_complete("Planet fully discovered!")
