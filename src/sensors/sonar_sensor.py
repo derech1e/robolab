@@ -12,4 +12,4 @@ class SonarSensor:
         return self.ultraSonic.value()
 
     def is_colliding(self):
-        return self.distance() < 4  # Colliding range
+        return self.distance() < 210  # Colliding range
