@@ -48,7 +48,6 @@ class MotorSensor:
     def position_to_angle(self, position):
         return position / 1.694
 
-
     def turn_angle_blocking(self, angle, speed=50):
         offset = angle * self.__angle_multiplier(angle)
 
@@ -70,6 +69,7 @@ class MotorSensor:
     def beyblade(self, speed):
         self.__update_speed(self.motor_left, -speed)
         self.__update_speed(self.motor_right, speed)
+        return self.motor_left.position, self.motor_right.position
 
     def get_position(self):
         return (abs(self.motor_left.position) + abs(self.motor_right.position)) / 2
@@ -102,7 +102,7 @@ class MotorSensor:
     def stop(self):
         self.motor_left.stop()
         self.motor_right.stop()
-        #self.motor_right.reset()
+        # self.motor_right.reset()
         self.motor_right.stop_action = "hold"
-        #self.motor_left.reset()
+        # self.motor_left.reset()
         self.motor_left.stop_action = "hold"

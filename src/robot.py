@@ -8,7 +8,7 @@ from sensors.touch_sensor import TouchSensor
 from sensors.sonar_sensor import SonarSensor
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
-from enums import StopReason, PathStatus
+from enums import StopReason, PathStatus, NodeColor
 from sensors.motor_sensor import MotorSensor
 
 
@@ -29,6 +29,7 @@ class Robot:
 
         self.active = True
         self.should_follow = False
+        self.planet.group3mode = True
 
         self.is_first_node = True
         self.node_scan_done = False
@@ -36,10 +37,12 @@ class Robot:
         # Exploration
         self.__next_path: Tuple[Tuple[int, int], Direction] = None
         self.current_target: Tuple[int, int] = None
+        self.current_node_color: NodeColor = None
         self.detected_collision = False
         self.start_position: Tuple[Tuple[int, int], int] = None  # Update data structure
 
     def update_next_path(self, direction: Direction):
+        print("Received update for direction")
         self.__next_path = ((self.__next_path[0], self.__next_path[1]), direction)
 
     def set_current_target(self, target: Tuple[int, int]):
@@ -52,10 +55,18 @@ class Robot:
         #
         # Check on each node if the target is reached; handle target override
 
+    def is_node_target(self, current_position):
+        if self.current_target is None:
+            return False
+
+        return current_position[0][0] == self.current_target[0] and current_position[0][1] == self.current_target[1]
+
     def handle_node(self, current_position: Tuple[Tuple[int, int], int]):
 
+        print("Handle node")
         # Check if current node is target node TODO: Impl helper function for comparison
-        if current_position[0][0] == self.current_target[0] and current_position[0][1] == self.current_target[1]:
+        if self.is_node_target(current_position):
+            print("Node handling: Current node is target")
             # send path message with last driven path
             self.communication.send_path(self.planet.planet_name, self.start_position[0][0], self.start_position[0][1],
                                          self.start_position[1], current_position[0], current_position[1],
@@ -63,18 +74,24 @@ class Robot:
             self.communication.send_target_reached("Target reached!")
 
         if self.is_first_node:
+            print("First node detected \n")
             self.communication.send_ready()
             self.is_first_node = False
-            return
         else:
-            self.path_status = PathStatus.FREE if self.detected_collision else PathStatus.BLOCKED
+            path_status = PathStatus.FREE if self.detected_collision else PathStatus.BLOCKED
 
             # send path message with last driven path
             self.communication.send_path(self.planet.planet_name, self.start_position[0], self.start_position[1],
                                          self.start_position[2], current_position[0], current_position[1],
-                                         current_position[2], self.path_status)
+                                         current_position[2], path_status)
 
-        self.follow.scan_node()  # TODO: Is the node scan on the first node necessary?
+        print("Start node scanning \n")
+        scanned_directions = self.follow.scan_node()
+        print(f"Scanned directions: {scanned_directions}")
+        self.planet.add_unexplored_node(current_position[0], self.current_node_color, scanned_directions)
+        print(f"Get_Paths: {self.planet.get_paths()}")
+        print(f"Current position: {current_position}")
+        print("Node scan done!")
         self.detected_collision = False
 
     def add_path(self, start, target, weight):
@@ -90,7 +107,12 @@ class Robot:
         # while not self.button.is_pressed():
         #    continue
 
-        self.color_sensor.calibrate_hls()
+        #self.color_sensor.calibrate_hls()
+        print(" ")
+        print("")
+        time.sleep(10)
+
+        print("Starting exploration...")
 
         # TODO: Impl color calibration before running
 
@@ -103,19 +125,26 @@ class Robot:
                 self.follow.turn_until_line_detected()
                 self.detected_collision = True
             elif stop_reason is StopReason.NODE:
-
+                print("Node detected")
+                self.current_node_color = NodeColor(self.color_sensor.get_hls_color_name())
                 self.motor_sensor.stop()
                 self.odometry.update_position(self.motor_sensor.motor_positions)
                 current_position = self.odometry.get_coordinates()
-                print(self.odometry.get_coordinates())
+                print("Odometry updated")
+                print("")
+                print(f"Current position: {self.odometry.get_coordinates()}")
+                print("")
 
                 self.handle_node(current_position)
 
                 # Wait for path unveiled
+                print("Wait for 'path unveiled' message")
                 time.sleep(4)  # Check if we can receive messages while sleeping
+                print("")
 
                 # Handle exploration
                 # TODO: Find a better name for next_position
+                print("Find next direction")
                 __next_path = self.planet.explore_next(current_position[0],
                                                        current_position[1])  # TODO: Update data structure
 
@@ -123,24 +152,34 @@ class Robot:
                 if __next_path is None:
                     # Whole map explored
                     if self.current_target is None:
+                        print("No target found")
+                        print("Ending mission")
                         break  # Send exploration complete; no target
 
                     path_2_target = self.planet.get_to_target(current_position, self.current_target)
                     if path_2_target is None:
+                        print("Target not on planet")
+                        print("Ending exploration")
                         # Send target is not on map
                         # Exploration complete
                         break
 
                     __next_path = path_2_target
+                    print("Going to the next path", __next_path)
 
+                print("")
+                print("Send path select")
                 self.communication.send_path_select(self.planet.planet_name, __next_path[0][0], __next_path[0][1],
                                                     __next_path[1].value)
 
+                print("")
                 # wait for response
+                print("Wait for path correction")
                 time.sleep(3)  # DOES THIS WORK???????????????????????????????????????????
                 # may correct direction (see communication)
 
                 self.start_position = current_position
+                print("Update start position")
             else:
                 raise NotImplementedError("Unknown stop")
 
