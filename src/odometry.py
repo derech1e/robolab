@@ -58,8 +58,8 @@ class Odometry:
         with open('path.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['x', 'y'])
-            writer.writerows(self.list_of_coords)
-            # writer.writerows(motor_positions)
+            # writer.writerows(self.list_of_coords)
+            writer.writerows(motor_positions)
 
         print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
             

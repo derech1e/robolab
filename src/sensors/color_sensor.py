@@ -21,6 +21,7 @@ class ColorSensor:
         self.ACCEPTANCE_RANGE_COLOR = 0.1  #smaler if accept color wrongly
         self.ACCEPTANCE_RANGE_NOT_COLOR = 0.05
         self.NO_COLOR = (self.color_data["white"][0] + self.color_data["black"][0]) / 2
+        self.AVR_LIGHTNESS = (self.color_data["white"][1] + self.color_data["black"][1]) / 2
 
     def return_color(self):
         return self.color_data
@@ -39,10 +40,14 @@ class ColorSensor:
             color_hls = (0, 0.1, 0.1)
         return color_hls
 
+    # needs to be rewritten
     def get_hls_color_name(self):
         raw_color = self.get_color_hls()
         if self.NO_COLOR - self.ACCEPTANCE_RANGE_NOT_COLOR < raw_color[0] < self.NO_COLOR + self.ACCEPTANCE_RANGE_NOT_COLOR:
-            return "black"
+            if self.AVR_LIGHTNESS > raw_color[1]:
+                return "white"
+            else:
+                return "black"
         else:
             value = self.color_data["blue"]
             if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
@@ -51,7 +56,11 @@ class ColorSensor:
             value = self.color_data["red"]
             if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
                 return "red"
-            return "black"
+            if self.AVR_LIGHTNESS > raw_color[1]:
+                return "white"
+            else:
+                return "black"
+
 
     def is_node(self):
         color = self.get_hls_color_name()
