@@ -17,7 +17,7 @@ class Odometry:
         # YOUR CODE FOLLOWS (remove pass, please!)
         self.AXLE_LENGTH = 10 #10.5
         self.WHEEL_RADIUS = 5.54 / 2
-        self.ROT_TO_CM = 0.05  #needs fixing
+        self.ROT_TO_CM = 0.04884  #needs fixing
 
         self.motor_sensor = MotorSensor()
         self.motor_positions = self.motor_sensor.get_motor_positions()
