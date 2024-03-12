@@ -87,6 +87,14 @@ class Planet:
         for direction in directions:
             self.add_unexplored_path((position, direction))
 
+    def add_new_node_and_decide(self, position: Tuple[int, int], current_direction: Direction,
+                                color: NodeColor, directions: List[Direction]) -> Optional[Direction]:
+        self.add_unexplored_node(position, color, directions)
+        explore_decision = self.explore_next(position, current_direction)
+        if explore_decision is None:
+            return None
+        return explore_decision[1]
+
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
                  weight: int):
@@ -236,7 +244,7 @@ class Planet:
         return final_paths
 
     def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Tuple[Tuple[int, int], Direction]:
+                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
@@ -248,6 +256,10 @@ class Planet:
                 if path[0] == (-1, -1):
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
+        # return None if no unexplored paths are found
+        if len(unexplored_paths) == 0:
+            return None
+
         # find closest (minimum weight) nodes with unexplored path
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
@@ -255,9 +267,9 @@ class Planet:
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
                 min_distance_paths.append((distances[path.start].weight, path))
-            elif distances[path.start].weight < min_distance_paths[0][1].weight:
+            elif distances[path.start].weight < distances[min_distance_paths[0][1].start].weight:
                 min_distance_paths = [(distances[path.start].weight, path)]
-            elif distances[path.start].weight == min_distance_paths[0][1].weight:
+            elif distances[path.start].weight == distances[min_distance_paths[0][1].start].weight:
                 min_distance_paths.append((distances[path.start].weight, path))
 
         # return if only one path is found

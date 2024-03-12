@@ -100,6 +100,22 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.p3.add_path(((0, 1), Direction.EAST), ((0, 2), Direction.WEST), 2)
         self.p3.add_path(((0, 1), Direction.SOUTH), ((0, 1), Direction.SOUTH), 1)
 
+        self.p4 = Planet()
+        # (0,0)---1---(1, 0)-
+        #   |
+        #   2
+        #   |
+        # (0,1)-
+        #   |
+        self.p4.group3mode = True
+        self.p4.add_node((0, 0), NodeColor.RED)
+        self.p4.add_node((0, 1), NodeColor.BLUE)
+        self.p4.add_node((1, 0), NodeColor.BLUE)
+        self.p4.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
+        self.p4.add_path(((0, 0), Direction.SOUTH), ((0, 1), Direction.NORTH), 2)
+        self.p4.add_unexplored_path(((0, 1), Direction.SOUTH))
+        self.p4.add_unexplored_path(((1, 0), Direction.EAST))
+
     def test_integrity(self):
         """
         This test should check that the dictionary returned by "planet.get_paths()" matches the expected structure
@@ -182,6 +198,12 @@ class TestRoboLabPlanet(unittest.TestCase):
         for _ in range(test_count):
             start, target = random.choices(nodes, k=2)
             self.planet.shortest_path(start, target)
+
+    def test_exploration(self):
+        """
+        This test should test if the correct explore option is recommended
+        """
+        self.assertEqual(self.p4.explore_next((0, 0), Direction.SOUTH), ((1, 0), Direction.EAST))
 
 
 if __name__ == "__main__":
