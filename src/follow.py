@@ -81,8 +81,9 @@ class Follow:
         self.motor_sensor.stop()
 
     def angle_to_direction(self, angle):
-        angle = int(round(angle + 360)) % 360
-        if 0 <= angle < 35:
+        # angle = int(round(angle + 360)) % 360
+
+        """if 0 <= angle < 35:
             return 0
         elif 50 < angle < 120:
             return Direction.WEST  # 90
@@ -93,7 +94,9 @@ class Follow:
         elif 325 < angle < 360:
             return 0
         else:
-            return 0
+            return 0"""
+
+        return Direction((round(angle / 90) * 90 + 360) % 360)
 
     def scan_node(self) -> [Direction]:
 

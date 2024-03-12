@@ -108,7 +108,7 @@ class Robot:
         # while not self.button.is_pressed():
         #    continue
 
-        #self.color_sensor.calibrate_hls()
+        # self.color_sensor.calibrate_hls()
         print(" ")
         print("")
         time.sleep(5)
@@ -189,7 +189,10 @@ class Robot:
             # Handle direction alignment
             if not self.detected_collision:  # TODO: Improve this remove
                 print(self.__next_path, self.__next_path[1].value)
-                self.motor_sensor.turn_angle_blocking(self.__next_path[1].value)
+                turn_angle = (self.start_position[1] -
+                              self.__next_path[1].value) if self.__next_path[1].value > 180 else (
+                              self.__next_path[1].value)
+                self.motor_sensor.turn_angle_blocking(turn_angle)
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED

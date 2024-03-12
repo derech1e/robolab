@@ -2,6 +2,7 @@
 
 import math
 from typing import Tuple, List
+from planet import Direction
 
 from sensors.motor_sensor import MotorSensor
 
@@ -15,28 +16,28 @@ class Odometry:
         # YOUR CODE FOLLOWS (remove pass, please!)
         self.AXLE_LENGTH = 10
         self.WHEEL_RADIUS = 5.54 / 2
-        self.ROT_TO_CM = 0.0494  #needs fixing
+        self.ROT_TO_CM = 0.0494  # needs fixing
 
         self.motor_sensor = MotorSensor()
         self.motor_positions = self.motor_sensor.get_motor_positions()
-        self.local_coordinates:List[float]
+        self.local_coordinates: List[float]
 
         self.local_x_coordinat = 0
         self.local_y_coordinat = 0
         self.local_oriantation = 0
 
-    def __get_diff_in_cm(self, tu1:Tuple[int,int], tu2:Tuple[int,int]) -> Tuple[float, float]:
-        return((tu1[0]-tu2[0]) * self.ROT_TO_CM, (tu1[1]-tu2[1]) * self.ROT_TO_CM)
+    def __get_diff_in_cm(self, tu1: Tuple[int, int], tu2: Tuple[int, int]) -> Tuple[float, float]:
+        return ((tu1[0] - tu2[0]) * self.ROT_TO_CM, (tu1[1] - tu2[1]) * self.ROT_TO_CM)
 
     def update_position(self, motor_positions):
-        for i in range(0, len(motor_positions)-1):
-            dl, dr = self.__get_diff_in_cm(motor_positions[i+1], motor_positions[i])
+        for i in range(0, len(motor_positions) - 1):
+            dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
-            #update oriantation
+            # update oriantation
             alpha = (dr - dl) / self.AXLE_LENGTH
             self.local_oriantation += alpha
 
-            #update koordinates
+            # update koordinates
             if not dr == dl:
                 s = self.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * self.AXLE_LENGTH))
                 delta_x = s * (-1) * math.sin(self.local_oriantation)
@@ -44,10 +45,7 @@ class Odometry:
                 self.local_x_coordinat += delta_x
                 self.local_y_coordinat += delta_y
 
-
         # print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
-            
-
 
     def __radian_to_angle(self, rad):
         angle = 360 - rad / math.pi * 180
@@ -56,9 +54,9 @@ class Odometry:
         return angle
 
     def __clip_orientation(self, rad) -> int:
-        angle = self.__radian_to_angle(rad)
+        angle = math.degrees(rad)
 
-        if angle < 45:
+        """if angle < 45:
             return 0
         elif angle < 135:
             return 90
@@ -69,14 +67,16 @@ class Odometry:
         elif angle <= 360:
             return 0
         else:
-            return 999
+            return 999"""
 
-    def __clip_coordinat(self, x:float) -> int:
-        return int(round (x / 50))
+        return (round(angle / 90) * 90 + 360) % 360
+
+    def __clip_coordinat(self, x: float) -> int:
+        return int(round(x / 50))
 
     def set_coordinates(self, x: int, y: int, angle: float):
         """
-        Set the position of the robot in coordinates from muther shipp
+        Set the position of the robot in coordinates from mother ship
         """
         self.local_x_coordinat = x * 50
         self.local_y_coordinat = y * 50
@@ -84,9 +84,9 @@ class Odometry:
 
         pass
 
-    def get_coordinates(self) -> Tuple[int, int, int]:
+    def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
         """
-        Get the position of the robot in coordinates from muther shipp
+        Get the position of the robot in coordinates from mother ship
         """
-        return (self.__clip_coordinat(self.local_x_coordinat), self.__clip_coordinat(self.local_y_coordinat), self.__clip_orientation(self.local_oriantation))
-
+        return ((self.__clip_coordinat(self.local_x_coordinat), self.__clip_coordinat(self.local_y_coordinat)),
+                Direction(self.__clip_orientation(self.local_oriantation)))
