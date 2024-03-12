@@ -18,8 +18,6 @@ class Follow:
         self.color_sensor = color_sensor
         self.colorData = self.color_sensor.return_color()
         self.motor_sensor = motor_sensor
-        # self.avrColor = (self.colorData["white"][0] + self.colorData["white"][1] + self.colorData["white"][2] \
-        #                 + self.colorData["black"][0] + self.colorData["black"][1] + self.colorData["black"][2]) // 2
         self.avrLightness = (self.colorData["white"][1] + self.colorData["black"][1]) / 2
         self.integral_value = 0
         self.timer = 0
@@ -34,12 +32,6 @@ class Follow:
         self.KI = 0.074  # Bisherige Fehler ??
         self.KD = 0.45  # Zukünftige Fehler ??
         self.INTEGRAL_FACTOR = 0.587  # In kurven??
-
-        # test
-        self.state = False
-        self.sensorT = TouchSensor()
-        self.dataPlot = []
-        self.odo = Odometry()
 
         # Collision detection
         self.line_detection_in_progress = False
@@ -65,7 +57,6 @@ class Follow:
         return self.KP * error + self.KI * self.integral_value + self.KD * delta_error
 
     def calc_speed_left(self) -> int:
-        # print(f"Calc turn: {self.calc_turn()}")
         return self.normalSpeed + int(self.calc_turn())
 
     def calc_speed_right(self) -> int:
@@ -102,7 +93,7 @@ class Follow:
         else:
             return 0
 
-    def scan_node_new(self) -> [Direction]:
+    def scan_node(self) -> [Direction]:
 
         # fahre bis keine farbe mehr
         # dreh dich und behalte den winkel im blich
@@ -140,8 +131,7 @@ class Follow:
         self.node_scan_done = False
         print("finish")
 
-        return []
-        pass
+        return directions
 
     def follow(self) -> StopReason:
         while True:
