@@ -26,6 +26,12 @@ class PathStatus(Enum):
     FREE = "free"
     BLOCKED = "blocked"
 
+
 class StopReason(Enum):
     COLLISION = "collision"
     NODE = "node"
+
+
+class NodeColor(Enum):
+    BLUE = "blue"
+    RED = "red"

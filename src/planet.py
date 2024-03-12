@@ -2,6 +2,7 @@
 
 # Attention: Do not import the ev3dev.ev3 module in this file
 from enum import IntEnum, unique
+from enums import NodeColor
 from typing import Optional, List, Tuple, Dict
 
 
@@ -12,12 +13,6 @@ class Direction(IntEnum):
     EAST = 90
     SOUTH = 180
     WEST = 270
-
-
-@unique
-class NodeColor(IntEnum):
-    RED = 1
-    BLUE = 0
 
 
 Weight = int
@@ -44,14 +39,6 @@ class DijkstraPath:
         self.weight = new_weight
 
 
-class Robot:
-    def __init__(self):
-        self.position: tuple[int, int] = (-1, -1)
-        self.rotation: Direction = Direction.NORTH
-        self.current_target: Optional[Tuple[int, int]] = None
-        self.nodes: Dict[Tuple[int, int]:]
-
-
 class Planet:
     """
     Contains the representation of the map and provides certain functions to manipulate or extend
@@ -62,7 +49,6 @@ class Planet:
     def __init__(self):
         """ Initializes the data structure """
         self.paths: path_list = {}
-        self.robot: Robot = Robot()
         self.nodes: Dict[Tuple[int, int], NodeColor] = {}
         self.group3mode: bool = False
         self.planet_name = ""
@@ -77,15 +63,17 @@ class Planet:
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
+        print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
-    def add_unexplored_node(self, position: Tuple[int, int], color: NodeColor, directions: List[Direction]):
+    def add_unexplored_node(self, position: Tuple[int, int], color: NodeColor, directions: [Direction]):
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
 
         self.add_node(position, color)
 
         for direction in directions:
+            print(f"Added direction: {direction}")
             self.add_unexplored_path((position, direction))
 
     def add_new_node_and_decide(self, position: Tuple[int, int], current_direction: Direction,
@@ -165,7 +153,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-            List[Tuple[Tuple[int, int], Direction]]]:
+        List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -264,6 +252,8 @@ class Planet:
         # find closest (minimum weight) nodes with unexplored path
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
+
+        print(distances)
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
