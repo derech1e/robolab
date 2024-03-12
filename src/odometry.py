@@ -14,9 +14,9 @@ class Odometry:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        self.AXLE_LENGTH = 12 #9.8
+        self.AXLE_LENGTH = 11 #10.5
         self.WHEEL_RADIUS = 5.54 / 2
-        self.ROT_TO_CM = 0.049  #needs fixing
+        self.ROT_TO_CM = 0.05  #needs fixing
 
         self.motor_sensor = MotorSensor()
         self.motor_positions = self.motor_sensor.get_motor_positions()
@@ -40,27 +40,32 @@ class Odometry:
             self.local_oriantation += alpha
 
             #update koordinates
-            if not dr == dl:
-                s = self.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * self.AXLE_LENGTH))
-            else: 
+            if dr == dl:
                 s = dr
+            else: 
+                s = self.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * self.AXLE_LENGTH))
+
             delta_x = s * (-1) * math.sin(self.local_oriantation)
             delta_y = s * math.cos(self.local_oriantation)
             self.local_x_coordinat += delta_x
             self.local_y_coordinat += delta_y
-                # self.list_of_coords.append((self.local_x_coordinat, self.local_y_coordinat))
+
+
+            self.list_of_coords.append((self.local_x_coordinat, self.local_y_coordinat))
 
         # print(self.local_oriantation)
         with open('path.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['x', 'y'])
             writer.writerows(self.list_of_coords)
-        # print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
+
+        print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
             
 
 
     def __clip_orientation(self, rad) -> int:
         angle = math.degrees(rad)
+        angle = int(round(angle)+360) % 360
 
         if angle < 45:
             return 0
