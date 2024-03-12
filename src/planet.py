@@ -65,6 +65,7 @@ class Planet:
         self.robot: Robot = Robot()
         self.nodes: Dict[Tuple[int, int], NodeColor] = {}
         self.group3mode: bool = False
+        self.planet_name = ""
 
     # add unexplored path
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):

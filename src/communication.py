@@ -67,6 +67,7 @@ class Communication:
             if msg_type == MessageType.PLANET:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
+                self.robot.planet.planet_name = payload['planetName']
                 # TODO: set startX, startY and startOrientation on planet
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
@@ -77,7 +78,7 @@ class Communication:
                 # TODO: Impl logic for pathStatus 'free|blocked‘
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
-                self.robot.update_target_direction(payload["startDirection"])
+                self.robot.update_next_path(payload["startDirection"])
             elif msg_type == MessageType.PATH_UNVEILED:
                 self.logger.debug("Received unveiled path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
