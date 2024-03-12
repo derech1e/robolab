@@ -84,9 +84,9 @@ class MotorSensor:
 
     # input from -100 to 100
     def forward_non_blocking(self, speed_left: int, speed_right: int):
-        self.__update_speed(self.motor_left, speed_left)
-        self.__update_speed(self.motor_right, speed_right)
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
+        self.__update_speed(self.motor_right, speed_right)
+        self.__update_speed(self.motor_left, speed_left)
 
     def forward_relative_blocking(self, position, speed):
         self.__update_speed_position_relative(self.motor_left, position, speed)

@@ -3,6 +3,7 @@
 import math
 import csv
 from typing import Tuple, List
+from planet import *
 
 from sensors.motor_sensor import MotorSensor
 
@@ -14,7 +15,7 @@ class Odometry:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        self.AXLE_LENGTH = 11 #10.5
+        self.AXLE_LENGTH = 10 #10.5
         self.WHEEL_RADIUS = 5.54 / 2
         self.ROT_TO_CM = 0.05  #needs fixing
 
@@ -58,13 +59,14 @@ class Odometry:
             writer = csv.writer(file)
             writer.writerow(['x', 'y'])
             writer.writerows(self.list_of_coords)
+            # writer.writerows(motor_positions)
 
         print(f"Koordinates: ({self.local_x_coordinat}, {self.local_y_coordinat}), Oriantation: {self.local_oriantation}")
             
 
 
     def __clip_orientation(self, rad) -> int:
-        angle = math.degrees(rad)
+        angle =  -1* math.degrees(rad)
         angle = int(round(angle)+360) % 360
 
         if angle < 45:
@@ -93,9 +95,9 @@ class Odometry:
 
         pass
 
-    def get_coordinates(self) -> Tuple[int, int, int]:
+    def get_coordinates(self) -> Tuple[Tuple[int,int], Direction]:
         """
         Get the position of the robot in coordinates from muther shipp
         """
-        return (self.__clip_coordinat(self.local_x_coordinat), self.__clip_coordinat(self.local_y_coordinat), self.__clip_orientation(self.local_oriantation))
+        return ((self.__clip_coordinat(self.local_x_coordinat), self.__clip_coordinat(self.local_y_coordinat)), Direction(self.__clip_orientation(self.local_oriantation)))
 
