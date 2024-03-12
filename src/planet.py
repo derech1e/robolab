@@ -251,7 +251,7 @@ class Planet:
 
         # find closest (minimum weight) nodes with unexplored path
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
-        distances[current_position] = DijkstraPath((0, 0), 0, (0, 0), None, None)
+        distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
         print(distances)
