@@ -64,7 +64,9 @@ class Follow:
 
     def turn_until_line_detected(self):
         self.line_detection_in_progress = True
+        print("Turning until line")
         self.motor_sensor.turn_angle_blocking(200, 350)
+        print("Bayblade")
         self.motor_sensor.beyblade(100)
         while True:
             color = self.color_sensor.get_hls_color_name()
@@ -126,10 +128,13 @@ class Follow:
                     print("path detected")
                     break
 
-        print(directions)
+        print(f"scan_node: {directions}")
         self.motor_sensor.stop()
         self.node_scan_done = False
-        print("finish")
+        print("scan_node: done!")
+
+        print("Correct base heading")
+        self.motor_sensor.turn_angle_blocking(-70, 50)
 
         return directions
 

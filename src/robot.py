@@ -42,7 +42,7 @@ class Robot:
         self.start_position: Tuple[Tuple[int, int], int] = None  # Update data structure
 
     def update_next_path(self, direction: Direction):
-        print("Received update for direction")
+        print(">>>>>>>  >>>> >> Received update for direction")
         self.__next_path = ((self.__next_path[0], self.__next_path[1]), direction)
 
     def set_current_target(self, target: Tuple[int, int]):
@@ -78,12 +78,13 @@ class Robot:
             self.communication.send_ready()
             self.is_first_node = False
         else:
-            path_status = PathStatus.FREE if self.detected_collision else PathStatus.BLOCKED
+            path_status = PathStatus.FREE if not self.detected_collision else PathStatus.BLOCKED
+            print(f"Path status: {path_status}")
 
             # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.start_position[0], self.start_position[1],
-                                         self.start_position[2], current_position[0], current_position[1],
-                                         current_position[2], path_status)
+            self.communication.send_path(self.planet.planet_name, self.start_position[0][0], self.start_position[0][1],
+                                         self.start_position[1], current_position[0][0], current_position[0][1],
+                                         current_position[1], path_status)
 
         print("Start node scanning \n")
         scanned_directions = self.follow.scan_node()
@@ -110,7 +111,7 @@ class Robot:
         #self.color_sensor.calibrate_hls()
         print(" ")
         print("")
-        time.sleep(10)
+        time.sleep(5)
 
         print("Starting exploration...")
 
@@ -139,17 +140,18 @@ class Robot:
 
                 # Wait for path unveiled
                 print("Wait for 'path unveiled' message")
-                time.sleep(4)  # Check if we can receive messages while sleeping
+                time.sleep(3)  # Check if we can receive messages while sleeping
                 print("")
 
                 # Handle exploration
                 # TODO: Find a better name for next_position
                 print("Find next direction")
-                __next_path = self.planet.explore_next(current_position[0],
-                                                       current_position[1])  # TODO: Update data structure
+                self.__next_path = self.planet.explore_next(current_position[0],
+                                                            current_position[1])  # TODO: Update data structure
 
+                print(f"self.__next_path: {self.__next_path}")
                 # if next_position is node, the whole map is explored
-                if __next_path is None:
+                if self.__next_path is None:
                     # Whole map explored
                     if self.current_target is None:
                         print("No target found")
@@ -164,13 +166,14 @@ class Robot:
                         # Exploration complete
                         break
 
-                    __next_path = path_2_target
-                    print("Going to the next path", __next_path)
+                    self.__next_path = path_2_target
+                    print("Going to the next path", self.__next_path)
 
                 print("")
                 print("Send path select")
-                self.communication.send_path_select(self.planet.planet_name, __next_path[0][0], __next_path[0][1],
-                                                    __next_path[1].value)
+                self.communication.send_path_select(self.planet.planet_name, self.__next_path[0][0],
+                                                    self.__next_path[0][1],
+                                                    self.__next_path[1].value)
 
                 print("")
                 # wait for response
@@ -184,7 +187,9 @@ class Robot:
                 raise NotImplementedError("Unknown stop")
 
             # Handle direction alignment
-            self.motor_sensor.turn_angle_blocking(self.__next_path[1].value)
+            if not self.detected_collision:  # TODO: Improve this remove
+                print(self.__next_path, self.__next_path[1].value)
+                self.motor_sensor.turn_angle_blocking(self.__next_path[1].value)
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED

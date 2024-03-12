@@ -13,6 +13,7 @@ class MessageType(Enum):
     EXPLORATION_COMPLETE = "explorationCompleted"
     DONE = "done"
     SYNTAX = "syntax"
+    ERROR = "error"
 
 
 class MessageFrom(Enum):

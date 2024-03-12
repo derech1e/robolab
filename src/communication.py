@@ -64,6 +64,12 @@ class Communication:
 
             payload = response["payload"]
 
+            if msg_type == MessageType.ERROR:
+                print("Communication ERROR!!!!!")
+                print("")
+                print(response)
+                print("")
+
             if msg_type == MessageType.PLANET:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
