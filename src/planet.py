@@ -153,7 +153,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-        List[Tuple[Tuple[int, int], Direction]]]:
+            List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -232,18 +232,23 @@ class Planet:
 
         return final_paths
 
-    def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
-
-        # find unexplored paths
+    def get_unexplored_paths(self) -> List[DijkstraPath]:
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
                 if path[0] == (-1, -1):
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
+
+        return unexplored_paths
+
+    def explore_next(self, current_position: Tuple[int, int],
+                     current_direction: Direction) -> Tuple[Tuple[int, int], Direction] | None | False:
+        # enforce group3mode
+        if not self.group3mode:
+            raise SystemError("Custom functions are not available without the group3mode flag being set")
+
+        # find unexplored paths
+        unexplored_paths: List[DijkstraPath] = self.get_unexplored_paths()
 
         # return None if no unexplored paths are found
         if len(unexplored_paths) == 0:
@@ -254,7 +259,9 @@ class Planet:
         distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
-        print(distances)
+        for path in unexplored_paths:
+            if path.start not in distances.keys():
+                return False
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
