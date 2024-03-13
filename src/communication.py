@@ -76,15 +76,22 @@ class Communication:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 self.robot.planet.planet_name = payload['planetName']
-                # TODO: set startX, startY and startOrientation on planet
+
                 self.robot.set_start_position(payload["startX"], payload["startY"], payload["startOrientation"])
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
                 target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
 
-                if self.debug_path_comparison != (start_tuple, target_tuple, payload["pathWeight"]):
+                comp_payload = payload
+                del comp_payload["pathWeight"]
+
+                if self.debug_path_comparison != payload:
                     print(">>>> WARN!!!::: Received path does not match send path")
+                    print("******* SEND PATH ********")
+                    print(self.debug_path_comparison)
+                    print("******* RECEIVE PATH *********")
+                    print(comp_payload)
 
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.logger.debug("Added new path")
@@ -92,8 +99,6 @@ class Communication:
                 self.logger.debug("Update start position")
 
                 self.robot.set_start_position(payload["endX"], payload["endY"], payload["endOrientation"])
-                # TODO: Impl logic for pathStatus 'free|blocked‘
-                #self.robot.start_position = ((payload['endX'], payload['endY']), payload['endOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
                 self.robot.update_next_path(payload["startDirection"])
@@ -127,8 +132,6 @@ class Communication:
         self.logger.debug('Send to: ' + topic)
         self.logger.debug(json.dumps(message, indent=2))
         self.client.publish(topic, json.dumps(message), qos=2)
-
-        # TODO: Impl syntax checker
 
     def send_ready(self):
         self.send_message(f"explorer/{GROUP}",
