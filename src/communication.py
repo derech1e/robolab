@@ -4,6 +4,8 @@
 import json
 import ssl
 import logging
+from typing import Tuple
+
 from builder import MessageBuilder, PayloadBuilder
 
 import paho.mqtt.client as mqtt
@@ -11,6 +13,7 @@ import paho.mqtt.client as mqtt
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
 import Constatns
+from src.planet import Direction
 
 
 class Communication:
@@ -131,14 +134,23 @@ class Communication:
         self.logger.debug(json.dumps(message, indent=2))
         self.client.publish(topic, json.dumps(message), qos=2)
 
-    def send_ready(self):
-        self.send_message(f"explorer/{Constatns.Constatns.GROUP_ID_ID}",
+    def send_ready(self) -> None:
+        """
+        Sends ready message to mother ship
+        :return: void
+        """
+        self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.READY)
                           .build())
 
-    def send_test_planet(self, planet_name: str):
-        self.send_message(f"explorer/{Constatns.Constatns.GROUP_ID_ID}",
+    def send_test_planet(self, planet_name: str) -> None:
+        """
+        Sends test planet to mother ship
+        :param planet_name: String
+        :return: void
+        """
+        self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TEST_PLANET)
                           .payload(
@@ -147,34 +159,49 @@ class Communication:
                               .build())
                           .build())
 
-    def send_path(self, planet: str, start_x: int, start_y: int, start_direction: int, end_x: int, end_y: int,
-                  end_direction: int, path_status: PathStatus):
+    def send_path(self, planet_name: str, start_node: Tuple[Tuple[int, int], Direction],
+                  end_node: Tuple[Tuple[int, int], Direction], path_status: PathStatus) -> None:
+        """
+        Sends the last driven path to mother ship
+        :param planet_name: String
+        :param start_node: Tuple[Tuple[int, int], Direction]
+        :param end_node: Tuple[Tuple[int, int], Direction]
+        :param path_status: PathStatus
+        :return: void
+        """
         self.debug_path_comparison = MessageBuilder().type(MessageType.PATH).payload(
-                              PayloadBuilder()
-                              .start_x(start_x)
-                              .start_y(start_y)
-                              .start_direction(start_direction)
-                              .end_x(end_x)
-                              .end_y(end_y)
-                              .end_direction(end_direction)
-                              .path_status(path_status)
-                              .build()).build()
+            PayloadBuilder()
+            .start_node(start_node)
+            .end_node(end_node)
+            .path_status(path_status)
+            .build()).build()
 
-        self.send_message(f"planet/{planet}/{Constatns.GROUP_ID}", self.debug_path_comparison)
+        # TODO: REMOVE debug_path_comparison
 
-    def send_path_select(self, planet: str, start_x: int, start_y: int, start_direction: int):
-        self.send_message(f"planet/{planet}/{Constatns.GROUP_ID}",
+        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}", self.debug_path_comparison)
+
+    def send_path_select(self, planet_name: str, node: Tuple[Tuple[int, int], Direction]) -> None:
+        """
+        Sends the next favoured path to mother ship
+        :param planet_name: String
+        :param node: Tuple[Tuple[int, int], Direction]
+        :return: void
+        """
+        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.PATH_SELECT)
                           .payload(
                               PayloadBuilder()
-                              .start_x(start_x)
-                              .start_y(start_y)
-                              .start_direction(start_direction)
+                              .start_node(node)
                               .build())
                           .build())
 
-    def send_target_reached(self, message: str):
+    def send_target_reached(self, message: str) -> None:
+        """
+        Sends an information to the mother ship, that the target is reached
+        :param message: String
+        :return: void
+        """
         self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TARGET_REACHED)
@@ -184,7 +211,12 @@ class Communication:
                               .build())
                           .build())
 
-    def send_exploration_complete(self, message: str):
+    def send_exploration_complete(self, message: str) -> None:
+        """
+        Sends an information to the mother ship, that the planet is explored completely
+        :param message: String
+        :return: void
+        """
         self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)
@@ -194,10 +226,15 @@ class Communication:
                               .build())
                           .build())
 
-    def send_com_test(self, message: str):
+    def send_com_test(self, message: str) -> None:
+        """
+        Sends the given message to the mother ship "comtest/003" channel
+        :param message: String
+        :return: void
+        """
         self.send_message(f"comtest/{Constatns.GROUP_ID}", message)
 
-    def set_robot(self, robot: Robot):
+    def set_robot(self, robot: Robot) -> None:
         self.robot = robot
 
     # DO NOT EDIT THE METHOD SIGNATURE OR BODY
