@@ -24,7 +24,7 @@ Value:  -1 if blocked path
         never 0
 """
 
-path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]
+path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Optional[Tuple[int, int]], Direction, Weight]]]
 
 
 class DijkstraPath:
@@ -59,10 +59,10 @@ class Planet:
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
 
-        # Store unexplored path with end coordinates as (-1, -1)
+        # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
+        self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
         print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
@@ -236,16 +236,20 @@ class Planet:
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
-                if path[0] == (-1, -1):
+                if path[0] is None:
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
         return unexplored_paths
 
     def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Tuple[Tuple[int, int], Direction] | None | False:
+                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
+
+        if current_position not in self.paths:
+            print("Current position not found!")
+            return None
 
         # find unexplored paths
         unexplored_paths: List[DijkstraPath] = self.get_unexplored_paths()
@@ -261,7 +265,7 @@ class Planet:
 
         for path in unexplored_paths:
             if path.start not in distances.keys():
-                return False
+                return None
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:

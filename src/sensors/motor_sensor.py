@@ -25,7 +25,6 @@ class MotorSensor:
 
     def __angle_multiplier(self, angle):
         angle = int(round(angle + 360)) % 360
-        print(angle)
         # 155 = 90° => 1.722222
         # 150 = 90° ONLY on full charge  => 1.66667
         # 300 = 180° ONLY on full charge

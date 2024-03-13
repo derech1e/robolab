@@ -23,6 +23,7 @@ class Follow:
         self.integral_value = 0
         self.timer = 0
         self.last_error = 0
+        self.odo = Odometry()
 
         # Collision detection
         self.line_detection_in_progress = False
@@ -75,7 +76,7 @@ class Follow:
         print(angle)
         angle = int(round(angle + 360)) % 360
 
-        if 0 <= angle < 35:
+        """if 0 <= angle < 35:
             return 0
         elif 50 < angle < 120:
             return Direction.WEST  # 90
@@ -84,7 +85,7 @@ class Follow:
         elif 230 < angle < 300:
             return Direction.EAST  # 270
         elif 325 < angle < 360:
-            return 0
+            return 0"""
 
         return Direction(abs((round(angle / 90) * 90 - 360)) % 360)
 
@@ -107,6 +108,7 @@ class Follow:
 
         # for angle in [math.pi / 2 - 0.1, math.pi - 0.1, math.pi * 3 / 2 - 0.1, math.pi *2 -0.1]:
         for i in range(1, 5):
+            print(f"Scan {i}")
             angle = math.pi * i / 2
             while alpha < angle + 0.3:  # TODO: Scale this value with battery voltage level (0.3 - 1.0)
                 new_pos = self.motor_sensor.beyblade(150)
@@ -115,7 +117,7 @@ class Follow:
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constatns.AXLE_LENGTH * 0.05
                 print(self.color_sensor.get_hls_color_name())
                 if (self.color_sensor.get_color_hls()[1] < 100
-                        and alpha > angle - 0.5
+                        and alpha > angle
                         and self.color_sensor.get_hls_color_name() == "black"):
                     directions.append(Direction(360 - 90 * i))
                     print("path detected")
@@ -127,7 +129,7 @@ class Follow:
         print("scan_node: done!")
 
         print("Correct base heading")
-        self.motor_sensor.turn_angle_blocking(-60, 50)
+        self.motor_sensor.turn_angle_blocking(-80, 50)
 
         return directions
 

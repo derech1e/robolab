@@ -82,16 +82,25 @@ class Robot:
             self.communication.send_path(self.planet.planet_name, self.__start_position, current_position, path_status)
 
         scanned_directions = self.follow.scan_node()
-        self.logger.debug(f"Scanned directions: {scanned_directions}")
 
-        self.planet.add_unexplored_node(current_position[0], self.current_node_color, scanned_directions)
+        scanned_directions = [Direction((direction + self.__start_position[1]) % 360)
+                              for direction in scanned_directions]
+        self.logger.debug(f"Scanned directions: {scanned_directions}")
+        print(f"Current direction: {self.__start_position[1]}")
+        entry_direction = Direction((self.__start_position[1] + 180) % 360)
+        scanned_directions.remove(entry_direction)
+        print(f"Removed entry direction: {entry_direction}")
+        self.planet.add_unexplored_node(self.__start_position[0], self.current_node_color, scanned_directions)
+        print(f"Get_Paths: {self.planet.get_paths()}")
+        print(f"Current position: {self.__start_position}")
+        print("Node scan done!")
         self.detected_collision = False
 
         self.logger.debug("Finished node handling...")
 
     def robot(self):
-        # planet_name = input('Enter the test planet name and wait for response:')
-        self.communication.send_test_planet("Conway~3")
+        #planet_name = input('Enter the test planet name and wait for response:')
+        self.communication.send_test_planet("Conway")
         # print("Press button to start exploration")
 
         # while not self.button.is_pressed():
@@ -125,8 +134,11 @@ class Robot:
                 time.sleep(3)
 
                 # Handle exploration
-                self.__next_path = self.planet.explore_next(current_position[0],
-                                                            current_position[1])  # TODO: Update data structure
+                # TODO: Find a better name for next_position
+                print("Find next direction")
+                print(self.__start_position)
+                self.__next_path = self.planet.explore_next(self.__start_position[0],
+                                                            self.__start_position[1])  # TODO: Update data structure
 
                 self.logger.debug(f"Next selected path: {self.__next_path}")
 
@@ -156,17 +168,23 @@ class Robot:
                 time.sleep(3)
 
                 # may correct direction (see communication)
-                self.__start_position = current_position
+                # TODO daten aus Odometrie überschreiben dadurch korrekte daten des Servers
+                # self.__start_position = current_position
+                print("Update start position")
             else:
                 raise NotImplementedError("Unknown stop")
 
             # Handle direction alignment
             if not self.detected_collision:  # TODO: Improve this remove
-                print(self.__next_path, self.__next_path[1].value)
+                angle = self.__next_path[1].value
+                print(f"Turning after node handling to {angle}")
+                print(f"Current angle: {self.__start_position[1]}")
                 turn_angle = (self.__start_position[1] -
-                              self.__next_path[1].value) if self.__next_path[1].value > 180 else (
-                    self.__next_path[1].value)
+                              angle) if angle > 180 else (
+                              angle)
+                print(f"Turn angle: {turn_angle}")
                 self.motor_sensor.turn_angle_blocking(turn_angle)
+                self.__start_position = (self.__start_position[0], self.__start_position[1] - turn_angle)
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
