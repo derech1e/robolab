@@ -3,7 +3,7 @@
 import math
 import csv
 from planet import *
-import Constants
+import constants
 
 from sensors.motor_sensor import MotorSensor
 
@@ -29,22 +29,22 @@ class Odometry:
 
     def __get_diff_in_cm(self, tu1: Tuple[int, int], tu2: Tuple[int, int]) -> Tuple[float, float]:
         return (
-            (tu1[0] - tu2[0]) * Constants.ROT_TO_CM * Constants.MAGIC_VALUE,
-            (tu1[1] - tu2[1]) * Constants.ROT_TO_CM / Constants.MAGIC_VALUE)
+            (tu1[0] - tu2[0]) * constants.ROT_TO_CM * constants.MAGIC_VALUE,
+            (tu1[1] - tu2[1]) * constants.ROT_TO_CM / constants.MAGIC_VALUE)
 
     def update_position(self, motor_positions):
         for i in range(0, len(motor_positions) - 1):
             dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
             # update orientation
-            alpha = (dr - dl) / Constants.AXLE_LENGTH
+            alpha = (dr - dl) / constants.AXLE_LENGTH
             self.local_orientation += alpha
 
             # update koordinates
             if dr == dl:
                 s = dr
             else:
-                s = Constants.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * Constants.AXLE_LENGTH))
+                s = constants.AXLE_LENGTH * (dr + dl) / (dr - dl) * math.sin((dr - dl) / (2 * constants.AXLE_LENGTH))
 
             delta_x = s * (-1) * math.sin(self.local_orientation)
             delta_y = s * math.cos(self.local_orientation)
