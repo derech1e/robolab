@@ -71,8 +71,8 @@ class Robot:
         if self.is_node_target(current_position):
             print("Node handling: Current node is target")
             # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.start_position[0][0], self.start_position[0][1],
-                                         self.start_position[1], current_position[0], current_position[1],
+            self.communication.send_path(self.planet.planet_name, self.__start_position[0][0], self.__start_position[0][1],
+                                         self.__start_position[1], current_position[0], current_position[1],
                                          current_position[2], PathStatus.FREE)  # TODO: Check how you address tuples?
             self.communication.send_target_reached("Target reached!")
 
@@ -85,8 +85,8 @@ class Robot:
             print(f"Path status: {path_status}")
 
             # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.start_position[0][0], self.start_position[0][1],
-                                         self.start_position[1], current_position[0][0], current_position[0][1],
+            self.communication.send_path(self.planet.planet_name, self.__start_position[0][0], self.__start_position[0][1],
+                                         self.__start_position[1], current_position[0][0], current_position[0][1],
                                          current_position[1], path_status)
 
         print("Start node scanning \n")
@@ -191,7 +191,7 @@ class Robot:
                 time.sleep(3)  # DOES THIS WORK???????????????????????????????????????????
                 # may correct direction (see communication)
 
-                self.start_position = current_position
+                self.__start_position = current_position
                 print("Update start position")
             else:
                 raise NotImplementedError("Unknown stop")
@@ -199,7 +199,7 @@ class Robot:
             # Handle direction alignment
             if not self.detected_collision:  # TODO: Improve this remove
                 print(self.__next_path, self.__next_path[1].value)
-                turn_angle = (self.start_position[1] -
+                turn_angle = (self.__start_position[1] -
                               self.__next_path[1].value) if self.__next_path[1].value > 180 else (
                               self.__next_path[1].value)
                 self.motor_sensor.turn_angle_blocking(turn_angle)
