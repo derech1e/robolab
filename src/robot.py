@@ -127,6 +127,9 @@ class Robot:
 
         # TODO: Impl color calibration before running
 
+        # self.color_sensor.calibrate_hls()
+        # time.sleep(2)
+
         while self.active:
             stop_reason = self.follow.follow()
             self.follow.stop()
