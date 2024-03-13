@@ -10,11 +10,12 @@ from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
 from enums import StopReason, PathStatus, Color
 from sensors.motor_sensor import MotorSensor
+from communication import Communication
 
 
 class Robot:
 
-    def __init__(self, communication, logger: logging.Logger):
+    def __init__(self, client, logger: logging.Logger):
         # ******************************** #
         #  Init sensors                    #
         # ******************************** #
@@ -25,17 +26,16 @@ class Robot:
         self.logger = logger
 
         self.planet = Planet()
-        self.communication = communication
+        self.communication = Communication(client, logger)
         self.communication.set_robot(self)
         self.odometry = Odometry()
+        self.driver = Driver()
         self.follow = Follow(self.color_sensor, self.motor_sensor)
 
         self.active = True
         self.planet.group3mode = True
 
         # Exploration
-        self.is_first_node = True
-        self.detected_collision = False
         self.__start_position: Tuple[Tuple[int, int], Direction] = None
         self.__next_path: Tuple[Tuple[int, int], Direction] = None
         self.current_target: Tuple[int, int] = None
@@ -62,7 +62,7 @@ class Robot:
     def play_tone(self):
         self.speaker_sensor.play_tone()
 
-    def handle_node(self, current_position: Tuple[Tuple[int, int], int]):
+    def handle_node(self, current_position: Tuple[Tuple[int, int], int], stop_reason: StopReason):
         self.logger.debug("\n\nStart node handling...")
 
         if self.is_node_current_target(current_position):
@@ -70,12 +70,11 @@ class Robot:
                                          PathStatus.FREE)
             self.communication.send_target_reached("Target reached!")
 
-        if self.is_first_node:
+        if stop_reason == StopReason.FIRST_NODE:
             self.logger.debug("Detected the first node")
             self.communication.send_ready()
-            self.is_first_node = False
         else:
-            path_status = PathStatus.FREE if not self.detected_collision else PathStatus.BLOCKED
+            path_status = PathStatus.FREE if not stop_reason == StopReason.COLLISION else PathStatus.BLOCKED
             self.logger.debug(f"Path status: {path_status}")
 
             # send path message with last driven path
@@ -85,13 +84,12 @@ class Robot:
         self.logger.debug(f"Scanned directions: {scanned_directions}")
 
         self.planet.add_unexplored_node(current_position[0], self.current_node_color, scanned_directions)
-        self.detected_collision = False
 
         self.logger.debug("Finished node handling...")
 
     def robot(self):
-        # planet_name = input('Enter the test planet name and wait for response:')
-        self.communication.send_test_planet("Conway~3")
+        planet_name = input('Enter the test planet name and wait for response:') or "Conway"
+        self.communication.send_test_planet(planet_name)
         # print("Press button to start exploration")
 
         # while not self.button.is_pressed():
@@ -105,63 +103,53 @@ class Robot:
 
         while self.active:
             stop_reason = self.follow.follow()
-            self.follow.stop()
             self.speaker_sensor.play_tone()
 
-            if stop_reason is StopReason.COLLISION:
-                self.follow.turn_until_line_detected()
-                self.detected_collision = True
+            self.current_node_color = Color(self.color_sensor.get_hls_color_name())
+            self.odometry.update_position(self.motor_sensor.motor_positions)
+            current_position = self.odometry.get_coordinates()
 
-            elif stop_reason is StopReason.NODE:
-                self.current_node_color = Color(self.color_sensor.get_hls_color_name())
-                self.odometry.update_position(self.motor_sensor.motor_positions)
-                current_position = self.odometry.get_coordinates()
+            self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
+            self.handle_node(current_position, stop_reason)
 
-                self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
-                self.handle_node(current_position)
+            # Wait for path unveiled
+            self.logger.debug("Wait for path unveiling...")
+            time.sleep(3)
 
-                # Wait for path unveiled
-                self.logger.debug("Wait for path unveiling...")
-                time.sleep(3)
+            # Handle exploration
+            self.__next_path = self.planet.explore_next(current_position[0],
+                                                        current_position[1])  # TODO: Update data structure
 
-                # Handle exploration
-                self.__next_path = self.planet.explore_next(current_position[0],
-                                                            current_position[1])  # TODO: Update data structure
+            self.logger.debug(f"Next selected path: {self.__next_path}")
 
-                self.logger.debug(f"Next selected path: {self.__next_path}")
+            # if next_position is node, the whole map is explored
+            if self.__next_path is None:
+                # Whole map explored
+                if self.current_target is None:
+                    self.logger.debug("No target found")
+                    self.logger.debug("Init mission ending")
+                    break  # Send exploration complete; no target
 
-                # if next_position is node, the whole map is explored
-                if self.__next_path is None:
-                    # Whole map explored
-                    if self.current_target is None:
-                        self.logger.debug("No target found")
-                        self.logger.debug("Init mission ending")
-                        break  # Send exploration complete; no target
+                path_2_target = self.planet.get_to_target(current_position, self.current_target)
+                if path_2_target is None:
+                    self.logger.debug("Target is not located on this planet")
+                    self.logger.debug("Init mission ending")
+                    # TODO: Check how to send target is not on map
+                    # Exploration complete
+                    break
 
-                    path_2_target = self.planet.get_to_target(current_position, self.current_target)
-                    if path_2_target is None:
-                        self.logger.debug("Target is not located on this planet")
-                        self.logger.debug("Init mission ending")
-                        # TODO: Check how to send target is not on map
-                        # Exploration complete
-                        break
+                self.__next_path = path_2_target
 
-                    self.__next_path = path_2_target
+            self.communication.send_path_select(self.planet.planet_name, self.__next_path[0][0])
 
-                self.communication.send_path_select(self.planet.planet_name, self.__next_path[0][0],
-                                                    self.__next_path[0][1],
-                                                    self.__next_path[1].value)
+            self.logger.debug("Wait for path correction...")
+            time.sleep(3)
 
-                self.logger.debug("Wait for path correction...")
-                time.sleep(3)
-
-                # may correct direction (see communication)
-                self.__start_position = current_position
-            else:
-                raise NotImplementedError("Unknown stop")
+            # may correct direction (see communication)
+            self.__start_position = current_position
 
             # Handle direction alignment
-            if not self.detected_collision:  # TODO: Improve this remove
+            if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
                 print(self.__next_path, self.__next_path[1].value)
                 turn_angle = (self.__start_position[1] -
                               self.__next_path[1].value) if self.__next_path[1].value > 180 else (

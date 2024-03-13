@@ -1,16 +1,13 @@
 import time
 import math
-from typing import Tuple, List
 
 from sensors.color_sensor import *
 from sensors.motor_sensor import *
-from sensors.touch_sensor import *
 from sensors.sonar_sensor import SonarSensor
 from enums import StopReason
 from planet import Direction
 
-from odometry import Odometry
-import Constatns
+import Constants
 
 
 class Follow:
@@ -38,20 +35,20 @@ class Follow:
         error = self.avrLightness - color[1]
 
         # update integral (erhoet sich um 70)
-        self.integral_value = Constatns.INTEGRAL_FACTOR * self.integral_value + error
+        self.integral_value = Constants.INTEGRAL_FACTOR * self.integral_value + error
         delta_error = error - self.last_error
         self.last_error = error
         return error, delta_error
 
     def calc_turn(self) -> float:
         error, delta_error = self.calc_error()
-        return Constatns.KP * error + Constatns.KI * self.integral_value + Constatns.KD * delta_error
+        return Constants.KP * error + Constants.KI * self.integral_value + Constants.KD * delta_error
 
     def calc_speed_left(self) -> int:
-        return Constatns.SPEED + int(self.calc_turn())
+        return Constants.SPEED + int(self.calc_turn())
 
     def calc_speed_right(self) -> int:
-        return Constatns.SPEED - int(self.calc_turn())
+        return Constants.SPEED - int(self.calc_turn())
 
     def turn_until_line_detected(self):
         self.line_detection_in_progress = True
@@ -96,9 +93,9 @@ class Follow:
         # note = {pos, }
 
         while self.color_sensor.get_hls_color_name() in ["red", "blue"]:
-            self.motor_sensor.forward_non_blocking(Constatns.SPEED, Constatns.SPEED)
+            self.motor_sensor.forward_non_blocking(Constants.SPEED, Constants.SPEED)
         # evtl sleep hier um weiter zu fahren
-        self.motor_sensor.forward_relative_blocking(40, Constatns.SPEED)
+        self.motor_sensor.forward_relative_blocking(40, Constants.SPEED)
         self.motor_sensor.stop()
 
         alpha = 0
@@ -112,7 +109,7 @@ class Follow:
                 new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
-                alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constatns.AXLE_LENGTH * 0.05
+                alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constants.AXLE_LENGTH * 0.05
                 print(self.color_sensor.get_hls_color_name())
                 if (self.color_sensor.get_color_hls()[1] < 100
                         and alpha > angle - 0.5

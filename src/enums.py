@@ -33,6 +33,7 @@ class PathStatus(StrEnum):
 class StopReason(StrEnum):
     COLLISION = "collision"
     NODE = "node"
+    FIRST_NODE = "first_node"
 
 
 class Color(StrEnum):

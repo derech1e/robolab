@@ -12,7 +12,7 @@ import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
-import Constatns
+import Constants
 from src.planet import Direction
 
 
@@ -34,9 +34,9 @@ class Communication:
         self.client = mqtt_client
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
         self.client.on_message = self.safe_on_message_handler
-        self.client.username_pw_set(Constatns.GROUP_ID, password=Constatns.PASSWORD)
+        self.client.username_pw_set(Constants.GROUP_ID, password=Constants.PASSWORD)
         self.client.connect('mothership.inf.tu-dresden.de', port=8883)
-        self.client.subscribe(f'explorer/{Constatns.GROUP_ID}', qos=2)
+        self.client.subscribe(f'explorer/{Constants.GROUP_ID}', qos=2)
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
@@ -140,7 +140,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending ready...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{Constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.READY)
                           .build())
@@ -152,7 +152,7 @@ class Communication:
         :return: void
         """
         self.logger.debug(f"Sending: Test planet...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{Constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TEST_PLANET)
                           .payload(
@@ -180,7 +180,7 @@ class Communication:
 
         # TODO: REMOVE debug_path_comparison
         self.logger.debug(f"Sending last driven path...")
-        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}", self.debug_path_comparison)
+        self.send_message(f"planet/{planet_name}/{Constants.GROUP_ID}", self.debug_path_comparison)
 
     def send_path_select(self, planet_name: str, node: Tuple[Tuple[int, int], Direction]) -> None:
         """
@@ -190,7 +190,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Path select...")
-        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}",
+        self.send_message(f"planet/{planet_name}/{Constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.PATH_SELECT)
                           .payload(
@@ -206,7 +206,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Target reached...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{Constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TARGET_REACHED)
                           .payload(
@@ -222,7 +222,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Exploration complete...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{Constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)
                           .payload(
@@ -237,7 +237,7 @@ class Communication:
         :param message: String
         :return: void
         """
-        self.send_message(f"comtest/{Constatns.GROUP_ID}", message)
+        self.send_message(f"comtest/{Constants.GROUP_ID}", message)
 
     def set_robot(self, robot: Robot) -> None:
         self.robot = robot

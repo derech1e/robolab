@@ -52,8 +52,7 @@ def run():
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("***** RoboLab started *****")
-    communication = Communication(client, logger)
-    robot = Robot(communication, logger)
+    robot = Robot(client, logger)
     robot.robot()
 
 
