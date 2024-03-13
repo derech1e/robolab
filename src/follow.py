@@ -115,7 +115,6 @@ class Follow:
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constatns.AXLE_LENGTH * 0.05
-                print(self.color_sensor.get_hls_color_name())
                 if (self.color_sensor.get_color_hls()[1] < 100
                         and alpha > angle
                         and self.color_sensor.get_hls_color_name() == "black"):

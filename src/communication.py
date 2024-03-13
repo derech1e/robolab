@@ -13,7 +13,7 @@ import paho.mqtt.client as mqtt
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
 import Constatns
-from src.planet import Direction
+from planet import Direction
 
 
 class Communication:
@@ -118,6 +118,8 @@ class Communication:
                 self.logger.error("******** Communication error *********")
                 self.logger.error(json.dumps(response, indent=2))
                 self.logger.error("**************************************")
+                if response["payload"]["message"].endsWith("does not exist"):
+                    raise ValueError(response["payload"]["message"])
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
