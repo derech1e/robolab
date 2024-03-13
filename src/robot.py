@@ -51,13 +51,6 @@ class Robot:
     def set_start_position(self, start_x: int, start_y: int, start_direction: Direction):
         self.__start_position = ((start_x, start_y), start_direction)
 
-        # 1. Memo target
-        # 2. If current node == target?
-        # 3. If not => Check if target is already discovered -> Calculate the shortest path =>  drive to target
-        # 4. If not continue exploring
-        #
-        # Check on each node if the target is reached; handle target override
-
     def is_node_target(self, current_position):
         if self.current_target is None:
             return False
@@ -105,28 +98,18 @@ class Robot:
         self.speaker_sensor.play_tone()
 
     def robot(self):
-
-        # Initialize communication, configure, connect, etc.
-        # ...
-        # Set current planet for mothership
-        planet_name = input('Enter the test planet name and wait for response:')
-        self.communication.send_test_planet(planet_name)
+        #planet_name = input('Enter the test planet name and wait for response:')
+        self.communication.send_test_planet("Conway~3")
         # print("Press button to start exploration")
 
-        while not self.button.is_pressed():
-            continue
+        #while not self.button.is_pressed():
+         #   continue
 
-        # self.color_sensor.calibrate_hls()
-        print(" ")
-        print("")
+        #self.color_sensor.calibrate_hls()
+        print("\n\n")
         time.sleep(5)
 
         print("Starting exploration...")
-
-        # TODO: Impl color calibration before running
-
-        # self.color_sensor.calibrate_hls()
-        # time.sleep(2)
 
         while self.active:
             stop_reason = self.follow.follow()
@@ -186,12 +169,10 @@ class Robot:
                                                     self.__next_path[0][1],
                                                     self.__next_path[1].value)
 
-                print("")
-                # wait for response
                 print("Wait for path correction")
-                time.sleep(3)  # DOES THIS WORK???????????????????????????????????????????
-                # may correct direction (see communication)
+                time.sleep(3)
 
+                # may correct direction (see communication)
                 self.__start_position = current_position
                 print("Update start position")
             else:

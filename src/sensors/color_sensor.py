@@ -45,9 +45,9 @@ class ColorSensor:
         raw_color = self.get_color_hls()
         if self.NO_COLOR - self.ACCEPTANCE_RANGE_NOT_COLOR < raw_color[0] < self.NO_COLOR + self.ACCEPTANCE_RANGE_NOT_COLOR:
             if self.AVR_LIGHTNESS > raw_color[1]:
-                return "white"
-            else:
                 return "black"
+            else:
+                return "white"
         else:
             value = self.color_data["blue"]
             if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
