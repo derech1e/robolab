@@ -39,7 +39,7 @@ class Robot:
         self.current_target: Tuple[int, int] = None
         self.current_node_color: NodeColor = None
         self.detected_collision = False
-        self.start_position: Tuple[Tuple[int, int], int] = None  # Update data structure
+        self.__start_position: Tuple[Tuple[int, int], int] = None  # Update data structure
 
     def update_next_path(self, direction: Direction):
         print(">>>>>>>  >>>> >> Received update for direction")
@@ -47,6 +47,9 @@ class Robot:
 
     def set_current_target(self, target: Tuple[int, int]):
         self.current_target = target
+
+    def set_start_position(self, start_x: int, start_y: int, start_direction: Direction):
+        self.__start_position = ((start_x, start_y), start_direction)
 
         # 1. Memo target
         # 2. If current node == target?

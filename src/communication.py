@@ -41,6 +41,8 @@ class Communication:
         self.syntax_response = {}
         self.robot: Robot = None
 
+        self.debug_path_comparison = {}
+
     # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
         """
@@ -75,13 +77,21 @@ class Communication:
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 self.robot.planet.planet_name = payload['planetName']
                 # TODO: set startX, startY and startOrientation on planet
-                #self.robot.start_position = ((payload['startX'], payload['startY']), payload['startOrientation'] + 180 % 360)
+                self.robot.set_start_position(payload["startX"], payload["startY"], payload["startOrientation"])
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
                 target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+
+                if self.debug_path_comparison != (start_tuple, target_tuple, payload["pathWeight"]):
+                    print(">>>> WARN!!!::: Received path does not match send path")
+
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.logger.debug("Added new path")
                 self.robot.play_tone()
+                self.logger.debug("Update start position")
+
+                self.robot.set_start_position(payload["endX"], payload["endY"], payload["endOrientation"])
                 # TODO: Impl logic for pathStatus 'free|blocked‘
                 #self.robot.start_position = ((payload['endX'], payload['endY']), payload['endOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH_SELECT:
@@ -138,10 +148,7 @@ class Communication:
 
     def send_path(self, planet: str, start_x: int, start_y: int, start_direction: int, end_x: int, end_y: int,
                   end_direction: int, path_status: PathStatus):
-        self.send_message(f"planet/{planet}/{GROUP}",
-                          MessageBuilder()
-                          .type(MessageType.PATH)
-                          .payload(
+        self.debug_path_comparison = MessageBuilder().type(MessageType.PATH).payload(
                               PayloadBuilder()
                               .start_x(start_x)
                               .start_y(start_y)
@@ -150,8 +157,9 @@ class Communication:
                               .end_y(end_y)
                               .end_direction(end_direction)
                               .path_status(path_status)
-                              .build())
-                          .build())
+                              .build()).build()
+
+        self.send_message(f"planet/{planet}/{GROUP}", self.debug_path_comparison)
 
     def send_path_select(self, planet: str, start_x: int, start_y: int, start_direction: int):
         self.send_message(f"planet/{planet}/{GROUP}",
