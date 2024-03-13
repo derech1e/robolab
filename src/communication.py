@@ -55,12 +55,8 @@ class Communication:
             self.logger.warning("Not robot instance found!")
 
         response = json.loads(message.payload.decode('utf-8'))
-        try:
-            msg_type = MessageType(response["type"])
-            msg_from = MessageFrom(response["from"])
-        except ValueError:
-            print(response)
-            return
+        msg_type = MessageType(response["type"])
+        msg_from = MessageFrom(response["from"])
 
         if msg_from == MessageFrom.SERVER:
             self.logger.debug(f"Received on topic: {message.topic}")
@@ -79,8 +75,7 @@ class Communication:
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 self.robot.planet.planet_name = payload['planetName']
                 # TODO: set startX, startY and startOrientation on planet
-                self.robot.start_position = ((payload['startX'], payload['startY']),
-                                             payload['startOrientation'] + 180 % 360)
+                #self.robot.start_position = ((payload['startX'], payload['startY']), payload['startOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
@@ -88,7 +83,7 @@ class Communication:
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.robot.play_tone()
                 # TODO: Impl logic for pathStatus 'free|blocked‘
-                self.robot.start_position = ((payload['endX'], payload['endY']), payload['endOrientation'] + 180 % 360)
+                #self.robot.start_position = ((payload['endX'], payload['endY']), payload['endOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
                 self.robot.update_next_path(payload["startDirection"])
@@ -107,10 +102,6 @@ class Communication:
         elif msg_from == MessageFrom.DEBUG:
             if msg_type == MessageType.SYNTAX:
                 self.syntax_response = json.dumps(response)
-            elif msg_type == MessageType.NOTICE:
-                payload = response["payload"]
-                print(payload["message"])
-
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #

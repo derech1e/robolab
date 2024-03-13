@@ -15,6 +15,7 @@ class MessageType(Enum):
     SYNTAX = "syntax"
     ERROR = "error"
     NOTICE = "notice"
+    ADJUST = "adjust"
 
 
 class MessageFrom(Enum):
