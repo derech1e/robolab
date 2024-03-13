@@ -15,9 +15,10 @@ class Odometry:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        self.AXLE_LENGTH = 10 #10.5
+        self.AXLE_LENGTH = 10 
         self.WHEEL_RADIUS = 5.54 / 2
         self.ROT_TO_CM = 0.04884  #needs fixing
+        self.MAGIC_VALUE = 0.9945
 
         self.motor_sensor = MotorSensor()
         self.motor_positions = self.motor_sensor.get_motor_positions()
@@ -30,7 +31,7 @@ class Odometry:
         self.list_of_coords = []
 
     def __get_diff_in_cm(self, tu1:Tuple[int,int], tu2:Tuple[int,int]) -> Tuple[float, float]:
-        return((tu1[0]-tu2[0]) * self.ROT_TO_CM, (tu1[1]-tu2[1]) * self.ROT_TO_CM)
+        return((tu1[0]-tu2[0]) * self.ROT_TO_CM * self.MAGIC_VALUE, (tu1[1]-tu2[1]) * self.ROT_TO_CM / self.MAGIC_VALUE)
 
     def update_position(self, motor_positions):
         for i in range(0, len(motor_positions)-1):
@@ -66,24 +67,10 @@ class Odometry:
 
 
     def __clip_orientation(self, rad) -> int:
-        angle =  -1* math.degrees(rad)
-        angle = int(round(angle)+360) % 360
-
-        if angle < 45:
-            return 0
-        elif angle < 135:
-            return 90
-        elif angle < 225:
-            return 180
-        elif angle < 315:
-            return 270
-        elif angle <= 360:
-            return 0
-        else:
-            return 999
+        return (360-round(math.degrees(rad)/90)*90) % 360
 
     def __clip_coordinat(self, x:float) -> int:
-        return int(round (x / 50))
+        return round (x / 50)
 
     def set_coordinates(self, x: int, y: int, angle: float):
         """
