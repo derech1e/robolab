@@ -29,7 +29,7 @@ class Robot:
         self.planet = Planet()
         self.communication = Communication(client, logger)
         self.communication.set_robot(self)
-        self.odometry = Odometry()
+        self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
 
         self.active = True
@@ -71,6 +71,10 @@ class Robot:
 
     def handle_node(self, current_position: Tuple[Tuple[int, int], Direction], stop_reason: StopReason):
         self.logger.debug("\n\nStart node handling...")
+
+        self.node_color = Color(self.color_sensor.get_color_name())
+        self.odometry.update_position(self.motor_sensor.motor_positions)
+        self.__current_node = self.odometry.get_coordinates()
 
         if stop_reason == StopReason.FIRST_NODE:
             self.logger.debug("Detected the first node")
@@ -126,10 +130,6 @@ class Robot:
         while self.active:
             stop_reason = self.driver.follow_line()
 
-            self.node_color = Color(self.color_sensor.get_color_name())
-            self.odometry.update_position(self.motor_sensor.motor_positions)
-            self.__current_node = self.odometry.get_coordinates()
-
             self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
             self.handle_node(self.__current_node, stop_reason)
 
@@ -145,6 +145,7 @@ class Robot:
             if self.handle_next_node():
                 break
 
+            # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
             self.logger.debug("Wait for path correction...")
             time.sleep(3)

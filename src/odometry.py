@@ -9,17 +9,12 @@ from sensors.motor_sensor import MotorSensor
 
 
 class Odometry:
-    def __init__(self):
+    def __init__(self, motor_sensor: MotorSensor):
         """
         Initializes odometry module
         """
-
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        # needs fixing
-
-        self.motor_sensor = MotorSensor()
-        self.motor_positions = self.motor_sensor.get_motor_positions()
-        self.local_coordinates: [float]
+        self.motor_sensor = motor_sensor
+        self.motor_positions = motor_sensor.get_motor_positions()
 
         self.local_x_coordinate = 0
         self.local_y_coordinate = 0
@@ -28,9 +23,9 @@ class Odometry:
         self.list_of_coords = []
 
     def __get_diff_in_cm(self, tu1: Tuple[int, int], tu2: Tuple[int, int]) -> Tuple[float, float]:
-        return (
-            (tu1[0] - tu2[0]) * constants.ROT_TO_CM * constants.MAGIC_VALUE,
-            (tu1[1] - tu2[1]) * constants.ROT_TO_CM / constants.MAGIC_VALUE)
+        left = (tu1[0] - tu2[0]) * constants.ROT_TO_CM * constants.MAGIC_VALUE
+        right = (tu1[1] - tu2[1]) * constants.ROT_TO_CM / constants.MAGIC_VALUE
+        return left, right
 
     def update_position(self, motor_positions):
         for i in range(0, len(motor_positions) - 1):
@@ -83,5 +78,6 @@ class Odometry:
         """
         Get the position of the robot in coordinates from mother ship
         """
-        return ((self.__clip_coordinat(self.local_x_coordinate), self.__clip_coordinat(self.local_y_coordinate)),
+        return ((self.__clip_coordinat(self.local_x_coordinate),
+                 self.__clip_coordinat(self.local_y_coordinate)),
                 Direction(self.__clip_orientation(self.local_orientation)))
