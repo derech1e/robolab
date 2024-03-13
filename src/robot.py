@@ -160,9 +160,7 @@ class Robot:
 
                     self.__next_path = path_2_target
 
-                self.communication.send_path_select(self.planet.planet_name, self.__next_path[0][0],
-                                                    self.__next_path[0][1],
-                                                    self.__next_path[1].value)
+                self.communication.send_path_select(self.planet.planet_name, self.__next_path)
 
                 self.logger.debug("Wait for path correction...")
                 time.sleep(3)
