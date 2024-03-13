@@ -2,7 +2,7 @@
 
 # Attention: Do not import the ev3dev.ev3 module in this file
 from enum import IntEnum, unique
-from enums import NodeColor
+from enums import Color
 from typing import Optional, List, Tuple, Dict
 
 
@@ -49,7 +49,7 @@ class Planet:
     def __init__(self):
         """ Initializes the data structure """
         self.paths: path_list = {}
-        self.nodes: Dict[Tuple[int, int], NodeColor] = {}
+        self.nodes: Dict[Tuple[int, int], Color] = {}
         self.group3mode: bool = False
         self.planet_name = ""
 
@@ -66,7 +66,7 @@ class Planet:
         print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
-    def add_unexplored_node(self, position: Tuple[int, int], color: NodeColor, directions: [Direction]):
+    def add_unexplored_node(self, position: Tuple[int, int], color: Color, directions: [Direction]):
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
 
@@ -77,7 +77,7 @@ class Planet:
             self.add_unexplored_path((position, direction))
 
     def add_new_node_and_decide(self, position: Tuple[int, int], current_direction: Direction,
-                                color: NodeColor, directions: List[Direction]) -> Optional[Direction]:
+                                color: Color, directions: List[Direction]) -> Optional[Direction]:
         self.add_unexplored_node(position, color, directions)
         explore_decision = self.explore_next(position, current_direction)
         if explore_decision is None:
@@ -113,7 +113,7 @@ class Planet:
         self.paths[target[0]][target[1]] = (start[0], start[1], weight)
 
     # stores a node with its color
-    def add_node(self, coordinates: Tuple[int, int], color: NodeColor):
+    def add_node(self, coordinates: Tuple[int, int], color: Color):
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
@@ -122,7 +122,7 @@ class Planet:
             self.paths[coordinates] = {}
 
     # checks if the node color is the expected one
-    def check_node(self, coordinates: Tuple[int, int], color: NodeColor) -> bool:
+    def check_node(self, coordinates: Tuple[int, int], color: Color) -> bool:
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from src.planet import Direction, Planet, NodeColor
+from src.planet import Direction, Planet, Color
 import random
 
 
@@ -67,13 +67,13 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet.group3mode = True
         for node in self.nodes:
             if node[0][0][0] + node[0][0][1] % 2 == 0:
-                self.planet.add_node(node[0][0], NodeColor.RED)
+                self.planet.add_node(node[0][0], Color.RED)
             else:
-                self.planet.add_node(node[0][0], NodeColor.BLUE)
+                self.planet.add_node(node[0][0], Color.BLUE)
             if node[1][0][0] + node[1][0][1] % 2 == 0:
-                self.planet.add_node(node[1][0], NodeColor.RED)
+                self.planet.add_node(node[1][0], Color.RED)
             else:
-                self.planet.add_node(node[1][0], NodeColor.BLUE)
+                self.planet.add_node(node[1][0], Color.BLUE)
             self.planet.add_path(node[0], node[1], node[2])
         self.planet.add_unexplored_path(((0, 0), Direction.WEST))
 
@@ -109,9 +109,9 @@ class TestRoboLabPlanet(unittest.TestCase):
         #  (0,1)-
         #    |
         self.p4.group3mode = True
-        self.p4.add_node((0, 0), NodeColor.RED)
-        self.p4.add_node((0, 1), NodeColor.BLUE)
-        self.p4.add_node((1, 0), NodeColor.BLUE)
+        self.p4.add_node((0, 0), Color.RED)
+        self.p4.add_node((0, 1), Color.BLUE)
+        self.p4.add_node((1, 0), Color.BLUE)
         self.p4.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
         self.p4.add_path(((0, 0), Direction.SOUTH), ((0, 1), Direction.NORTH), 2)
         self.p4.add_unexplored_path(((0, 1), Direction.SOUTH))

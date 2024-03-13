@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import Tuple
 
 from odometry import Odometry
@@ -7,18 +8,19 @@ from follow import Follow
 from sensors.touch_sensor import TouchSensor
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
-from enums import StopReason, PathStatus, NodeColor
+from enums import StopReason, PathStatus, Color
 from sensors.motor_sensor import MotorSensor
 
 
 class Robot:
 
-    def __init__(self, communication):
+    def __init__(self, communication, logger: logging.Logger):
 
         self.button = TouchSensor()
         self.speaker_sensor = SpeakerSensor()
         self.color_sensor = ColorSensor()
         self.motor_sensor = MotorSensor()
+        self.logger = logger
 
         self.planet = Planet()
         self.communication = communication
@@ -34,11 +36,11 @@ class Robot:
         self.node_scan_done = False
 
         # Exploration
+        self.detected_collision = False
+        self.__start_position: Tuple[Tuple[int, int], Direction] = None
         self.__next_path: Tuple[Tuple[int, int], Direction] = None
         self.current_target: Tuple[int, int] = None
-        self.current_node_color: NodeColor = None
-        self.detected_collision = False
-        self.__start_position: Tuple[Tuple[int, int], int] = None  # Update data structure
+        self.current_node_color: Color = None
 
     def update_next_path(self, direction: Direction):
         print(">>>>>>>  >>>> >> Received update for direction")
@@ -50,22 +52,18 @@ class Robot:
     def set_start_position(self, start_x: int, start_y: int, start_direction: Direction):
         self.__start_position = ((start_x, start_y), start_direction)
 
-    def is_node_target(self, current_position):
+    def is_node_current_target(self, current_position):
         if self.current_target is None:
             return False
 
         return current_position[0][0] == self.current_target[0] and current_position[0][1] == self.current_target[1]
 
     def handle_node(self, current_position: Tuple[Tuple[int, int], int]):
-
         print("Handle node")
-        # Check if current node is target node TODO: Impl helper function for comparison
-        if self.is_node_target(current_position):
+
+        if self.is_node_current_target(current_position):
             print("Node handling: Current node is target")
-            # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.__start_position[0][0], self.__start_position[0][1],
-                                         self.__start_position[1], current_position[0], current_position[1],
-                                         current_position[2], PathStatus.FREE)  # TODO: Check how you address tuples?
+            self.communication.send_path(self.planet.planet_name, self.__start_position, current_position, PathStatus.FREE)
             self.communication.send_target_reached("Target reached!")
 
         if self.is_first_node:
@@ -120,7 +118,7 @@ class Robot:
                 self.detected_collision = True
             elif stop_reason is StopReason.NODE:
                 print("Node detected")
-                self.current_node_color = NodeColor(self.color_sensor.get_hls_color_name())
+                self.current_node_color = Color(self.color_sensor.get_hls_color_name())
                 self.motor_sensor.stop()
                 self.odometry.update_position(self.motor_sensor.motor_positions)
                 current_position = self.odometry.get_coordinates()

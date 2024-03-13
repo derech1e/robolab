@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class MessageType(Enum):
+class MessageType(StrEnum):
     TEST_PLANET = "testPlanet"
     READY = "ready"
     PLANET = "planet"
@@ -18,23 +18,25 @@ class MessageType(Enum):
     ADJUST = "adjust"
 
 
-class MessageFrom(Enum):
+class MessageFrom(StrEnum):
     CLIENT = "client"
     SERVER = "server"
     DEBUG = "debug"
     SYNTAX = "syntax"
 
 
-class PathStatus(Enum):
+class PathStatus(StrEnum):
     FREE = "free"
     BLOCKED = "blocked"
 
 
-class StopReason(Enum):
+class StopReason(StrEnum):
     COLLISION = "collision"
     NODE = "node"
 
 
-class NodeColor(Enum):
+class Color(StrEnum):
+    BLACK = "black"
+    WHITE = "white"
     BLUE = "blue"
     RED = "red"

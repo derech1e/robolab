@@ -177,7 +177,7 @@ class Communication:
             .build()).build()
 
         # TODO: REMOVE debug_path_comparison
-
+        self.logger.debug(f"Sending last driven path: {self.debug_path_comparison}")
         self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}", self.debug_path_comparison)
 
     def send_path_select(self, planet_name: str, node: Tuple[Tuple[int, int], Direction]) -> None:

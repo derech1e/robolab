@@ -53,7 +53,7 @@ def run():
 
     print("***** RoboLab started *****")
     communication = Communication(client, logger)
-    robot = Robot(communication)
+    robot = Robot(communication, logger)
     robot.robot()
 
 

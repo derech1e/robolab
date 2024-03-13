@@ -88,7 +88,7 @@ class Follow:
 
         return Direction(abs((round(angle / 90) * 90 - 360)) % 360)
 
-    def scan_node(self) -> [Direction]:
+    def scan_node(self) -> list[Direction]:
 
         # fahre bis keine farbe mehr
         # dreh dich und behalte den winkel im blich
