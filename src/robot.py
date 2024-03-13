@@ -102,7 +102,8 @@ class Robot:
         self.speaker_sensor.play_tone()
 
     def robot(self):
-
+        Follow(self.color_sensor, self.motor_sensor).follow()
+        """
         # Initialize communication, configure, connect, etc.
         # ...
         # Set current planet for mothership
@@ -207,3 +208,4 @@ class Robot:
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
         # self.communication.send_exploration_complete("Planet fully discovered!")
+"""

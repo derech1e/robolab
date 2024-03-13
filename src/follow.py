@@ -23,6 +23,8 @@ class Follow:
         self.timer = 0
         self.last_error = 0
 
+        self.odo = Odometry()
+
         # TODO: tune these values
         self.normalSpeed = 150
         self.TURN_SPEED = 150
@@ -142,7 +144,6 @@ class Follow:
         return directions
 
     def follow(self) -> StopReason:
-        i = 0
         while True:
             if self.color_sensor.is_node():
                 self.motor_sensor.stop()
@@ -152,10 +153,7 @@ class Follow:
             if self.sonar_sensor.is_colliding():
                 return StopReason.COLLISION  # Stop following collision is detected
 
-            if i > 3:
-                self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
-                i = 0
-            i +=1
+            self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
 
 
 
