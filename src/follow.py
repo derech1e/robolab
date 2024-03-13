@@ -10,6 +10,7 @@ from enums import StopReason
 from planet import Direction
 
 from odometry import Odometry
+import Constatns
 
 
 class Follow:
@@ -22,16 +23,6 @@ class Follow:
         self.integral_value = 0
         self.timer = 0
         self.last_error = 0
-
-        # TODO: tune these values
-        self.normalSpeed = 150
-        self.TURN_SPEED = 150
-        self.AXLE_LENGTH = 10
-        self.KA = 1  # to skale all
-        self.KP = 0.51  # Aktueller Fehler ??
-        self.KI = 0.074  # Bisherige Fehler ??
-        self.KD = 0.45  # Zukünftige Fehler ??
-        self.INTEGRAL_FACTOR = 0.587  # In kurven??
 
         # Collision detection
         self.line_detection_in_progress = False
@@ -47,20 +38,20 @@ class Follow:
         error = self.avrLightness - color[1]
 
         # update integral (erhoet sich um 70)
-        self.integral_value = self.INTEGRAL_FACTOR * self.integral_value + error
+        self.integral_value = Constatns.INTEGRAL_FACTOR * self.integral_value + error
         delta_error = error - self.last_error
         self.last_error = error
         return error, delta_error
 
     def calc_turn(self) -> float:
         error, delta_error = self.calc_error()
-        return self.KP * error + self.KI * self.integral_value + self.KD * delta_error
+        return Constatns.KP * error + Constatns.KI * self.integral_value + Constatns.KD * delta_error
 
     def calc_speed_left(self) -> int:
-        return self.normalSpeed + int(self.calc_turn())
+        return Constatns.SPEED + int(self.calc_turn())
 
     def calc_speed_right(self) -> int:
-        return self.normalSpeed - int(self.calc_turn())
+        return Constatns.SPEED - int(self.calc_turn())
 
     def turn_until_line_detected(self):
         self.line_detection_in_progress = True
@@ -81,9 +72,10 @@ class Follow:
         self.motor_sensor.stop()
 
     def angle_to_direction(self, angle):
-        # angle = int(round(angle + 360)) % 360
+        print(angle)
+        angle = int(round(angle + 360)) % 360
 
-        """if 0 <= angle < 35:
+        if 0 <= angle < 35:
             return 0
         elif 50 < angle < 120:
             return Direction.WEST  # 90
@@ -93,10 +85,8 @@ class Follow:
             return Direction.EAST  # 270
         elif 325 < angle < 360:
             return 0
-        else:
-            return 0"""
 
-        return Direction((round(angle / 90) * 90 + 360) % 360)
+        return Direction(abs((round(angle / 90) * 90 - 360)) % 360)
 
     def scan_node(self) -> [Direction]:
 
@@ -106,9 +96,9 @@ class Follow:
         # note = {pos, }
 
         while self.color_sensor.get_hls_color_name() in ["red", "blue"]:
-            self.motor_sensor.forward_non_blocking(self.normalSpeed, self.normalSpeed)
+            self.motor_sensor.forward_non_blocking(Constatns.SPEED, Constatns.SPEED)
         # evtl sleep hier um weiter zu fahren
-        self.motor_sensor.forward_relative_blocking(40, self.normalSpeed)
+        self.motor_sensor.forward_relative_blocking(40, Constatns.SPEED)
         self.motor_sensor.stop()
 
         alpha = 0
@@ -118,16 +108,16 @@ class Follow:
         # for angle in [math.pi / 2 - 0.1, math.pi - 0.1, math.pi * 3 / 2 - 0.1, math.pi *2 -0.1]:
         for i in range(1, 5):
             angle = math.pi * i / 2
-            while alpha < angle + 1:
-                new_pos = self.motor_sensor.beyblade(self.TURN_SPEED)
+            while alpha < angle + 0.3:  # TODO: Scale this value with battery voltage level (0.3 - 1.0)
+                new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
-                alpha = alpha + (delta_pos[1] - delta_pos[0]) / self.AXLE_LENGTH * 0.05
-
+                alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constatns.AXLE_LENGTH * 0.05
+                print(self.color_sensor.get_hls_color_name())
                 if (self.color_sensor.get_color_hls()[1] < 100
                         and alpha > angle - 0.5
                         and self.color_sensor.get_hls_color_name() == "black"):
-                    directions.append(self.angle_to_direction(360 - 90 * i))
+                    directions.append(Direction(360 - 90 * i))
                     print("path detected")
                     break
 
@@ -137,25 +127,16 @@ class Follow:
         print("scan_node: done!")
 
         print("Correct base heading")
-        self.motor_sensor.turn_angle_blocking(-70, 50)
+        self.motor_sensor.turn_angle_blocking(-60, 50)
 
         return directions
 
     def follow(self) -> StopReason:
-        i = 0
         while True:
             if self.color_sensor.is_node():
                 self.motor_sensor.stop()
-                self.odo.update_position(self.motor_sensor.motor_positions)
-                self.odo.get_coordinates()
                 return StopReason.NODE  # Stop following if node is detected
             if self.sonar_sensor.is_colliding():
                 return StopReason.COLLISION  # Stop following collision is detected
 
-            if i > 3:
-                self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
-                i = 0
-            i +=1
-
-
-
+            self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())

@@ -3,7 +3,6 @@
 # Attention: Do not import the ev3dev.ev3 module in this file
 import json
 import ssl
-from enum import Enum
 import logging
 from builder import MessageBuilder, PayloadBuilder
 
@@ -11,8 +10,7 @@ import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
-
-GROUP = "003"
+import Constatns
 
 
 class Communication:
@@ -33,9 +31,9 @@ class Communication:
         self.client = mqtt_client
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
         self.client.on_message = self.safe_on_message_handler
-        self.client.username_pw_set('003', password='PYuoI4T4Mv')
+        self.client.username_pw_set(Constatns.GROUP_ID, password=Constatns.PASSWORD)
         self.client.connect('mothership.inf.tu-dresden.de', port=8883)
-        self.client.subscribe('explorer/003', qos=2)
+        self.client.subscribe(f'explorer/{Constatns.GROUP_ID}', qos=2)
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
@@ -134,13 +132,13 @@ class Communication:
         self.client.publish(topic, json.dumps(message), qos=2)
 
     def send_ready(self):
-        self.send_message(f"explorer/{GROUP}",
+        self.send_message(f"explorer/{Constatns.Constatns.GROUP_ID_ID}",
                           MessageBuilder()
                           .type(MessageType.READY)
                           .build())
 
     def send_test_planet(self, planet_name: str):
-        self.send_message(f"explorer/{GROUP}",
+        self.send_message(f"explorer/{Constatns.Constatns.GROUP_ID_ID}",
                           MessageBuilder()
                           .type(MessageType.TEST_PLANET)
                           .payload(
@@ -162,10 +160,10 @@ class Communication:
                               .path_status(path_status)
                               .build()).build()
 
-        self.send_message(f"planet/{planet}/{GROUP}", self.debug_path_comparison)
+        self.send_message(f"planet/{planet}/{Constatns.GROUP_ID}", self.debug_path_comparison)
 
     def send_path_select(self, planet: str, start_x: int, start_y: int, start_direction: int):
-        self.send_message(f"planet/{planet}/{GROUP}",
+        self.send_message(f"planet/{planet}/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.PATH_SELECT)
                           .payload(
@@ -177,7 +175,7 @@ class Communication:
                           .build())
 
     def send_target_reached(self, message: str):
-        self.send_message(f"explorer/{GROUP}",
+        self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TARGET_REACHED)
                           .payload(
@@ -187,7 +185,7 @@ class Communication:
                           .build())
 
     def send_exploration_complete(self, message: str):
-        self.send_message(f"explorer/{GROUP}",
+        self.send_message(f"explorer/{Constatns.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)
                           .payload(
@@ -197,7 +195,7 @@ class Communication:
                           .build())
 
     def send_com_test(self, message: str):
-        self.send_message(f"comtest/{GROUP}", message)
+        self.send_message(f"comtest/{Constatns.GROUP_ID}", message)
 
     def set_robot(self, robot: Robot):
         self.robot = robot

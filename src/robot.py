@@ -5,7 +5,6 @@ from odometry import Odometry
 from planet import Planet, Direction
 from follow import Follow
 from sensors.touch_sensor import TouchSensor
-from sensors.sonar_sensor import SonarSensor
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
 from enums import StopReason, PathStatus, NodeColor
