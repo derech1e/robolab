@@ -69,7 +69,7 @@ class Communication:
                 self.logger.debug("Received planet...")
                 self.client.subscribe(f"planet/{payload['planetName']}")
                 self.robot.planet.planet_name = payload['planetName']
-                self.robot.set_start_position(payload["startX"], payload["startY"], payload["startOrientation"])
+                self.robot.set_start_node(payload["startX"], payload["startY"], payload["startOrientation"])
 
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current node...")
@@ -88,7 +88,7 @@ class Communication:
 
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_start_position(payload["endX"], payload["endY"], payload["endOrientation"])
+                self.robot.set_current_node(payload["endX"], payload["endY"], payload["endOrientation"])
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
@@ -102,7 +102,7 @@ class Communication:
 
             elif msg_type == MessageType.TARGET:
                 self.logger.debug(f"Received new target...")
-                self.robot.set_current_target((payload["targetX"], payload["targetY"]))
+                self.robot.set_target((payload["targetX"], payload["targetY"]))
 
             elif msg_type == MessageType.DONE:
                 self.logger.debug("Finished mission")

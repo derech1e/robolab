@@ -1,3 +1,5 @@
+import math
+
 import ev3dev.ev3 as ev3
 
 
@@ -14,9 +16,13 @@ class MotorSensor:
         self.ROTATION_PER_DEGREE = 1.694392166
 
         self.motor_positions = [(self.motor_left.position, self.motor_right.position)]
+        self.counter = 0
 
     def save_motor_positions(self):
         self.motor_positions.append((self.motor_left.position, self.motor_right.position))
+
+    def wtf(self):
+        print(self.motor_left.count_per_rot, self.motor_right.count_per_rot)
 
     def get_motor_positions(self) -> list[tuple[int, int]]:
         return self.motor_positions
@@ -25,7 +31,6 @@ class MotorSensor:
 
     def __angle_multiplier(self, angle):
         angle = int(round(angle + 360)) % 360
-        print(angle)
         # 155 = 90° => 1.722222
         # 150 = 90° ONLY on full charge  => 1.66667
         # 300 = 180° ONLY on full charge
@@ -64,6 +69,18 @@ class MotorSensor:
                 self.stop()
                 break
 
+    def turn_angle(self, angle):
+        angle = math.radians(360 - angle)
+        position_old = (self.motor_left.position, self.motor_right.position)
+        alpha = 0
+        while alpha < angle:
+            self.drive_with_speed(50, -50)
+            position_new = (self.motor_left.position, self.motor_right.position)
+            delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
+            alpha = alpha + (delta_pos[1] - delta_pos[0]) / 10 * 0.05
+        self.stop() 
+
+
     def beyblade(self, speed):
         self.__update_speed(self.motor_left, -speed)
         self.__update_speed(self.motor_right, speed)
@@ -71,6 +88,11 @@ class MotorSensor:
 
     def get_position(self):
         return (abs(self.motor_left.position) + abs(self.motor_right.position)) / 2
+
+    def reset_position(self):
+        self.motor_left.reset()
+        self.motor_right.reset()
+        self.motor_positions = []
 
     def __update_speed(self, motor: ev3.LargeMotor, speed):
         motor.speed_sp = speed
@@ -93,6 +115,16 @@ class MotorSensor:
 
         self.motor_left.wait_until_not_moving()
         self.motor_right.wait_until_not_moving()
+
+
+    def drive_with_speed(self, speed_left, speed_right):
+        #only append every 3rd time
+        self.counter += 1
+        if self.counter > 3:
+            self.motor_positions.append((self.motor_left.position, self.motor_right.position))
+
+        self.__update_speed(self.motor_left, speed_left)
+        self.__update_speed(self.motor_right, speed_right)
 
     def is_running(self):
         return self.motor_right.is_running or self.motor_left.is_running

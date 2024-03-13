@@ -1,12 +1,15 @@
 import time
 import math
+from typing import Tuple, List
 
 from sensors.color_sensor import *
 from sensors.motor_sensor import *
+from sensors.touch_sensor import *
 from sensors.sonar_sensor import SonarSensor
 from enums import StopReason
 from planet import Direction
 
+from odometry import Odometry
 import Constants
 
 
@@ -14,7 +17,7 @@ class Follow:
     def __init__(self, color_sensor: ColorSensor, motor_sensor: MotorSensor) -> None:
         self.sonar_sensor = SonarSensor()
         self.color_sensor = color_sensor
-        self.colorData = self.color_sensor.return_color()
+        self.colorData = self.color_sensor.color_data
         self.motor_sensor = motor_sensor
         self.avrLightness = (self.colorData["white"][1] + self.colorData["black"][1]) / 2
         self.integral_value = 0
@@ -57,7 +60,7 @@ class Follow:
         print("Bayblade")
         self.motor_sensor.beyblade(100)
         while True:
-            color = self.color_sensor.get_hls_color_name()
+            color = self.color_sensor.get_color_name()
             time.sleep(0.1)
             if color == "black":
                 self.motor_sensor.stop()
@@ -72,7 +75,7 @@ class Follow:
         print(angle)
         angle = int(round(angle + 360)) % 360
 
-        if 0 <= angle < 35:
+        """if 0 <= angle < 35:
             return 0
         elif 50 < angle < 120:
             return Direction.WEST  # 90
@@ -81,7 +84,7 @@ class Follow:
         elif 230 < angle < 300:
             return Direction.EAST  # 270
         elif 325 < angle < 360:
-            return 0
+            return 0"""
 
         return Direction(abs((round(angle / 90) * 90 - 360)) % 360)
 
@@ -92,7 +95,7 @@ class Follow:
         # wenn du in einen neuene quadranten kommst, schecke nach schwarz
         # note = {pos, }
 
-        while self.color_sensor.get_hls_color_name() in ["red", "blue"]:
+        while self.color_sensor.get_color_name() in ["red", "blue"]:
             self.motor_sensor.forward_non_blocking(Constants.SPEED, Constants.SPEED)
         # evtl sleep hier um weiter zu fahren
         self.motor_sensor.forward_relative_blocking(40, Constants.SPEED)
@@ -110,10 +113,10 @@ class Follow:
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / Constants.AXLE_LENGTH * 0.05
-                print(self.color_sensor.get_hls_color_name())
+                print(self.color_sensor.get_color_name())
                 if (self.color_sensor.get_color_hls()[1] < 100
                         and alpha > angle - 0.5
-                        and self.color_sensor.get_hls_color_name() == "black"):
+                        and self.color_sensor.get_color_name() == "black"):
                     directions.append(Direction(360 - 90 * i))
                     print("path detected")
                     break
@@ -124,7 +127,7 @@ class Follow:
         print("scan_node: done!")
 
         print("Correct base heading")
-        self.motor_sensor.turn_angle_blocking(-60, 50)
+        self.motor_sensor.turn_angle_blocking(-80, 50)
 
         return directions
 
