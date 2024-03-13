@@ -110,9 +110,7 @@ class Robot:
         # ...
         # Set current planet for mothership
         planet_name = input('Enter the test planet name and wait for response:')
-        msg = '{"from":"client","type":"testPlanet","payload":{{"planetName":"' + planet_name + '"}}'
-        self.communication.client.publish("explorer/<GROUP>", payload=msg, qos=2)
-
+        self.communication.send_test_planet(planet_name)
         # print("Press button to start exploration")
 
         while not self.button.is_pressed():
