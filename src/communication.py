@@ -107,6 +107,10 @@ class Communication:
         elif msg_from == MessageFrom.DEBUG:
             if msg_type == MessageType.SYNTAX:
                 self.syntax_response = json.dumps(response)
+            elif msg_type == MessageType.NOTICE:
+                payload = response["payload"]
+                print(payload["message"])
+
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #

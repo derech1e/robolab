@@ -103,10 +103,17 @@ class Robot:
 
     def robot(self):
 
-        print("Press button to start exploration")
+        # Initialize communication, configure, connect, etc.
+        # ...
+        # Set current planet for mothership
+        planet_name = input('Enter the test planet name and wait for response:')
+        msg = '{"from":"client","type":"testPlanet","payload":{{"planetName":"' + planet_name + '"}}'
+        self.communication.client.publish("explorer/<GROUP>", payload=msg, qos=2)
 
-        # while not self.button.is_pressed():
-        #    continue
+        # print("Press button to start exploration")
+
+        while not self.button.is_pressed():
+            continue
 
         # self.color_sensor.calibrate_hls()
         print(" ")
