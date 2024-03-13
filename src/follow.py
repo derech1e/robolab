@@ -142,10 +142,20 @@ class Follow:
         return directions
 
     def follow(self) -> StopReason:
+        i = 0
         while True:
             if self.color_sensor.is_node():
+                self.motor_sensor.stop()
+                self.odo.update_position(self.motor_sensor.motor_positions)
+                self.odo.get_coordinates()
                 return StopReason.NODE  # Stop following if node is detected
             if self.sonar_sensor.is_colliding():
                 return StopReason.COLLISION  # Stop following collision is detected
 
-            self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
+            if i > 3:
+                self.motor_sensor.forward_non_blocking(self.calc_speed_left(), self.calc_speed_right())
+                i = 0
+            i +=1
+
+
+
