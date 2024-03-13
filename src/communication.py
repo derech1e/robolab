@@ -64,10 +64,18 @@ class Communication:
 
             payload = response["payload"]
 
+            if msg_type == MessageType.ERROR:
+                print("Communication ERROR!!!!!")
+                print("")
+                print(response)
+                print("")
+
             if msg_type == MessageType.PLANET:
                 self.logger.debug("Received planet")
                 self.client.subscribe(f"planet/{payload['planetName']}")
+                self.robot.planet.planet_name = payload['planetName']
                 # TODO: set startX, startY and startOrientation on planet
+                #self.robot.start_position = ((payload['startX'], payload['startY']), payload['startOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
@@ -75,9 +83,10 @@ class Communication:
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.robot.play_tone()
                 # TODO: Impl logic for pathStatus 'free|blocked‘
+                #self.robot.start_position = ((payload['endX'], payload['endY']), payload['endOrientation'] + 180 % 360)
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug("Received new path")
-                self.robot.update_target_direction(payload["startDirection"])
+                self.robot.update_next_path(payload["startDirection"])
             elif msg_type == MessageType.PATH_UNVEILED:
                 self.logger.debug("Received unveiled path")
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
@@ -88,8 +97,6 @@ class Communication:
                 self.logger.debug("Received target")
                 self.robot.set_current_target((payload["targetX"], payload["targetY"]))
             elif msg_type == MessageType.DONE:
-                self.send_complete("Planet fully discovered!")
-            elif msg_type == MessageType.EXPLORATION_COMPLETE:
                 self.logger.debug("Finished mission")
 
         elif msg_from == MessageFrom.DEBUG:
@@ -168,7 +175,7 @@ class Communication:
                               .build())
                           .build())
 
-    def send_complete(self, message: str):
+    def send_exploration_complete(self, message: str):
         self.send_message(f"explorer/{GROUP}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from src.planet import Direction, Planet
+from src.planet import Direction, Planet, NodeColor
 import random
 
 
@@ -64,9 +64,60 @@ class TestRoboLabPlanet(unittest.TestCase):
         ]
         # Initialize your data structure here
         self.planet = Planet()
+        self.planet.group3mode = True
         for node in self.nodes:
+            if node[0][0][0] + node[0][0][1] % 2 == 0:
+                self.planet.add_node(node[0][0], NodeColor.RED)
+            else:
+                self.planet.add_node(node[0][0], NodeColor.BLUE)
+            if node[1][0][0] + node[1][0][1] % 2 == 0:
+                self.planet.add_node(node[1][0], NodeColor.RED)
+            else:
+                self.planet.add_node(node[1][0], NodeColor.BLUE)
             self.planet.add_path(node[0], node[1], node[2])
         self.planet.add_unexplored_path(((0, 0), Direction.WEST))
+
+        self.p2 = Planet()
+        # (0,1)---5---(1,1)---1---(2,1)
+        #   |           |
+        #   1           6
+        #   |           |
+        # (0,0)---1---(1,0)
+        self.p2.add_path(((0, 0), Direction.NORTH), ((0, 1), Direction.SOUTH), 1)
+        self.p2.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
+        self.p2.add_path(((0, 1), Direction.EAST), ((1, 1), Direction.WEST), 5)
+        self.p2.add_path(((1, 0), Direction.NORTH), ((1, 1), Direction.SOUTH), 6)
+        self.p2.add_path(((1, 1), Direction.EAST), ((2, 1), Direction.WEST), 1)
+
+        self.p3 = Planet()
+        # (0,0)---2---(0,1)---2---(0,2)
+        #                |
+        #                1
+        #                |
+        #               / \
+        #               \_/
+        self.p3.add_path(((0, 0), Direction.EAST), ((0, 1), Direction.WEST), 2)
+        self.p3.add_path(((0, 1), Direction.EAST), ((0, 2), Direction.WEST), 2)
+        self.p3.add_path(((0, 1), Direction.SOUTH), ((0, 1), Direction.SOUTH), 1)
+
+        self.p4 = Planet()
+        #    |
+        # -(0,0)---1---(1, 0)-
+        #    |
+        #    2
+        #    |
+        #  (0,1)-
+        #    |
+        self.p4.group3mode = True
+        self.p4.add_node((0, 0), NodeColor.RED)
+        self.p4.add_node((0, 1), NodeColor.BLUE)
+        self.p4.add_node((1, 0), NodeColor.BLUE)
+        self.p4.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
+        self.p4.add_path(((0, 0), Direction.SOUTH), ((0, 1), Direction.NORTH), 2)
+        self.p4.add_unexplored_path(((0, 1), Direction.SOUTH))
+        self.p4.add_unexplored_path(((1, 0), Direction.EAST))
+        self.p4.add_unexplored_path(((0, 0), Direction.WEST))
+        self.p4.add_unexplored_path(((0, 0), Direction.WEST))
 
     def test_integrity(self):
         """
@@ -100,9 +151,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum distance is three nodes (two paths in list returned)
         """
-        self.assertEqual(self.planet.shortest_path((2, 1), (3, 3)), [((2, 1), Direction.EAST),
-                                                                     ((4, 1), Direction.SOUTH),
-                                                                     ((3, 2), Direction.SOUTH)])
+        target_shortest_path = [((0, 0), Direction.NORTH), ((0, 1), Direction.EAST), ((1, 1), Direction.EAST)]
+        self.assertEqual(target_shortest_path, self.p2.shortest_path((0, 0), (2, 1)))
 
     def test_target_not_reachable(self):
         """
@@ -117,15 +167,11 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        result = self.planet.shortest_path((0, 0), (3, 2))
-        self.assertEqual(type(result), list)
-        for entry in result:
-            self.assertEqual(type(entry), tuple)
-            self.assertEqual(type(entry[0]), tuple)
-            self.assertEqual(type(entry[1]), Direction)
-            self.assertEqual(type(entry[0][0]), int)
-            self.assertEqual(type(entry[0][1]), int)
-        self.assertEqual(len(self.planet.shortest_path((0, 0), (3, 2))), 3)
+        self.assertIn(self.planet.shortest_path((0, 0), (3, 2)), [
+            [((0, 0), Direction.EAST), ((1, 1), Direction.EAST), ((2, 1), Direction.EAST), ((4, 1), Direction.SOUTH)],
+            [((0, 0), Direction.EAST), ((1, 1), Direction.NORTH), ((4, 1), Direction.SOUTH)],
+            [((0, 0), Direction.SOUTH), ((0, 1), Direction.SOUTH), ((0, 3), Direction.EAST)]
+        ])
 
     def test_target_with_loop(self):
         """
@@ -134,7 +180,8 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is reachable
         """
-        self.assertEqual(len(self.planet.shortest_path((0, 0), (2, 1))), 2)
+        self.assertEqual(self.p3.shortest_path((0, 0), (0, 2)),
+                         [((0, 0), Direction.EAST), ((0, 1), Direction.EAST)])
 
     def test_target_not_reachable_with_loop(self):
         """
@@ -154,6 +201,13 @@ class TestRoboLabPlanet(unittest.TestCase):
         for _ in range(test_count):
             start, target = random.choices(nodes, k=2)
             self.planet.shortest_path(start, target)
+
+    def test_exploration(self):
+        """
+        This test should test if the correct explore option is recommended
+        """
+        self.assertIn(self.p4.explore_next((0, 0), Direction.SOUTH), [((0, 0), Direction.WEST),
+                                                                      ((0, 0), Direction.WEST)])
 
 
 if __name__ == "__main__":

@@ -13,6 +13,9 @@ class MessageType(Enum):
     EXPLORATION_COMPLETE = "explorationCompleted"
     DONE = "done"
     SYNTAX = "syntax"
+    ERROR = "error"
+    NOTICE = "notice"
+    ADJUST = "adjust"
 
 
 class MessageFrom(Enum):
@@ -26,6 +29,12 @@ class PathStatus(Enum):
     FREE = "free"
     BLOCKED = "blocked"
 
+
 class StopReason(Enum):
     COLLISION = "collision"
     NODE = "node"
+
+
+class NodeColor(Enum):
+    BLUE = "blue"
+    RED = "red"
