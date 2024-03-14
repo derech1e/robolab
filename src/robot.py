@@ -118,6 +118,8 @@ class Robot:
             self.__next_node = path_2_target
 
     def robot(self):
+        self.driver.turn_find_line()
+        """
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Conway"
         self.communication.send_test_planet(planet_name)
         self.logger.debug("Press button to start exploration")
@@ -160,3 +162,4 @@ class Robot:
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
         # self.communication.send_exploration_complete("Planet fully discovered!")
+"""
