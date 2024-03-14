@@ -42,7 +42,7 @@ class Driver:
                 self.motor_sensor.stop()
 
                 # turn and find line
-                self.motor_sensor.turn_angle(-90)
+                self.motor_sensor.turn_angle(90)
                 self.turn_find_line()
                 stop_reason = StopReason.COLLISION
 
