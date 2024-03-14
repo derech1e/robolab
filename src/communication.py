@@ -78,8 +78,8 @@ class Communication:
 
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received current node...")
-                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
-                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
+                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
 
                 comp_payload = payload
                 #del comp_payload["pathWeight"]
@@ -100,8 +100,8 @@ class Communication:
                 self.robot.update_next_path(Direction(payload["startDirection"]))
 
             elif msg_type == MessageType.PATH_UNVEILED:
-                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
-                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
+                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
                 self.logger.debug(f"Received new unveiled path...")
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
 

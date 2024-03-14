@@ -56,10 +56,12 @@ class Planet:
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
         # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
+            print("P-59:")
+            print(start[0])
             self.paths[start[0]] = {}
 
         if start[1] not in self.paths[start[0]]:
-            self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
+            self.paths[start[0]][Direction(start[1])] = (None, Direction.NORTH, -69420)
             print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
@@ -96,16 +98,22 @@ class Planet:
 
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
+            print("P-101:")
+            print(start[0])
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = (target[0], target[1], weight)
+        self.paths[start[0]][Direction(start[1])] = (target[0], target[1], weight)
         if target[0] not in self.paths:
+            print("P-106:")
+            print(target[0])
             self.paths[target[0]] = {}
-        self.paths[target[0]][target[1]] = (start[0], start[1], weight)
+        self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
         self.nodes[coordinates] = color
-        if coordinates not in self.paths.keys():
+        if coordinates not in self.paths:
+            print("P-115:")
+            print(coordinates)
             self.paths[coordinates] = {}
 
     # checks if the node color is the expected one
@@ -295,11 +303,12 @@ class Planet:
 
         # get next node to explore
         explore_node = self.explore_next(distances, current_position[0], current_position[1])
+        print(f"explore_node: {explore_node}")
 
         if explore_node is None:
             return None
 
-        if explore_node[0] is current_position[0]:
+        if explore_node[0] == current_position[0]:
             return explore_node
 
         # get path to  explore_node

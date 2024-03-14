@@ -117,6 +117,20 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.p4.add_unexplored_path(((0, 0), Direction.WEST))
         self.p4.add_unexplored_path(((0, 0), Direction.WEST))
 
+    def test(self):
+        """p = Planet()
+        p.add_unexplored_node((-1, 0), Color.RED, [Direction.NORTH])
+        p.get_next_node(((-1, 0), Direction.NORTH), None)
+        p.add_path(((-1, 0), Direction.NORTH), ((0, 1), Direction.WEST), 2)
+        p.add_unexplored_node((0, 1), Color.BLUE, [Direction.EAST])
+        p.add_path(((0, 0), Direction.SOUTH), ((0, 0), Direction.SOUTH), -1)
+        print(p.get_paths())
+        print(p.get_next_node(((0, 1), Direction.WEST), None))"""
+        """
+        {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1): {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2), <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0): {<Direction.SOUTH: 180>: ((0, 0), <Direction.SOUTH: 180>, -1)}}
+        {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1): {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2), <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0): {<Direction.SOUTH: 180>: ((0, 0), <Direction.SOUTH: 180>, -1)}}
+        """
+
     def test_integrity(self):
         """
         This test should check that the dictionary returned by "planet.get_paths()" matches the expected structure
