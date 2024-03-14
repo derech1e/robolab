@@ -35,7 +35,7 @@ class Robot:
         self.planet.group3mode = True
 
         # Exploration
-        self.__start_node: Tuple[Tuple[int, int], Direction] = ((0,0), Direction.NORTH)
+        self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
         self.__current_node: Tuple[Tuple[int, int], Direction] = None
         self.__next_node: Tuple[Tuple[int, int], Direction] = None
         # next_node is basically the current_node, but with updated direction.
@@ -49,9 +49,11 @@ class Robot:
 
     def set_start_node(self, start_x: int, start_y: int, start_direction: Direction):
         self.__start_node = ((start_x, start_y), start_direction)
+        self.set_current_node(start_x, start_y, start_direction)
 
     def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
         self.__current_node = ((end_x, end_y), end_direction)
+        self.odometry.set_coordinates(end_x, end_y, end_direction)
 
     def update_next_path(self, direction: Direction):
         self.__next_node = ((self.__next_node[0], self.__next_node[1]), direction)
@@ -93,33 +95,33 @@ class Robot:
                 self.communication.send_target_reached("Target reached!")
                 return
 
-        scanned_directions = self.driver.scan_node()
+        scanned_directions = self.driver.scan_node(self.__current_node)
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
 
-    def handle_next_node(self):
-        # if next_node is node, the whole map is explored
-        if self.__next_node is None:
-            # Whole map explored
-            if self.target is None:
-                self.logger.debug("No target found")
-                self.logger.debug("Init mission ending")
-                return True
-
-            path_2_target = self.planet.get_to_target(self.__current_node, self.target)
-            if path_2_target is None:
-                self.logger.debug("Target is not located on this planet")
-                self.logger.debug("Init mission ending")
-                # TODO: Check how to send target is not on map
-                # Exploration complete
-                return True
-
-            self.__next_node = path_2_target
+    # def handle_next_node(self):
+    #     # if next_node is node, the whole map is explored
+    #     if self.__next_node is None:
+    #         # Whole map explored
+    #         if self.target is None:
+    #             self.logger.debug("No target found")
+    #             self.logger.debug("Init mission ending")
+    #             return True
+    #
+    #         path_2_target = self.planet.get_to_target(self.__current_node, self.target)
+    #         if path_2_target is None:
+    #             self.logger.debug("Target is not located on this planet")
+    #             self.logger.debug("Init mission ending")
+    #             # TODO: Check how to send target is not on map
+    #             # Exploration complete
+    #             return True
+    #
+    #         self.__next_node = path_2_target
 
     def robot(self):
-        self.driver.turn_find_line()
-        """
+        #self.driver.turn_find_line()
+
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Conway"
         self.communication.send_test_planet(planet_name)
         self.logger.debug("Press button to start exploration")
@@ -143,11 +145,16 @@ class Robot:
             time.sleep(3)
 
             # Handle exploration
-            self.__next_node = self.planet.explore_next(self.__current_node[0], self.__current_node[1])
-            self.logger.debug(f"Next selected path: {self.__next_node}")
+            # self.__next_node = self.planet.explore_next(self.__current_node[0], self.__current_node[1])
+            # self.logger.debug(f"Next selected path: {self.__next_node}")
 
-            # Break if target is reached or the whole planet is explored
-            if self.handle_next_node():
+            self.__start_node = self.__current_node
+
+            self.__next_node = self.planet.get_next_node(self.__current_node, self.target)
+
+            if self.__next_node is None:
+                self.logger.debug("Ending mission")
+                # Break if target is reached or the whole planet is explored
                 break
 
             # Send selected path
@@ -162,4 +169,3 @@ class Robot:
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
         # self.communication.send_exploration_complete("Planet fully discovered!")
-"""
