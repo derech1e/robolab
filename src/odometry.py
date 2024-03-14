@@ -64,7 +64,7 @@ class Odometry:
     def __clip_coordinat(self, x: float) -> int:
         return round(x / 50)
 
-    def set_coordinates(self, x: int, y: int, angle: float):
+    def set_coordinates(self, x: int, y: int, angle: int):
         """
         Set the position of the robot in coordinates from mother ship
         """

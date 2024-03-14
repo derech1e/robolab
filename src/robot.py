@@ -53,7 +53,7 @@ class Robot:
 
     def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
         self.__current_node = ((end_x, end_y), end_direction)
-        self.odometry.set_coordinates(end_x, end_y, end_direction)
+        self.odometry.set_coordinates(end_x, end_y, end_direction.value)
 
     def update_next_path(self, direction: Direction):
         self.__next_node = ((self.__next_node[0], self.__next_node[1]), direction)
@@ -64,8 +64,8 @@ class Robot:
 
         return current_position[0][0] == self.target[0] and current_position[0][1] == self.target[1]
 
-    def add_path(self, start, target, weight):
-        self.planet.add_node(target, self.node_color)
+    def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction], weight: int):
+        self.planet.add_node(target[0], self.node_color)
         self.planet.add_path(start, target, weight)
 
     def play_tone(self):
@@ -135,14 +135,17 @@ class Robot:
 
             print("--------------------------")
             print("Before")
-            print(self.__current_node)
-            print(self.target)
-            print(self.__next_node)
+            print("start_node: ", self.__start_node)
+            print("current_node: ", self.__current_node)
+            print("target: ", self.target)
+            print("next_node: ", self.__next_node)
             # Handle exploration
             self.__next_node = self.planet.get_next_node(self.__current_node, self.target)
-            print(self.__current_node)
-            print(self.target)
-            print(self.__next_node)
+            print("After:")
+            print("start_node: ", self.__start_node)
+            print("current_node: ", self.__current_node)
+            print("target: ", self.target)
+            print("next_node: ", self.__next_node)
             print(self.planet.get_paths())
             print("--------------------------")
 
@@ -158,9 +161,11 @@ class Robot:
 
             self.__start_node = self.__next_node
 
-            print(self.__start_node)
-            print(self.__next_node)
-            print(self.__current_node)
+            print("After path_select_update:")
+            print("start_node: ", self.__start_node)
+            print("current_node: ", self.__current_node)
+            print("target: ", self.target)
+            print("next_node: ", self.__next_node)
 
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
