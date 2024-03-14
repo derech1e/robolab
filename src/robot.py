@@ -164,7 +164,8 @@ class Robot:
 
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
-                self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
+                # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
+                self.motor_sensor.turn_angle(abs(self.__current_node[1].value - self.__next_node[1].value))
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
