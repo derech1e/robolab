@@ -86,22 +86,26 @@ class Driver:
         #             directions.append(Direction(360 - 90 * i))
         #             print("path detected")
         #             break
-        for angle in [0, math.pi /2, math.pi * 3 / 2, math.pi * 2]:
-            while alpha < angle + (0 if angle == math.pi*2 else 0.3):
+        for i in [0, 1,3,4]:
+            angle = math.pi * i / 2
+            while alpha < angle + (0 if i == 4 else 0.3):
+                angle = math.pi * i / 2
                 new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
                 if (self.color_sensor.get_color_hls()[1] < 100
-                        and alpha > angle - 0.5
+                        and alpha > angle - 0.3
                         and self.color_sensor.get_color_name() == "black"):
-                    directions.append()
+                    directions.append(Direction((incoming_direction.value + 360 - 90*i)%360 ))
+                    print("path detected")
+                    break
 
-        print(f"scan_node: {directions}")
         self.motor_sensor.stop()
+        print(f"scan_node: {directions}")
         print("scan_node: done!")
 
         print("Correct base heading")
-        self.motor_sensor.turn_angle_blocking(-80, 50)
+        # self.motor_sensor.turn_angle_blocking(-80, 50)
 
         return directions
