@@ -20,6 +20,7 @@ class Driver:
     def turn_find_line(self):
         while self.color_sensor.get_luminance() < self.color_sensor.AVR_LIGHTNESS:
             self.motor_sensor.drive_with_speed(-50, 50)
+        self.motor_sensor.stop()
 
         # TODO: if the robot is not on the line, add code for slower turning in opposite direction
 
