@@ -24,7 +24,7 @@ Value:  -1 if blocked path
         never 0
 """
 
-path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]
+path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Optional[Tuple[int, int]], Direction, Weight]]]
 
 
 class DijkstraPath:
@@ -62,7 +62,7 @@ class Planet:
         # Store unexplored path with end coordinates as (-1, -1)
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
+        self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
         print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
@@ -240,7 +240,7 @@ class Planet:
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
-                if path[0] == (-1, -1):
+                if path[0] is None:
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
         return unexplored_paths
@@ -302,6 +302,7 @@ class Planet:
                       target: Optional[tuple[int, int]]) -> Optional[tuple[tuple[int, int], Direction]]:
         # calculate distance to all nodes from current_position
         distances = self.dijkstra_final_paths(current_position[0])
+        distances[current_position[0]] = DijkstraPath(current_position, 0, current_position, None, None)
 
         if target is not None:
             # calculate path to target
@@ -316,6 +317,9 @@ class Planet:
 
         if explore_node is None:
             return None
+
+        if explore_node[0] is current_position[0]:
+            return explore_node
 
         # get path to  explore_node
         next_path = self.extract_path_from_dijkstra(distances, current_position[0], explore_node[0])
