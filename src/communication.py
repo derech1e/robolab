@@ -97,7 +97,7 @@ class Communication:
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
-                self.robot.update_next_path(payload["startDirection"])
+                self.robot.update_next_path(Direction(payload["startDirection"]))
 
             elif msg_type == MessageType.PATH_UNVEILED:
                 start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
