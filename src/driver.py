@@ -42,7 +42,7 @@ class Driver:
                 self.motor_sensor.stop()
 
                 # turn and find line
-                self.motor_sensor.turn_angle(90)
+                self.motor_sensor.turn_angle(-90)
                 self.turn_find_line()
                 stop_reason = StopReason.COLLISION
 
@@ -72,21 +72,6 @@ class Driver:
         directions: [Direction] = []
         old_pos = (self.motor_sensor.beyblade(0))
 
-        # for angle in [math.pi / 2 - 0.1, math.pi - 0.1, math.pi * 3 / 2 - 0.1, math.pi *2 -0.1]:
-        # for i in range(1, 5):
-        #     angle = math.pi * i / 2
-        #     while alpha < angle + 0.3:  # TODO: Scale this value with battery voltage level (0.3 - 1.0)
-        #         new_pos = self.motor_sensor.beyblade(150)
-        #         delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
-        #         old_pos = new_pos
-        #         alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
-        #         print(self.color_sensor.get_color_name())
-        #         if (self.color_sensor.get_color_hls()[1] < 100
-        #                 and alpha > angle - 0.5
-        #                 and self.color_sensor.get_color_name() == "black"):
-        #             directions.append(Direction(360 - 90 * i))
-        #             print("path detected")
-        #             break
         for i in [0, 1, 3, 4]:
             angle = math.pi * i / 2
             while alpha < angle + (0 if i == 4 else 0.3):
