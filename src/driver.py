@@ -75,6 +75,7 @@ class Driver:
         for i in [0, 1, 3, 4]:
             angle = math.pi * i / 2
             while alpha < angle + (0 if i == 4 else 0.3):
+                self.motor_sensor.beyblade(150 * (angle-alpha if i ==4 else 1 ))
                 new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
@@ -89,6 +90,7 @@ class Driver:
                     break
 
         self.motor_sensor.stop()
+        directions = set(directions)
         print(f"angle to go to: {angle}, real angle: {alpha}")
         print(f"scan_node: {directions}")
         print("scan_node: done!")
