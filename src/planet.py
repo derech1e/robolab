@@ -50,16 +50,13 @@ class Planet:
         """ Initializes the data structure """
         self.paths: path_list = {}
         self.nodes: Dict[Tuple[int, int], Color] = {}
-        self.group3mode: bool = False
         self.planet_name = ""
 
     # add unexplored path
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
         # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
 
-        # Store unexplored path with end coordinates as (-1, -1)
+        # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
         self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
@@ -67,8 +64,6 @@ class Planet:
 
     # adds unexplored paths from a list
     def add_unexplored_node(self, position: Tuple[int, int], color: Color, directions: [Direction]):
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
 
         self.add_node(position, color)
 
@@ -98,11 +93,6 @@ class Planet:
         :return: void
         """
 
-        if self.group3mode:
-            if start[0] not in self.paths:
-                raise KeyError(f'Node {start[0]} was not initialized with add_node')
-            if target[0] not in self.paths:
-                raise KeyError(f'Node {target[0]} was not initialized with add_node')
 
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
@@ -114,18 +104,12 @@ class Planet:
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
         self.nodes[coordinates] = color
         if coordinates not in self.paths.keys():
             self.paths[coordinates] = {}
 
     # checks if the node color is the expected one
     def check_node(self, coordinates: Tuple[int, int], color: Color) -> bool:
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
         return self.nodes[coordinates] and self.nodes[coordinates] == color
 
     # DO NOT EDIT THE METHOD SIGNATURE
@@ -247,9 +231,6 @@ class Planet:
 
     def explore_next(self, distances: Dict[Tuple[int, int], DijkstraPath], current_position: Tuple[int, int],
                      current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
 
         # find unexplored paths
         unexplored_paths: List[DijkstraPath] = self.get_unexplored_paths()

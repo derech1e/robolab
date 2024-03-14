@@ -32,7 +32,6 @@ class Robot:
         self.driver = Driver(self.motor_sensor, self.color_sensor)
 
         self.active = True
-        self.planet.group3mode = True
 
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
