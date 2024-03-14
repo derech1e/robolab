@@ -59,8 +59,8 @@ class Planet:
         # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
-        print("add_unexplored_path executed")
+            self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
+            print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
     def add_unexplored_node(self, position: Tuple[int, int], color: Color, directions: [Direction]):
