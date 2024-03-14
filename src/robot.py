@@ -49,6 +49,7 @@ class Robot:
 
     def set_start_node(self, start_x: int, start_y: int, start_direction: Direction):
         self.__start_node = ((start_x, start_y), start_direction)
+        print(self.__start_node)
         self.set_current_node(start_x, start_y, start_direction)
 
     def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
@@ -95,7 +96,7 @@ class Robot:
                 self.communication.send_target_reached("Target reached!")
                 return
 
-        scanned_directions = self.driver.scan_node(self.__current_node)
+        scanned_directions = self.driver.scan_node(self.__current_node[1])
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
@@ -120,14 +121,21 @@ class Robot:
     #         self.__next_node = path_2_target
 
     def robot(self):
-        #self.driver.turn_find_line()
+
+        #while True:
+        #    press = input("Press input")
+        #    print(self.color_sensor.get_color_hls())
+
+            #pass
+
+        # self.driver.turn_find_line()
 
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Conway"
         self.communication.send_test_planet(planet_name)
         self.logger.debug("Press button to start exploration")
 
-        while not self.button.is_pressed():
-            continue
+        #while not self.button.is_pressed():
+        #    continue
 
         # self.color_sensor.calibrate_hls()
         # time.sleep(5)
@@ -148,8 +156,6 @@ class Robot:
             # self.__next_node = self.planet.explore_next(self.__current_node[0], self.__current_node[1])
             # self.logger.debug(f"Next selected path: {self.__next_node}")
 
-            self.__start_node = self.__current_node
-
             self.__next_node = self.planet.get_next_node(self.__current_node, self.target)
 
             if self.__next_node is None:
@@ -157,14 +163,21 @@ class Robot:
                 # Break if target is reached or the whole planet is explored
                 break
 
+            print(self.__next_node)
+
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
             self.logger.debug("Wait for path correction...")
             time.sleep(3)
 
+            self.__start_node = self.__next_node
+
+            print(self.__start_node)
+            print(self.__next_node)
+
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
-                self.motor_sensor.turn_angle_blocking(self.__start_node[1])
+                self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value() - self.__next_node[1].value())) # Subtract angle to get relative rotation to current position
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED

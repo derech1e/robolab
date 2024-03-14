@@ -79,8 +79,7 @@ class MotorSensor:
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
             alpha = alpha + (delta_pos[1] - delta_pos[0]) / 10 * 0.05
-        self.stop() 
-
+        self.stop()
 
     def beyblade(self, speed):
         self.__update_speed(self.motor_left, -speed)
@@ -127,9 +126,9 @@ class MotorSensor:
         self.motor_right.command = "run-to-rel-pos"
         self.motor_left.command = "run-to-rel-pos"
 
-
+        self.motor_left.wait_until_not_moving()
     def drive_with_speed(self, speed_left, speed_right):
-        #only append every 3rd time
+        # only append every 3rd time
         self.counter += 1
         if self.counter > 3:
             self.motor_positions.append((self.motor_left.position, self.motor_right.position))

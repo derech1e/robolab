@@ -1,5 +1,7 @@
 # imports
 import math
+import time
+
 from enums import StopReason
 from planet import Direction
 from sensors.color_sensor import ColorSensor
@@ -20,7 +22,7 @@ class Driver:
 
     def turn_find_line(self):
         while self.color_sensor.get_luminance() > self.color_sensor.AVR_LIGHTNESS:
-            self.motor_sensor.drive_with_speed(-100,100)
+            self.motor_sensor.drive_with_speed(-100, 100)
         self.motor_sensor.stop()
         print("Line found")
 
@@ -60,12 +62,10 @@ class Driver:
         self.turn_find_line()
 
     def scan_node(self, incoming_direction: Direction) -> list[Direction]:
-
         while self.color_sensor.get_color_name() in ["red", "blue"]:
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
-        self.motor_sensor.drive_cm(1, constants.SPEED)
-        self.motor_sensor.stop()
+        self.motor_sensor.drive_cm(2, constants.SPEED)
 
         alpha = 0
         directions: [Direction] = []
@@ -86,9 +86,9 @@ class Driver:
         #             directions.append(Direction(360 - 90 * i))
         #             print("path detected")
         #             break
-        for i in [0, 1,3,4]:
+        for i in [0, 1, 3, 4]:
             angle = math.pi * i / 2
-            while alpha < angle + (-0.1 if i == 4 else 0.3):
+            while alpha < angle + (-0.3 if i == 4 else 0.3):
                 angle = math.pi * i / 2
                 new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
@@ -97,7 +97,9 @@ class Driver:
                 if (self.color_sensor.get_color_hls()[1] < 100
                         and alpha > angle - 0.3
                         and self.color_sensor.get_color_name() == "black"):
-                    directions.append(Direction((incoming_direction.value + 360 - 90*i)%360 ))
+                    dir = ((incoming_direction.value + 360 - 90 * i) % 360)
+                    print(dir)
+                    directions.append(Direction(dir))
                     print("path detected")
                     break
 
