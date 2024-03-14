@@ -13,7 +13,7 @@ class ColorSensor:
 
         # set the range in which the read value is accepted as a color
         # TODO: das passt so nicht, der wert muss noch veraendert werden
-        self.ACCEPTANCE_RANGE_COLOR = 0.1  # smaler if accept color wrongly
+        self.ACCEPTANCE_RANGE_COLOR = 0.08  # smaler if accept color wrongly
         self.ACCEPTANCE_RANGE_NOT_COLOR = 0.05
         self.NO_COLOR = (self.color_data["white"][0] + self.color_data["black"][0]) / 2
         self.AVR_LIGHTNESS = (self.color_data["white"][1] + self.color_data["black"][1]) / 2
@@ -36,7 +36,7 @@ class ColorSensor:
     # needs to be rewritten
     def get_color_name(self):
         raw_color = self.get_color_hls()
-        if self.NO_COLOR - self.ACCEPTANCE_RANGE_NOT_COLOR < raw_color[0] < self.NO_COLOR + self.ACCEPTANCE_RANGE_NOT_COLOR:
+        if 0.288 < raw_color[0] < 0.322: 
             if self.AVR_LIGHTNESS > raw_color[1]:
                 return "black"
             else:
@@ -49,10 +49,12 @@ class ColorSensor:
             value = self.color_data["red"]
             if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
                 return "red"
+
             if self.AVR_LIGHTNESS > raw_color[1]:
                 return "white"
             else:
                 return "black"
+
     def is_color(self):
         pass
 
