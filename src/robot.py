@@ -49,7 +49,7 @@ class Robot:
 
     def set_start_node(self, start_x: int, start_y: int, start_direction: Direction):
         self.__start_node = ((start_x, start_y), start_direction)
-        print(self.__start_node)
+        print("UPDATE FROM COMS: ", self.__start_node)
         self.set_current_node(start_x, start_y, start_direction)
 
     def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
@@ -101,25 +101,6 @@ class Robot:
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
 
-    # def handle_next_node(self):
-    #     # if next_node is node, the whole map is explored
-    #     if self.__next_node is None:
-    #         # Whole map explored
-    #         if self.target is None:
-    #             self.logger.debug("No target found")
-    #             self.logger.debug("Init mission ending")
-    #             return True
-    #
-    #         path_2_target = self.planet.get_to_target(self.__current_node, self.target)
-    #         if path_2_target is None:
-    #             self.logger.debug("Target is not located on this planet")
-    #             self.logger.debug("Init mission ending")
-    #             # TODO: Check how to send target is not on map
-    #             # Exploration complete
-    #             return True
-    #
-    #         self.__next_node = path_2_target
-
     def robot(self):
 
         #while True:
@@ -152,18 +133,23 @@ class Robot:
             self.logger.debug("Wait for path unveiling...")
             time.sleep(3)
 
+            print("--------------------------")
+            print("Before")
+            print(self.__current_node)
+            print(self.target)
+            print(self.__next_node)
             # Handle exploration
-            # self.__next_node = self.planet.explore_next(self.__current_node[0], self.__current_node[1])
-            # self.logger.debug(f"Next selected path: {self.__next_node}")
-
             self.__next_node = self.planet.get_next_node(self.__current_node, self.target)
+            print(self.__current_node)
+            print(self.target)
+            print(self.__next_node)
+            print(self.planet.get_paths())
+            print("--------------------------")
 
             if self.__next_node is None:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
                 break
-
-            print(self.__next_node)
 
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
@@ -174,6 +160,7 @@ class Robot:
 
             print(self.__start_node)
             print(self.__next_node)
+            print(self.__current_node)
 
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove

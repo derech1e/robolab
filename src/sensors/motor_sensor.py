@@ -6,11 +6,11 @@ import ev3dev.ev3 as ev3
 
 class MotorSensor:
     def __init__(self):
-        self.motor_left = ev3.LargeMotor("outA")
+        self.motor_left = ev3.LargeMotor("outB")
         self.motor_left.reset()
         self.motor_left.stop_action = "hold"
 
-        self.motor_right = ev3.LargeMotor("outD")
+        self.motor_right = ev3.LargeMotor("outC")
         self.motor_right.reset()
         self.motor_right.stop_action = "hold"
 
