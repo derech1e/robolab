@@ -35,7 +35,7 @@ class Robot:
         self.planet.group3mode = True
 
         # Exploration
-        self.__start_node: Tuple[Tuple[int, int], Direction] = None
+        self.__start_node: Tuple[Tuple[int, int], Direction] = ((0,0), Direction.NORTH)
         self.__current_node: Tuple[Tuple[int, int], Direction] = None
         self.__next_node: Tuple[Tuple[int, int], Direction] = None
         # next_node is basically the current_node, but with updated direction.
@@ -68,7 +68,7 @@ class Robot:
     def play_tone(self):
         self.speaker_sensor.play_tone()
 
-    def handle_node(self, current_position: Tuple[Tuple[int, int], Direction], stop_reason: StopReason):
+    def handle_node(self, stop_reason: StopReason):
         self.logger.debug("\n\nStart node handling...")
 
         self.node_color = Color(self.color_sensor.get_color_name())
@@ -82,16 +82,19 @@ class Robot:
             path_status = PathStatus.FREE if not stop_reason == StopReason.COLLISION else PathStatus.BLOCKED
             self.logger.debug(f"Path status: {path_status}")
 
+            self.logger.debug(self.__start_node)
+            self.logger.debug(self.__current_node)
+
             # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.__start_node, current_position, path_status)
+            self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
             # Check if target is reached
-            if self.is_node_current_target(current_position):
+            if self.is_node_current_target(self.__current_node):
                 self.communication.send_target_reached("Target reached!")
                 return
 
         scanned_directions = self.follow.scan_node()
-        self.planet.add_unexplored_node(current_position[0], self.node_color, scanned_directions)
+        self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
 
@@ -130,7 +133,7 @@ class Robot:
             stop_reason = self.driver.follow_line()
 
             self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
-            self.handle_node(self.__current_node, stop_reason)
+            self.handle_node(stop_reason)
 
             # Wait for path unveiled
             self.logger.debug("Wait for path unveiling...")

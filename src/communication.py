@@ -67,7 +67,7 @@ class Communication:
 
             if msg_type == MessageType.PLANET:
                 self.logger.debug("Received planet...")
-                self.client.subscribe(f"planet/{payload['planetName']}")
+                self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
                 self.robot.set_start_node(payload["startX"], payload["startY"], payload["startOrientation"])
 
