@@ -175,15 +175,19 @@ class Planet:
         if target not in final_paths:
             return None
 
+        return self.extract_path_from_dijkstra(final_paths, start, target)
+
+    def extract_path_from_dijkstra(self, distances: Dict[Tuple[int, int], DijkstraPath],
+                                   start: Tuple[int, int], target: Tuple[int, int]):
         # reconstruct most efficient path to destination
         return_path = []
-        return_path.insert(0, (final_paths[target].start, final_paths[target].direction_start))
+        return_path.insert(0, (distances[target].start, distances[target].direction_start))
 
         # backtrack from target to start in finial paths
         while return_path[0][0] != start:
             last_element = return_path[0][0]
-            return_path.insert(0, (final_paths[last_element].start,
-                                   final_paths[last_element].direction_start))
+            return_path.insert(0, (distances[last_element].start,
+                                   distances[last_element].direction_start))
 
         return return_path
 
@@ -241,8 +245,8 @@ class Planet:
 
         return unexplored_paths
 
-    def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]] :
+    def explore_next(self, distances: Dict[Tuple[int, int], DijkstraPath], current_position: Tuple[int, int],
+                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
@@ -255,7 +259,6 @@ class Planet:
             return None
 
         # find closest (minimum weight) nodes with unexplored path
-        distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
         distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
@@ -295,13 +298,32 @@ class Planet:
         return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
     # returns first step towards target
-    def get_to_target(self, current_position: tuple[tuple[int, int], Direction],
-                      target: tuple[int, int]) -> tuple[tuple[int, int], Direction]:
-        path = self.shortest_path(current_position[0], target)
-        if path is not None:
-            return path[0]
+    def get_next_node(self, current_position: tuple[tuple[int, int], Direction],
+                      target: Optional[tuple[int, int]]) -> Optional[tuple[tuple[int, int], Direction]]:
+        # calculate distance to all nodes from current_position
+        distances = self.dijkstra_final_paths(current_position[0])
+
+        if target is not None:
+            # calculate path to target
+            path = self.extract_path_from_dijkstra(distances, current_position[0], target)
+
+            # return first step of path if path exists
+            if path is not None:
+                return path[0]
+
+        # get next node to explore
+        explore_node = self.explore_next(distances, current_position[0], current_position[1])
+
+        if explore_node is None:
+            return None
+
+        # get path to  explore_node
+        next_path = self.extract_path_from_dijkstra(distances, current_position[0], explore_node[0])
+
+        if next_path is None:
+            return None
         else:
-            return self.explore_next(current_position[0], current_position[1])
+            return next_path[0]
 
 
 # get all outgoing paths from point with current weight added
