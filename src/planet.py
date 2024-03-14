@@ -54,11 +54,11 @@ class Planet:
 
     # add unexplored path
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
-        # enforce group3mode
-
         # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
+
+        if start[1] not in self.paths[start[0]]:
             self.paths[start[0]][start[1]] = (None, Direction.NORTH, -69420)
             print("add_unexplored_path executed")
 
