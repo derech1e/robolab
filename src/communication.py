@@ -13,7 +13,7 @@ import paho.mqtt.client as mqtt
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
 import constants
-from src.planet import Direction
+from planet import Direction
 
 
 class Communication:

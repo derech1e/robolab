@@ -242,7 +242,7 @@ class Planet:
         return unexplored_paths
 
     def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Tuple[Tuple[int, int], Direction] | None | False:
+                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]] :
         # enforce group3mode
         if not self.group3mode:
             raise SystemError("Custom functions are not available without the group3mode flag being set")
@@ -261,7 +261,7 @@ class Planet:
 
         for path in unexplored_paths:
             if path.start not in distances.keys():
-                return False
+                return None
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:

@@ -11,12 +11,6 @@ import time
 
 from robot import Robot
 from communication import Communication
-from odometry import Odometry
-from planet import Direction, Planet
-from follow import *
-
-from sensors.color_sensor import *
-from sensors.motor_sensor import MotorSensor
 
 client = None  # DO NOT EDIT
 
@@ -52,7 +46,8 @@ def run():
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("***** RoboLab started *****")
-    robot = Robot(client, logger)
+    communication = Communication(client, logger)
+    robot = Robot(communication, logger)
     robot.robot()
 
 

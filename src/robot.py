@@ -9,13 +9,12 @@ from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
 from enums import StopReason, PathStatus, Color
 from sensors.motor_sensor import MotorSensor
-from communication import Communication
 from driver import Driver
 
 
 class Robot:
 
-    def __init__(self, client, logger: logging.Logger):
+    def __init__(self, communication, logger: logging.Logger):
         self.logger = logger
 
         # ******************************** #
@@ -27,7 +26,7 @@ class Robot:
         self.motor_sensor = MotorSensor()
 
         self.planet = Planet()
-        self.communication = Communication(client, logger)
+        self.communication = communication
         self.communication.set_robot(self)
         self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
@@ -118,7 +117,7 @@ class Robot:
     def robot(self):
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Conway"
         self.communication.send_test_planet(planet_name)
-        print("Press button to start exploration")
+        self.logger.debug("Press button to start exploration")
 
         while not self.button.is_pressed():
             continue
