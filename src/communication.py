@@ -69,6 +69,11 @@ class Communication:
                 self.logger.debug("Received planet...")
                 self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
+
+                print("*******")
+                print(payload["startOrientation"], Direction(payload["startOrientation"]))
+                print("*********")
+
                 self.robot.set_start_node(payload["startX"], payload["startY"], Direction(payload["startOrientation"]))
 
             elif msg_type == MessageType.PATH:

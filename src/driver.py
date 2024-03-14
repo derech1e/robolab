@@ -89,7 +89,7 @@ class Driver:
         #             break
         for i in [0, 1, 3, 4]:
             angle = math.pi * i / 2
-            while alpha < angle + (-0.3 if i == 4 else 0.3):
+            while alpha < angle + (0 if i == 4 else 0.3):
                 angle = math.pi * i / 2
                 new_pos = self.motor_sensor.beyblade(150)
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])

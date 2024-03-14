@@ -36,26 +36,23 @@ class ColorSensor:
     # needs to be rewritten
     def get_color_name(self):
         raw_color = self.get_color_hls()
+        if self.NO_COLOR - self.ACCEPTANCE_RANGE_NOT_COLOR < raw_color[0] < self.NO_COLOR + self.ACCEPTANCE_RANGE_NOT_COLOR:
+            if self.AVR_LIGHTNESS > raw_color[1]:
+                return "black"
+            else:
+                return "white"
+        else:
+            value = self.color_data["blue"]
+            if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
+                return "blue"
 
-        # Check for black
-        if 0.25 < raw_color[0] < 0.31 and 40 < raw_color[1] < 80 and 0.4 < abs(raw_color[2]) < 0.59:
-            return "black"
-
-        # Check for white
-        if raw_color[0] < 0.4 and raw_color[1] > 300 and raw_color[2] > -0.4:
-            return "white"
-
-        # Check for blue
-        if 0.4 < raw_color[0] < 0.56 and 17 < raw_color[1] < 110 and 0.5 < abs(raw_color[2]) < 0.75:
-            return "blue"
-
-        # Check for red
-
-        if 0.02 < raw_color[0] < 0.05 and 90 < raw_color[1] < 170 and 0.68 < abs(raw_color[2]) < 0.86:
-            return "red"
-
-        return "black"  # TODO: Check black color range; this default should throw an error
-
+            value = self.color_data["red"]
+            if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
+                return "red"
+            if self.AVR_LIGHTNESS > raw_color[1]:
+                return "white"
+            else:
+                return "black"
     def is_color(self):
         pass
 
