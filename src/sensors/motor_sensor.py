@@ -1,4 +1,5 @@
 import math
+import constants
 
 import ev3dev.ev3 as ev3
 
@@ -115,6 +116,16 @@ class MotorSensor:
 
         self.motor_left.wait_until_not_moving()
         self.motor_right.wait_until_not_moving()
+
+    def drive_cm(self, cm, speed):
+        self.motor_right.position_sp = cm / constants.ROT_TO_CM
+        self.motor_left.position_sp = cm / constants.ROT_TO_CM
+
+        self.motor_right.speed_sp = speed
+        self.motor_left.speed_sp = speed
+
+        self.motor_right.command = "run-to-rel-pos"
+        self.motor_left.command = "run-to-rel-pos"
 
 
     def drive_with_speed(self, speed_left, speed_right):
