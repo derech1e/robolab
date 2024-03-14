@@ -75,7 +75,7 @@ class MotorSensor:
         position_old = (self.motor_left.position, self.motor_right.position)
         alpha = 0
         while alpha < angle:
-            self.drive_with_speed(-100, 100)
+            self.drive_with_speed(-200, 200)
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
             alpha = alpha + (delta_pos[1] - delta_pos[0]) / 10 * 0.05
