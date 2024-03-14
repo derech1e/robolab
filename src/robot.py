@@ -32,7 +32,6 @@ class Robot:
         self.driver = Driver(self.motor_sensor, self.color_sensor)
 
         self.active = True
-        self.planet.group3mode = True
 
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
@@ -66,6 +65,7 @@ class Robot:
         return current_position[0][0] == self.target[0] and current_position[0][1] == self.target[1]
 
     def add_path(self, start, target, weight):
+        self.planet.add_node(target, self.node_color)
         self.planet.add_path(start, target, weight)
 
     def play_tone(self):
@@ -164,7 +164,7 @@ class Robot:
 
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
-                self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value() - self.__next_node[1].value())) # Subtract angle to get relative rotation to current position
+                self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
