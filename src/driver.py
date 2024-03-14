@@ -65,7 +65,7 @@ class Driver:
         while self.color_sensor.get_color_name() in ["red", "blue"]:
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
-        self.motor_sensor.drive_cm(2, constants.SPEED)
+        self.motor_sensor.drive_cm(1.5, constants.SPEED)
 
         alpha = 0
         angle = 0
@@ -79,11 +79,11 @@ class Driver:
                 delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
+                #print(self.color_sensor.get_color_name())
                 if (self.color_sensor.get_luminance() < self.color_sensor.AVR_LIGHTNESS
                         and alpha > angle - 0.3
                         and self.color_sensor.get_color_name() == "black"):
                     dir = ((incoming_direction.value + 360 - 90 * i) % 360)
-                    print(dir)
                     directions.append(Direction(dir))
                     print("path detected")
                     break

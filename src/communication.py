@@ -70,7 +70,7 @@ class Communication:
                 self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
 
-                print("*******")
+                print("*********")
                 print(payload["startOrientation"], Direction(payload["startOrientation"]))
                 print("*********")
 
@@ -93,7 +93,7 @@ class Communication:
 
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_current_node(payload["endX"], payload["endY"], payload["endDirection"])
+                self.robot.set_current_node(payload["endX"], payload["endY"], Direction(payload["endDirection"]))
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
@@ -104,6 +104,7 @@ class Communication:
                 target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
                 self.logger.debug(f"Received new unveiled path...")
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                # TODO: Set node color to none when the node is unknown
 
             elif msg_type == MessageType.TARGET:
                 self.logger.debug(f"Received new target...")
