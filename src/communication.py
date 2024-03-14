@@ -82,7 +82,7 @@ class Communication:
                 target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
 
                 comp_payload = payload
-                del comp_payload["pathWeight"]
+                #del comp_payload["pathWeight"]
 
                 if self.debug_path_comparison != payload:
                     self.logger.warning(">>> Received path does not match sent path")
