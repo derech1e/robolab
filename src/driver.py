@@ -80,9 +80,9 @@ class Driver:
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
                 #print(self.color_sensor.get_color_name())
-                if (self.color_sensor.get_luminance() < self.color_sensor.AVR_LIGHTNESS
+                if (self.color_sensor.get_luminance() < 60
                         and alpha > angle - 0.3
-                        and self.color_sensor.get_color_name() == "black"):
+                        and not self.color_sensor.get_color_name()):
                     dir = ((incoming_direction.value + 360 - 90 * i) % 360)
                     directions.append(Direction(dir))
                     print("path detected")

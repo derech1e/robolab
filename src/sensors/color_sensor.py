@@ -34,7 +34,7 @@ class ColorSensor:
         return self.AVR_LIGHTNESS - self.get_luminance()
 
     # needs to be rewritten
-    def get_color_name(self):
+    def get_color_name_old(self):
         raw_color = self.get_color_hls()
         if 0.288 < raw_color[0] < 0.322: 
             if self.AVR_LIGHTNESS > raw_color[1]:
@@ -54,6 +54,18 @@ class ColorSensor:
                 return "white"
             else:
                 return "black"
+
+    def get_color_name(self):
+        raw_color = self.cs.raw
+
+        if raw_color[0] > raw_color[1] + raw_color[2]:
+            return "red"
+        
+        if raw_color[0] * 1.6 < raw_color[1] and raw_color[0] * 1.6 < raw_color[2] and raw_color[0] < 60:
+            return "blue"
+
+        return False
+
 
     def is_color(self):
         pass
