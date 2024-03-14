@@ -72,7 +72,6 @@ class MotorSensor:
 
     def turn_angle(self, angle):
         angle = math.radians(360-angle)
-        print(angle)
         position_old = (self.motor_left.position, self.motor_right.position)
         alpha = 0
         while alpha < angle:
@@ -81,7 +80,6 @@ class MotorSensor:
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
             alpha = alpha + (delta_pos[1] - delta_pos[0]) / 10 * 0.05
             position_old = position_new
-            print(alpha)
         self.stop()
 
     def beyblade(self, speed):
