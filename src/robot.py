@@ -93,7 +93,7 @@ class Robot:
                 self.communication.send_target_reached("Target reached!")
                 return
 
-        scanned_directions = self.follow.scan_node()
+        scanned_directions = self.driver.scan_node()
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
@@ -131,6 +131,7 @@ class Robot:
         self.logger.debug("Starting exploration...")
         while self.active:
             stop_reason = self.driver.follow_line()
+            self.logger.debug(f"Stop reason: {stop_reason}")
 
             self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
             self.handle_node(stop_reason)

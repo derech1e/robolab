@@ -6,6 +6,7 @@ from sensors.color_sensor import ColorSensor
 from sensors.sonar_sensor import SonarSensor
 from sensors.motor_sensor import MotorSensor
 from pid import PID
+import constants
 
 
 class Driver:
@@ -15,7 +16,7 @@ class Driver:
         self.sonar_sensor = SonarSensor()
         self.pid = PID(color_sensor, motor_sensor)
 
-        self.is_first_node = False
+        self.is_first_node = True
 
     def turn_find_line(self):
         while self.color_sensor.get_luminance() < self.color_sensor.AVR_LIGHTNESS:
