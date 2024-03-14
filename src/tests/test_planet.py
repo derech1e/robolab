@@ -206,7 +206,10 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         This test should test if the correct explore option is recommended
         """
-        self.assertIn(self.p4.explore_next((0, 0), Direction.SOUTH), [((0, 0), Direction.WEST),
+        start_node = (0, 0)
+        start_direction = Direction.SOUTH
+        distances = self.p4.dijkstra_final_paths(start_node)
+        self.assertIn(self.p4.explore_next(distances, start_node, start_direction), [((0, 0), Direction.WEST),
                                                                       ((0, 0), Direction.WEST)])
 
 
