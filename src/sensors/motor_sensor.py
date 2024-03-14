@@ -71,7 +71,7 @@ class MotorSensor:
                 break
 
     def turn_angle(self, angle):
-        angle = math.radians(360-angle)
+        angle = math.radians(angle)
         position_old = (self.motor_left.position, self.motor_right.position)
         alpha = 0
         while alpha < angle:
