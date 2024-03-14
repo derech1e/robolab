@@ -93,7 +93,7 @@ class Communication:
 
                 self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_current_node(payload["endX"], payload["endY"], payload["endOrientation"])
+                self.robot.set_current_node(payload["endX"], payload["endY"], payload["endDirection"])
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")

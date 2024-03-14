@@ -14,7 +14,7 @@ class SonarSensor:
         # ultraSonic.mode = 'US-SI-CM'  # Single measurement in centimeters (for inch use US-SI-IN)
 
     def distance(self):
-        if self.last_check > time.time_ns() + 150:  # Add execution delay
+        if self.last_check < time.time_ns() + 150:  # Add execution delay
             self.prev_value = self.ultraSonic.value()
             self.last_check = time.time_ns()
         return self.prev_value
