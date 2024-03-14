@@ -68,6 +68,7 @@ class Driver:
         self.motor_sensor.stop()
 
         alpha = 0
+        angle = 0
         directions: [Direction] = []
         old_pos = (self.motor_sensor.beyblade(0))
 
@@ -102,6 +103,7 @@ class Driver:
                     break
 
         self.motor_sensor.stop()
+        print(f"angle to go to: {angle}, real angle: {alpha}")
         print(f"scan_node: {directions}")
         print("scan_node: done!")
 
