@@ -70,7 +70,25 @@ class MotorSensor:
                 self.stop()
                 break
 
+    def turn_angle2(self, i):
+        self.mr.position_sp = -(self.turndeg / 4 * i)
+        self.ml.position_sp = (self.turndeg / 4 * i)
+        self.mr.speed_sp = 1.5 * (-self.basespeed)
+        self.ml.speed_sp = 1.5 * self.basespeed
+        self.soft_reset()
+        self.mr.command = "run-to-abs-pos"
+        self.ml.command = "run-to-abs-pos"
+        print("turning", i)
+        while True:
+            self.emergency_check()
+            self.track_colors()
+            if self.mr.position <= -self.turndeg / 4 * i:
+                break
+        self.soft_reset()
+
     def turn_angle(self, angle):
+        if angle == 0:
+            return
         angle = math.radians(angle)
         print(f"turning to angle: {angle}")
         position_old = (self.motor_left.position, self.motor_right.position)
@@ -100,6 +118,10 @@ class MotorSensor:
     def __update_speed(self, motor: ev3.LargeMotor, speed):
         motor.speed_sp = speed
         motor.command = "run-forever"
+
+    def full_turn(self):
+        self.__update_speed_position_relative(self.motor_left, -760, 200)
+        self.__update_speed_position_relative(self.motor_right, 760, 200)
 
     def __update_speed_position_relative(self, motor, position, speed):
         motor.position_sp = position

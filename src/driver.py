@@ -60,8 +60,32 @@ class Driver:
         self.motor_sensor.turn_angle(direction.value)
         self.turn_find_line()
 
+    def angle_to_direction(self, angle):
+        # angle = int(round(angle + 360)) % 360
+        """
+        NORTH = 136
+        WEST = 212
+        SOUTH = 380
+        EAST = 554
+        
+        MAX = 800
+        """
+
+        if 0 <= angle <= 180:
+            return 0
+        elif 180 <= angle <= 250:
+            return 270  # 90
+        elif 250 <= angle <= 450:
+            return 180  # 180
+        elif 450 <= angle < 700:
+            return 90  # 270
+
+        return 0  # Default
+
     def scan_node(self, incoming_direction: Direction) -> list[Direction]:
-        incoming_direction = Direction((180 + incoming_direction.value)%360)
+        # incoming_direction = Direction((180 + incoming_direction.value) % 360)
+        self.motor_sensor.reset_position()
+        print(incoming_direction)
         print("scanning node...")
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
@@ -70,38 +94,21 @@ class Driver:
         self.motor_sensor.turn_angle(-30)
         time.sleep(0.3)
 
-        alpha = -0.5 #about 30deg
-        angle = 0
-        directions: [Direction] = []
-        old_pos = (self.motor_sensor.beyblade(0))
+        directions = []
 
-        #dont scan the path behind you
-        for i in [0, 1, 3, 4]:
-            angle = math.pi * i / 2
-            # print(f"current angle: {angle}, real angle: {alpha}")
-            while alpha < angle + (0 if i == 4 else 0.4):
-                self.motor_sensor.beyblade(150 * (angle-alpha if i ==4 else 1 ))
-                new_pos = self.motor_sensor.beyblade(150)
-                delta_pos = (new_pos[0] - old_pos[0], new_pos[1] - old_pos[1])
-                old_pos = new_pos
-                alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
-                #print(self.color_sensor.get_color_name())
-                # print(self.color_sensor.get_luminance())
-                if not i == 4:
-                    if (self.color_sensor.get_luminance() < 85 and alpha > angle - 0.3):
-                            # and not self.color_sensor.get_color_name()):
-                        dir = ((incoming_direction.value + 360 - 90 * i) % 360)
-                        directions.append(Direction(dir))
-                        print(f"path detected direction: {angle}")
-                        break
+        self.motor_sensor.full_turn()
 
+
+        while self.motor_sensor.is_running():
+            position = self.motor_sensor.get_position()
+            luminance = self.color_sensor.get_luminance()
+            time.sleep(0.1)
+            if luminance < 85:
+                direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
+                if direction not in directions:
+                    directions.append(direction)
+                    print("Detected node", direction)
+
+        directions.remove(Direction((180 + incoming_direction.value) % 360))
         self.motor_sensor.stop()
-        directions = set(directions)
-        print(f"angle to go to: {angle}, real angle: {alpha}")
-        print(f"scan_node: {directions}")
-        print("scan_node: done!")
-
-        print("Correct base heading")
-        # self.motor_sensor.turn_angle_blocking(-80, 50)
-
-        return list(directions)
+        return directions
