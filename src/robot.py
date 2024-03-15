@@ -98,6 +98,7 @@ class Robot:
                 self.communication.send_target_reached("Target reached!")
                 return
 
+        time.sleep(3)
         scanned_directions = self.driver.scan_node(self.__current_node[1])
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
