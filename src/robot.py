@@ -49,10 +49,10 @@ class Robot:
 
     def set_start_node(self, start_node: Tuple[Tuple[int, int], Direction]):
         self.__start_node = start_node
+        self.odometry.set_coordinates(start_node)
 
     def set_current_node(self, current_node: Tuple[Tuple[int, int], Direction]):
         self.__current_node = current_node
-        self.odometry.set_coordinates(current_node)
 
     def update_next_path(self, direction: Direction):
         self.__next_node = (self.__next_node[0][0], self.__next_node[0][1]), direction
