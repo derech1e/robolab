@@ -70,30 +70,18 @@ class Communication:
                 self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
 
-                print("*********")
-                print(payload["startOrientation"], Direction(payload["startOrientation"]))
-                print("*********")
-
-                self.robot.set_start_node(payload["startX"], payload["startY"], Direction(payload["startOrientation"]))
+                self.robot.set_start_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"])))
+                self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"] + 180 % 360)))
 
             elif msg_type == MessageType.PATH:
-                self.logger.debug("Received current node...")
+                self.logger.debug("Received path correction...")
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
-                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
+                current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
 
-                comp_payload = payload
-                #del comp_payload["pathWeight"]
-
-                if self.debug_path_comparison != payload:
-                    self.logger.warning(">>> Received path does not match sent path")
-                    self.logger.warning("******* SEND PATH ********")
-                    self.logger.warning(self.debug_path_comparison)
-                    self.logger.warning("******* RECEIVE PATH *********")
-                    self.logger.warning(comp_payload)
-
-                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_current_node(payload["endX"], payload["endY"], Direction((payload["endDirection"] + 180) % 360))
+                self.robot.set_start_node(start_tuple)
+                self.robot.set_current_node(current_tuple)
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
@@ -101,9 +89,9 @@ class Communication:
 
             elif msg_type == MessageType.PATH_UNVEILED:
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
-                target_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
+                current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
                 self.logger.debug(f"Received new unveiled path...")
-                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
                 # TODO: Set node color to none when the node is unknown
 
             elif msg_type == MessageType.TARGET:

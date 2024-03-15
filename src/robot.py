@@ -47,21 +47,15 @@ class Robot:
     def set_target(self, target: Tuple[int, int]):
         self.target = target
 
-    def set_start_node(self, start_x: int, start_y: int, start_direction: Direction):
-        coords = (start_x, start_y)
-        self.__start_node = (coords, start_direction)
-        print(">>>>>> ", self.__start_node)
-        print("UPDATE FROM COMS: ", self.__start_node)
-        self.set_current_node(start_x, start_y, start_direction)
+    def set_start_node(self, start_node: Tuple[Tuple[int, int], Direction]):
+        self.__start_node = start_node
 
-    def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
-        coords = (end_x, end_y)
-        self.__current_node = (coords, end_direction)
-        print("End_direction: ", end_direction)
-        self.odometry.set_coordinates(end_x, end_y, end_direction.value)
+    def set_current_node(self, current_node: Tuple[Tuple[int, int], Direction]):
+        self.__current_node = current_node
+        self.odometry.set_coordinates(current_node)
 
     def update_next_path(self, direction: Direction):
-        self.__next_node = (self.__next_node[0], self.__next_node[1]), direction
+        self.__next_node = (self.__next_node[0][0], self.__next_node[0][1]), direction
 
     def is_node_current_target(self, current_position):
         if self.target is None:
@@ -107,25 +101,20 @@ class Robot:
                 self.communication.send_target_reached("Target reached!")
                 return
 
+        self.logger.debug("Wait for path correction...")
         time.sleep(3)
-        scanned_directions = self.driver.scan_node(self.__current_node[1])
+
+        incoming_direction = self.__current_node[1]
+
+        if stop_reason != StopReason.FIRST_NODE:
+            incoming_direction = Direction((incoming_direction + 180) % 360)
+
+        scanned_directions = self.driver.scan_node(incoming_direction)
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
 
     def robot(self):
-        # while True:
-        #    input123 = input(" ")
-        #    print(f"Name: {self.color_sensor.get_color_name()},  Value: {self.color_sensor.get_color_hls()}")
-
-        # while True:
-        #    press = input("Press input")
-        #    print(self.color_sensor.get_color_hls())
-
-        # pass
-
-        # self.driver.turn_find_line()
-
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Ibem"
         self.communication.send_test_planet(planet_name)
         # self.logger.debug("Press button to start exploration")
@@ -140,8 +129,6 @@ class Robot:
         while self.active:
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
-
-            self.logger.debug(f"Current position: {self.odometry.get_coordinates()}")
             self.handle_node(stop_reason)
 
             # Wait for path unveiled
@@ -185,9 +172,13 @@ class Robot:
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
                 # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
-                self.motor_sensor.turn_angle(20)
-                self.motor_sensor.turn_angle(self.__current_node[1].value - self.__next_node[1].value)
-                self.motor_sensor.drive_cm(5, 5, 100)
+                # self.motor_sensor.turn_angle(20)
+                turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__next_node[1].value
+                if stop_reason == StopReason.FIRST_NODE:
+                    turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__next_node[1].value
+                print(turn_angle)
+                self.motor_sensor.turn_angle(turn_angle)
+                # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
 
         # Mission done
