@@ -80,7 +80,7 @@ class Communication:
 
                 self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_start_node(start_tuple)
+                self.robot.set_start_node((current_tuple[0], Direction((current_tuple[1].value + 180) % 360)))
                 self.robot.set_current_node(current_tuple)
 
             elif msg_type == MessageType.PATH_SELECT:

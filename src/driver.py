@@ -73,10 +73,9 @@ class Driver:
 
         return -1  # Default
 
-    def scan_node(self, incoming_direction: Direction) -> list[Direction]:
+    def scan_node(self) -> list[Direction]:
         # incoming_direction = Direction((180 + incoming_direction.value) % 360)
         self.motor_sensor.stop()
-        print(incoming_direction)
         print("scanning node...")
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
