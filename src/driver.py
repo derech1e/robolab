@@ -66,7 +66,7 @@ class Driver:
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
-        self.motor_sensor.drive_cm(1, 1, constants.SPEED)
+        self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
         self.motor_sensor.turn_angle(-30)
         time.sleep(0.3)
 
