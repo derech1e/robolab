@@ -67,7 +67,7 @@ class Odometry:
 
 
     def __clip_orientation(self, rad) -> int:
-        return (360-round(math.degrees(rad)/90)*90) % 360
+        return 360 - (round(math.degrees(rad)/90)*90) % 360
 
     def __clip_coordinat(self, x:float) -> int:
         return round (x / 50)
@@ -78,9 +78,7 @@ class Odometry:
         """
         self.local_x_coordinat = x * 50
         self.local_y_coordinat = y * 50
-        self.local_oriantation = 360 - angle / 180 * math.pi
-
-        pass
+        self.local_oriantation = (360 - angle) / 180 * math.pi
 
     def get_coordinates(self) -> Tuple[Tuple[int,int], Direction]:
         """
