@@ -76,7 +76,7 @@ class MotorSensor:
         alpha = 0
         turn_speed = 100 * (-1 if angle > 0 else 1)
         while abs(alpha) < abs(angle):
-            self.drive_with_speed(turn_speed, -turn_speed)
+            self.drive_with_speed(turn_speed * (angle-alpha), -turn_speed * (angle-alpha))
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
             alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * constants.ROT_TO_CM
