@@ -109,8 +109,8 @@ class Robot:
 
         incoming_direction = self.__current_node[1]
 
-        if stop_reason != StopReason.FIRST_NODE:
-            incoming_direction = Direction((incoming_direction + 180) % 360)
+        # if stop_reason != StopReason.FIRST_NODE:
+        #     incoming_direction = Direction((incoming_direction + 180) % 360)
 
         scanned_directions = self.driver.scan_node(incoming_direction)
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)

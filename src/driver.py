@@ -92,8 +92,9 @@ class Driver:
         while self.motor_sensor.is_running():
             position = self.motor_sensor.get_position()
             luminance = self.color_sensor.get_luminance()
-            print(position)
+            # print(position)
             time.sleep(0.1)
+            print(luminance)
             if luminance < 85:
                 print("DETECTED")
                 direction = Direction(self.angle_to_direction(position))
@@ -102,6 +103,8 @@ class Driver:
                     directions.append(direction)
                     print("Detected node", direction)
 
-        directions.remove(incoming_direction)
+        south = Direction.SOUTH
+        if south in directions:
+            directions.remove(south)
         self.motor_sensor.stop()
         return directions
