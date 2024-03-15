@@ -73,14 +73,6 @@ class Planet:
             print(f"Added direction: {direction}")
             self.add_unexplored_path((position, direction))
 
-    def add_new_node_and_decide(self, position: Tuple[int, int], current_direction: Direction,
-                                color: Color, directions: List[Direction]) -> Optional[Direction]:
-        self.add_unexplored_node(position, color, directions)
-        explore_decision = self.explore_next(position, current_direction)
-        if explore_decision is None:
-            return None
-        return explore_decision[1]
-
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
                  weight: int):
@@ -94,7 +86,6 @@ class Planet:
         :param weight: Integer
         :return: void
         """
-
 
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
@@ -169,7 +160,8 @@ class Planet:
 
         return self.extract_path_from_dijkstra(final_paths, start, target)
 
-    def extract_path_from_dijkstra(self, distances: Dict[Tuple[int, int], DijkstraPath],
+    @staticmethod
+    def extract_path_from_dijkstra(distances: Dict[Tuple[int, int], DijkstraPath],
                                    start: Tuple[int, int], target: Tuple[int, int]):
         # reconstruct most efficient path to destination
         return_path = []
