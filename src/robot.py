@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
 
 from odometry import Odometry
 from planet import Planet, Direction
@@ -31,7 +31,7 @@ class Robot:
         self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
 
-        self.active = True
+        self.__sleep_time = None
 
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
@@ -72,7 +72,7 @@ class Robot:
     def play_tone(self):
         self.speaker_sensor.play_tone()
 
-    def handle_node(self, stop_reason: StopReason):
+    def handle_node(self, stop_reason: StopReason) -> Optional[bool]:
         self.node_counter += 1
         print("\n\n\n")
         print(f"**************Node - {self.node_counter}****************")
@@ -89,6 +89,9 @@ class Robot:
         if stop_reason == StopReason.FIRST_NODE:
             self.logger.debug("Detected the first node")
             self.communication.send_ready()
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                pass
         else:
             path_status = PathStatus.FREE if not stop_reason == StopReason.COLLISION else PathStatus.BLOCKED
             self.logger.debug(f"Path status: {path_status}")
@@ -99,13 +102,23 @@ class Robot:
             # send path message with last driven path
             self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
+            # waiting for path correction
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                pass
+
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
-                return
+                self.__sleep_time = time.time() + 3
+                while time.time() < self.__sleep_time:
+                    pass
+                return True
 
         self.logger.debug("Wait for path correction...")
-        time.sleep(3)
+        self.__sleep_time = time.time() + 3
+        while time.time() < self.__sleep_time:
+            pass
 
         incoming_direction = self.__current_node[1]
 
@@ -132,14 +145,18 @@ class Robot:
         # time.sleep(5)
 
         self.logger.debug("Starting exploration...")
-        while self.active:
+        while True:
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
-            self.handle_node(stop_reason)
+            if self.handle_node(stop_reason) is True:
+                print("Finished exploration")
+                break
 
             # Wait for path unveiled
             self.logger.debug("Wait for path unveiling...")
-            time.sleep(3)
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                pass
 
             print("--------------------------")
             print("Before")
@@ -160,6 +177,10 @@ class Robot:
             if self.__next_node is None:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
+                self.communication.send_exploration_complete("Exploration Complete!")
+                self.__sleep_time = time.time() + 3
+                while time.time() < self.__sleep_time:
+                    pass
                 break
 
             self.__start_node = self.__next_node
@@ -167,7 +188,9 @@ class Robot:
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
             self.logger.debug("Wait for path correction...")
-            time.sleep(4)
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                pass
 
             print("After path_select_update:")
             print("start_node: ", self.__start_node)
