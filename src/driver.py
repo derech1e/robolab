@@ -62,6 +62,7 @@ class Driver:
         self.turn_find_line()
 
     def scan_node(self, incoming_direction: Direction) -> list[Direction]:
+        incoming_direction = Direction((180 + incoming_direction.value)%360)
         print("scanning node...")
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
