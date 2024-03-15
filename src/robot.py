@@ -91,7 +91,7 @@ class Robot:
             self.communication.send_ready()
             self.__sleep_time = time.time() + 3
             while time.time() < self.__sleep_time:
-                time.sleep(1)
+                pass
         else:
             path_status = PathStatus.FREE if not stop_reason == StopReason.COLLISION else PathStatus.BLOCKED
             self.logger.debug(f"Path status: {path_status}")
@@ -105,20 +105,20 @@ class Robot:
             # waiting for path correction
             self.__sleep_time = time.time() + 3
             while time.time() < self.__sleep_time:
-                time.sleep(1)
+                pass
 
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
                 self.__sleep_time = time.time() + 3
                 while time.time() < self.__sleep_time:
-                    time.sleep(1)
+                    pass
                 return True
 
         self.logger.debug("Wait for path correction...")
         self.__sleep_time = time.time() + 3
         while time.time() < self.__sleep_time:
-            time.sleep(1)
+            pass
 
         incoming_direction = self.__current_node[1]
 
@@ -154,7 +154,9 @@ class Robot:
 
             # Wait for path unveiled
             self.logger.debug("Wait for path unveiling...")
-            time.sleep(3)
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                pass
 
             print("--------------------------")
             print("Before")
@@ -178,7 +180,7 @@ class Robot:
                 self.communication.send_exploration_complete("Exploration Complete!")
                 self.__sleep_time = time.time() + 3
                 while time.time() < self.__sleep_time:
-                    time.sleep(1)
+                    pass
                 break
 
             self.__start_node = self.__next_node
@@ -188,7 +190,7 @@ class Robot:
             self.logger.debug("Wait for path correction...")
             self.__sleep_time = time.time() + 3
             while time.time() < self.__sleep_time:
-                time.sleep(1)
+                pass
 
             print("After path_select_update:")
             print("start_node: ", self.__start_node)
