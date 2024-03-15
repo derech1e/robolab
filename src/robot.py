@@ -168,7 +168,7 @@ class Robot:
             self.logger.debug("Wait for path correction...")
             time.sleep(4)
 
-            self.__start_node = self.__next_node
+            self.__start_node = self.__next_node[0]
 
             print("After path_select_update:")
             print("start_node: ", self.__start_node)
