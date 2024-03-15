@@ -62,29 +62,20 @@ class Driver:
 
     def angle_to_direction(self, angle):
         # angle = int(round(angle + 360)) % 360
-        """
-        NORTH = 136
-        WEST = 212
-        SOUTH = 380
-        EAST = 554
-        
-        MAX = 800
-        """
-
         if 0 <= angle <= 180:
             return 0
-        elif 180 <= angle <= 250:
+        elif 180 <= angle <= 340:
             return 270  # 90
-        elif 250 <= angle <= 450:
+        elif 340 <= angle <= 520:
             return 180  # 180
-        elif 450 <= angle < 700:
+        elif 520 <= angle < 700:
             return 90  # 270
 
-        return 0  # Default
+        return -1  # Default
 
     def scan_node(self, incoming_direction: Direction) -> list[Direction]:
         # incoming_direction = Direction((180 + incoming_direction.value) % 360)
-        self.motor_sensor.reset_position()
+        self.motor_sensor.stop()
         print(incoming_direction)
         print("scanning node...")
         while self.color_sensor.get_color_name():
@@ -98,17 +89,19 @@ class Driver:
 
         self.motor_sensor.full_turn()
 
-
         while self.motor_sensor.is_running():
             position = self.motor_sensor.get_position()
             luminance = self.color_sensor.get_luminance()
+            print(position)
             time.sleep(0.1)
             if luminance < 85:
-                direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
+                print("DETECTED")
+                direction = Direction(self.angle_to_direction(position))
+                # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
                 if direction not in directions:
                     directions.append(direction)
                     print("Detected node", direction)
 
-        directions.remove(Direction((180 + incoming_direction.value) % 360))
+        directions.remove(incoming_direction)
         self.motor_sensor.stop()
         return directions

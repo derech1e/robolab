@@ -56,6 +56,7 @@ class Robot:
 
     def update_next_path(self, direction: Direction):
         self.__next_node = (self.__next_node[0][0], self.__next_node[0][1]), direction
+        self.__start_node = self.__next_node
 
     def is_node_current_target(self, current_position):
         if self.target is None:
