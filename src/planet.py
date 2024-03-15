@@ -148,8 +148,11 @@ class Planet:
         :return: None, List[] or List[Tuple[Tuple[int, int], Direction]]
         """
 
+        if start == target:
+            return []
+
         # return none if start or target are not nodes or if start is target
-        if start not in self.paths or target not in self.paths or start is target:
+        if start not in self.paths or target not in self.paths:
             return None
 
         # get most efficient paths to every node

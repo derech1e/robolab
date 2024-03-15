@@ -120,8 +120,6 @@ class Robot:
         while time.time() < self.__sleep_time:
             pass
 
-        incoming_direction = self.__current_node[1]
-
         # if stop_reason != StopReason.FIRST_NODE:
         #     incoming_direction = Direction((incoming_direction + 180) % 360)
 
