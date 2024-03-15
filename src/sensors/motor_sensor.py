@@ -167,7 +167,7 @@ class MotorSensor:
     def stop(self):
         self.motor_left.stop()
         self.motor_right.stop()
-        # self.motor_right.reset()
+        self.motor_right.reset()
         self.motor_right.stop_action = "hold"
-        # self.motor_left.reset()
+        self.motor_left.reset()
         self.motor_left.stop_action = "hold"
