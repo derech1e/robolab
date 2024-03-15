@@ -61,7 +61,7 @@ class ColorSensor:
         if raw_color[0] > raw_color[1] + raw_color[2]:
             return "red"
         
-        if raw_color[0] * 1.6 < raw_color[1] and raw_color[0] * 1.6 < raw_color[2] and raw_color[0] < 60:
+        if raw_color[0] * 1.6 < raw_color[1] and raw_color[0] * 1.6 < raw_color[2] and raw_color[0] < 70:
             return "blue"
 
         return False

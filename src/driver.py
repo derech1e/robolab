@@ -62,9 +62,12 @@ class Driver:
         self.turn_find_line()
 
     def scan_node(self, incoming_direction: Direction) -> list[Direction]:
-        while self.color_sensor.get_color_name() in ["red", "blue"]:
+        print("scanning node...")
+        while self.color_sensor.get_color_name():
+            print(self.color_sensor.cs.raw)
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
+        print(f"Fehler bei {self.color_sensor.cs.raw}")
         self.motor_sensor.drive_cm(1.5, constants.SPEED)
 
         alpha = 0
@@ -72,6 +75,7 @@ class Driver:
         directions: [Direction] = []
         old_pos = (self.motor_sensor.beyblade(0))
 
+        #dont scan the path behind you
         for i in [0, 1, 3, 4]:
             angle = math.pi * i / 2
             while alpha < angle + (0 if i == 4 else 0.3):
@@ -98,4 +102,4 @@ class Driver:
         print("Correct base heading")
         # self.motor_sensor.turn_angle_blocking(-80, 50)
 
-        return directions
+        return list(directions)
