@@ -136,7 +136,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-            List[Tuple[Tuple[int, int], Direction]]]:
+        List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -162,9 +162,10 @@ class Planet:
 
     @staticmethod
     def extract_path_from_dijkstra(distances: Dict[Tuple[int, int], DijkstraPath],
-                                   start: Tuple[int, int], target: Tuple[int, int]):
+                                   start: Tuple[int, int], target: Tuple[int, int]) -> List[
+                                    Tuple[Tuple[int, int], Direction]]:
         # reconstruct most efficient path to destination
-        return_path = []
+        return_path: List[Tuple[Tuple[int, int], Direction]] = []
         return_path.insert(0, (distances[target].start, distances[target].direction_start))
 
         # backtrack from target to start in finial paths
@@ -282,8 +283,7 @@ class Planet:
     def get_next_node(self, current_position: tuple[tuple[int, int], Direction],
                       target: Optional[tuple[int, int]]) -> Optional[tuple[tuple[int, int], Direction]]:
         # calculate distance to all nodes from current_position
-        distances = self.dijkstra_final_paths(current_position[0])
-        distances[current_position[0]] = DijkstraPath(current_position, 0, current_position, None, None)
+        distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position[0])
 
         if target is not None:
             # calculate path to target
