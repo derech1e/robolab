@@ -66,7 +66,7 @@ class Driver:
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
-        self.motor_sensor.drive_cm(1, 1, constants.SPEED)
+        self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
         self.motor_sensor.turn_angle(-30)
         time.sleep(0.3)
 
@@ -85,6 +85,7 @@ class Driver:
                 old_pos = new_pos
                 alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * 0.05
                 #print(self.color_sensor.get_color_name())
+                print(self.color_sensor.get_luminance())
                 if (self.color_sensor.get_luminance() < 85
                         and alpha > angle - 0.3):
                         # and not self.color_sensor.get_color_name()):
