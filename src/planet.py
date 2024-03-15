@@ -136,7 +136,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-        List[Tuple[Tuple[int, int], Direction]]]:
+            List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -265,8 +265,10 @@ class Planet:
             minimum_rotation = 360
             selected_path = min_distance_paths[0][1]
             for weight, path in min_distance_paths:
-                if abs(path.direction_start - current_direction) < minimum_rotation:
+                rotation = abs(path.direction_start - current_direction)
+                if rotation < minimum_rotation:
                     selected_path = path
+                    minimum_rotation = rotation
 
             return selected_path.start, selected_path.direction_start
 
@@ -285,7 +287,7 @@ class Planet:
         # calculate distance to all nodes from current_position
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position[0])
 
-        if target is not None:
+        if target is not None and target in distances:
             # calculate path to target
             path = self.extract_path_from_dijkstra(distances, current_position[0], target)
 
