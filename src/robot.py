@@ -82,6 +82,8 @@ class Robot:
         self.node_color = Color(self.color_sensor.get_color_name())
         self.odometry.update_position(self.motor_sensor.motor_positions)
         self.__current_node = self.odometry.get_coordinates()
+        # odometry sends current looking direction, current node is entry direction
+        self.__current_node = (self.__current_node[0], Direction((self.__current_node[1] + 180) % 360))
 
         if stop_reason == StopReason.FIRST_NODE:
             self.logger.debug("Detected the first node")
@@ -180,6 +182,7 @@ class Robot:
                 self.motor_sensor.turn_angle(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
+                self.odometry.set_coordinates(self.__start_node)
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
