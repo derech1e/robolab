@@ -175,9 +175,9 @@ class Robot:
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
                 # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
                 # self.motor_sensor.turn_angle(20)
-                turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__next_node[1].value
+                turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
                 if stop_reason == StopReason.FIRST_NODE:
-                    turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__next_node[1].value
+                    turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
                 print(turn_angle)
                 self.motor_sensor.turn_angle(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
