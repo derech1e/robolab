@@ -71,7 +71,7 @@ class Driver:
         elif 520 <= angle < 700:
             return 90  # 270
 
-        return -1  # Default
+        return 0  # Default
 
     def scan_node(self) -> list[Direction]:
         # incoming_direction = Direction((180 + incoming_direction.value) % 360)
@@ -82,6 +82,9 @@ class Driver:
 
         self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
         self.motor_sensor.turn_angle(-30)
+
+        self.motor_sensor.reset_position()
+
         time.sleep(0.3)
 
         directions = []
@@ -93,14 +96,14 @@ class Driver:
             luminance = self.color_sensor.get_luminance()
             # print(position)
             time.sleep(0.1)
-            print(luminance)
+            # print(luminance)
             if luminance < 85:
                 print("DETECTED")
                 direction = Direction(self.angle_to_direction(position))
                 # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
                 if direction not in directions:
                     directions.append(direction)
-                    print("Detected node", direction)
+                    # print("Detected node", direction)
 
         south = Direction.SOUTH
         if south in directions:

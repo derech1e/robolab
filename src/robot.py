@@ -115,6 +115,7 @@ class Robot:
         scanned_directions = self.driver.scan_node()
         # convert from relative to absolute orientation
         scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in scanned_directions]
+        print(f"scanned direction: {scanned_directions}")
         self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
         self.logger.debug(f"Scanned directions: {scanned_directions}")
@@ -147,7 +148,7 @@ class Robot:
             print("target: ", self.target)
             print("next_node: ", self.__next_node)
             # Handle exploration
-            self.__next_node = self.planet.get_next_node(self.__current_node, self.target)
+            self.__next_node = self.planet.get_next_node(self.__start_node, self.target)
             print("After:")
             print("start_node: ", self.__start_node)
             print("current_node: ", self.__current_node)

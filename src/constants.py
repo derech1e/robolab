@@ -9,6 +9,9 @@ MAGIC_VALUE = 0.9945
 # Follow
 SPEED = 150
 
+# Sonar
+COLLIDING_RANGE = 200
+
 # PID
 KP = 0.51
 KI = 0.074

@@ -48,7 +48,7 @@ class Odometry:
 
             self.list_of_coords.append((self.local_x_coordinate, self.local_y_coordinate))
 
-        print(f"x = {self.local_x_coordinate}, y = {self.local_y_coordinate}, a = {self.local_orientation}")
+        # print(f"x = {self.local_x_coordinate}, y = {self.local_y_coordinate}, a = {self.local_orientation}")
         # print(self.local_orientation)
         with open('path.csv', 'w', newline='') as file:
             writer = csv.writer(file)

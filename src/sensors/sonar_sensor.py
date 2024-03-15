@@ -1,5 +1,6 @@
 import math
 import time
+import constants
 
 import ev3dev.ev3 as ev3
 
@@ -20,4 +21,4 @@ class SonarSensor:
         return self.prev_value
 
     def is_colliding(self):
-        return self.distance() < 210  # Colliding range
+        return self.distance() < constants.COLLIDING_RANGE  # Colliding range
