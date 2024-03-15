@@ -70,7 +70,8 @@ class Odometry:
         """
         self.local_x_coordinate = position[0][0] * 50
         self.local_y_coordinate = position[0][1] * 50
-        self.local_orientation = 360 - position[1].value / 180 * math.pi
+        self.local_orientation = (360 - position[1].value)%360 / 180 * math.pi
+        print(f"setting coordinates in odo: {self.local_x_coordinate}, {self.local_y_coordinate}, ori: {self.local_orientation}")
 
 
     def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:

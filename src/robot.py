@@ -100,7 +100,7 @@ class Robot:
             self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
             # Check if target is reached
-            if self.is_node_current_target(self.__current_node):
+            if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
                 return
 
@@ -182,7 +182,7 @@ class Robot:
                 turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
                 if stop_reason == StopReason.FIRST_NODE:
                     turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
-                print(turn_angle)
+                # print(turn_angle)
                 self.motor_sensor.turn_angle(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
