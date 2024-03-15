@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
 
 from odometry import Odometry
 from planet import Planet, Direction
@@ -30,8 +30,6 @@ class Robot:
         self.communication.set_robot(self)
         self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
-
-        self.active = True
 
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
@@ -72,7 +70,7 @@ class Robot:
     def play_tone(self):
         self.speaker_sensor.play_tone()
 
-    def handle_node(self, stop_reason: StopReason):
+    def handle_node(self, stop_reason: StopReason) -> Optional[bool]:
         self.node_counter += 1
         print("\n\n\n")
         print(f"**************Node - {self.node_counter}****************")
@@ -99,10 +97,13 @@ class Robot:
             # send path message with last driven path
             self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
+            # waiting for path correction
+            time.sleep(3)
+
             # Check if target is reached
             if self.is_node_current_target(self.__current_node):
                 self.communication.send_target_reached("Target reached!")
-                return
+                return True
 
         self.logger.debug("Wait for path correction...")
         time.sleep(3)
@@ -132,10 +133,12 @@ class Robot:
         # time.sleep(5)
 
         self.logger.debug("Starting exploration...")
-        while self.active:
+        while True:
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
-            self.handle_node(stop_reason)
+            if self.handle_node(stop_reason) is True:
+                print("Finished exploration")
+                break
 
             # Wait for path unveiled
             self.logger.debug("Wait for path unveiling...")
@@ -160,6 +163,7 @@ class Robot:
             if self.__next_node is None:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
+                self.communication.send_exploration_complete("Exploration Complete!")
                 break
 
             self.__start_node = self.__next_node
