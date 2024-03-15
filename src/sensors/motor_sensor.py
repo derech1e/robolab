@@ -72,6 +72,7 @@ class MotorSensor:
 
     def turn_angle(self, angle):
         angle = math.radians(angle)
+        print(f"turning to angle: {angle}")
         position_old = (self.motor_left.position, self.motor_right.position)
         alpha = 0
         turn_speed = 100 * (-1 if angle > 0 else 1)
