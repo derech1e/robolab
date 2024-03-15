@@ -1,5 +1,7 @@
 import colorsys
 import json
+import math
+import time
 
 import ev3dev.ev3 as ev3
 
@@ -11,6 +13,10 @@ class ColorSensor:
         self.color_data = {}
         self.load_color_data()
 
+        # Delay
+        self.last_check = -1
+        self.prev_value = math.inf
+
         # set the range in which the read value is accepted as a color
         # TODO: das passt so nicht, der wert muss noch veraendert werden
         self.ACCEPTANCE_RANGE_COLOR = 0.08  # smaler if accept color wrongly
@@ -18,9 +24,15 @@ class ColorSensor:
         self.NO_COLOR = (self.color_data["white"][0] + self.color_data["black"][0]) / 2
         self.AVR_LIGHTNESS = (self.color_data["white"][1] + self.color_data["black"][1]) / 2
 
+    def __get_raw(self):
+        if self.last_check < time.time_ns() + 50:  # Add execution delay
+            self.prev_value = self.cs.raw
+            self.last_check = time.time_ns()
+        return self.prev_value
+
     # if we want to use hls
     def get_color_hls(self) -> tuple[float, float, float]:
-        color = self.cs.raw
+        color = self.__get_raw()
         try:
             color_hls = colorsys.rgb_to_hls(color[0], color[1], color[2])
         except ZeroDivisionError:
@@ -56,7 +68,7 @@ class ColorSensor:
                 return "black"
 
     def get_color_name(self):
-        raw_color = self.cs.raw
+        raw_color = self.__get_raw()
 
         if raw_color[0] > raw_color[1] + raw_color[2]:
             return "red"

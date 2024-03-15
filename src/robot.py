@@ -47,12 +47,15 @@ class Robot:
         self.target = target
 
     def set_start_node(self, start_x: int, start_y: int, start_direction: Direction):
-        self.__start_node = ((start_x, start_y), start_direction)
+        coords = (start_x, start_y)
+        self.__start_node = (coords, start_direction)
+        print(">>>>>> ", self.__start_node)
         print("UPDATE FROM COMS: ", self.__start_node)
         self.set_current_node(start_x, start_y, start_direction)
 
     def set_current_node(self, end_x: int, end_y: int, end_direction: Direction):
-        self.__current_node = ((end_x, end_y), end_direction)
+        coords = (end_x, end_y)
+        self.__current_node = (coords, end_direction)
         print("End_direction: ", end_direction)
         self.odometry.set_coordinates(end_x, end_y, end_direction.value)
 
