@@ -42,6 +42,7 @@ class Robot:
 
         self.target: Tuple[int, int] = None
         self.node_color: Color = None
+        self.node_counter = 0
 
     def set_target(self, target: Tuple[int, int]):
         self.target = target
@@ -60,7 +61,7 @@ class Robot:
         self.odometry.set_coordinates(end_x, end_y, end_direction.value)
 
     def update_next_path(self, direction: Direction):
-        self.__next_node = ((self.__next_node[0], self.__next_node[1]), direction)
+        self.__next_node = (self.__next_node[0], self.__next_node[1]), direction
 
     def is_node_current_target(self, current_position):
         if self.target is None:
@@ -77,6 +78,11 @@ class Robot:
         self.speaker_sensor.play_tone()
 
     def handle_node(self, stop_reason: StopReason):
+        self.node_counter += 1
+        print("\n\n\n")
+        print(f"**************Node - {self.node_counter}****************")
+        print("\n\n\n")
+
         self.logger.debug("\n\nStart node handling...")
 
         self.node_color = Color(self.color_sensor.get_color_name())
@@ -163,12 +169,12 @@ class Robot:
                 # Break if target is reached or the whole planet is explored
                 break
 
+            self.__start_node = self.__next_node
+
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
             self.logger.debug("Wait for path correction...")
             time.sleep(4)
-
-            self.__start_node = self.__next_node[0]
 
             print("After path_select_update:")
             print("start_node: ", self.__start_node)
@@ -179,7 +185,9 @@ class Robot:
             # Handle direction alignment
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
                 # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
-                self.motor_sensor.turn_angle(self.__current_node[1].value - self.__next_node[1].value - 15)
+                self.motor_sensor.turn_angle(20)
+                self.motor_sensor.turn_angle(self.__current_node[1].value - self.__next_node[1].value)
+                self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
 
         # Mission done
