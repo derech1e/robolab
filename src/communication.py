@@ -5,6 +5,7 @@ import json
 import ssl
 import logging
 from typing import Tuple
+import time
 
 from builder import MessageBuilder, PayloadBuilder
 
@@ -73,6 +74,8 @@ class Communication:
                 self.robot.set_start_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"])))
                 self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"] + 180 % 360)))
 
+                self.robot.__sleep_time = time.time() + 3
+
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received path correction...")
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
@@ -83,9 +86,13 @@ class Communication:
                 self.robot.set_start_node((current_tuple[0], Direction((current_tuple[1].value + 180) % 360)))
                 self.robot.set_current_node(current_tuple)
 
+                self.robot.__sleep_time = time.time() + 3
+
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
                 self.robot.update_next_path(Direction(payload["startDirection"]))
+
+                self.robot.__sleep_time = time.time() + 3
 
             elif msg_type == MessageType.PATH_UNVEILED:
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
@@ -94,12 +101,18 @@ class Communication:
                 self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
                 # TODO: Set node color to none when the node is unknown
 
+                self.robot.__sleep_time = time.time() + 3
+
             elif msg_type == MessageType.TARGET:
                 self.logger.debug(f"Received new target...")
                 self.robot.set_target((payload["targetX"], payload["targetY"]))
 
+                self.robot.__sleep_time = time.time() + 3
+
             elif msg_type == MessageType.DONE:
                 self.logger.debug("Finished mission")
+
+                self.robot.__sleep_time = time.time() + 3
 
             self.logger.debug(json.dumps(response, indent=2))
             self.logger.debug("\n\n")

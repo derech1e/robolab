@@ -31,6 +31,8 @@ class Robot:
         self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
 
+        self.__sleep_time = None
+
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
         self.__current_node: Tuple[Tuple[int, int], Direction] = None
@@ -87,6 +89,9 @@ class Robot:
         if stop_reason == StopReason.FIRST_NODE:
             self.logger.debug("Detected the first node")
             self.communication.send_ready()
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                time.sleep(1)
         else:
             path_status = PathStatus.FREE if not stop_reason == StopReason.COLLISION else PathStatus.BLOCKED
             self.logger.debug(f"Path status: {path_status}")
@@ -98,15 +103,22 @@ class Robot:
             self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
             # waiting for path correction
-            time.sleep(3)
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                time.sleep(1)
 
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
+                self.__sleep_time = time.time() + 3
+                while time.time() < self.__sleep_time:
+                    time.sleep(1)
                 return True
 
         self.logger.debug("Wait for path correction...")
-        time.sleep(3)
+        self.__sleep_time = time.time() + 3
+        while time.time() < self.__sleep_time:
+            time.sleep(1)
 
         incoming_direction = self.__current_node[1]
 
@@ -164,6 +176,9 @@ class Robot:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
                 self.communication.send_exploration_complete("Exploration Complete!")
+                self.__sleep_time = time.time() + 3
+                while time.time() < self.__sleep_time:
+                    time.sleep(1)
                 break
 
             self.__start_node = self.__next_node
@@ -171,7 +186,9 @@ class Robot:
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
             self.logger.debug("Wait for path correction...")
-            time.sleep(4)
+            self.__sleep_time = time.time() + 3
+            while time.time() < self.__sleep_time:
+                time.sleep(1)
 
             print("After path_select_update:")
             print("start_node: ", self.__start_node)
