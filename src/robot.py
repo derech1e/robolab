@@ -182,10 +182,11 @@ class Robot:
                 turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
                 if stop_reason == StopReason.FIRST_NODE:
                     turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
-                # print(turn_angle)
+                print(f"Turning: {turn_angle}")
                 self.motor_sensor.turn_angle(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
+                print(f"setting Odometry to {self.__start_node}")
                 self.odometry.set_coordinates(self.__start_node)
 
         # Mission done
