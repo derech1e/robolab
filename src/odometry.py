@@ -56,8 +56,7 @@ class Odometry:
             writer.writerows(motor_positions)
             # writer.writerows(self.list_of_coords)
 
-        print(
-            f"Koordinates: ({self.local_x_coordinate}, {self.local_y_coordinate}), Oriantation: {self.local_orientation}")
+        print(f"Koordinates: ({self.local_x_coordinate}, {self.local_y_coordinate}), Oriantation: {self.local_orientation}")
 
     def __clip_orientation(self, rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
@@ -65,15 +64,14 @@ class Odometry:
     def __clip_coordinat(self, x: float) -> int:
         return round(x / 50)
 
-    def set_coordinates(self, x: int, y: int, angle: int):
+    def set_coordinates(self, position: Tuple[Tuple[int, int], Direction]):
         """
         Set the position of the robot in coordinates from mother ship
         """
-        self.local_x_coordinate = x * 50
-        self.local_y_coordinate = y * 50
-        self.local_orientation = 360 - angle / 180 * math.pi
+        self.local_x_coordinate = position[0][0] * 50
+        self.local_y_coordinate = position[0][1] * 50
+        self.local_orientation = 360 - position[1].value / 180 * math.pi
 
-        pass
 
     def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
         """
