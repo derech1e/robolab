@@ -82,7 +82,7 @@ class Driver:
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
 
         self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
-        self.motor_sensor.turn_angle(30)
+        self.motor_sensor.turn_angle(-30)
 
         self.motor_sensor.reset_position()
 
