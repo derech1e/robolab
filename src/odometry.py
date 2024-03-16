@@ -19,6 +19,7 @@ class Odometry:
         self.local_x_coordinate = 0
         self.local_y_coordinate = 0
         self.local_orientation = 0
+        self.file_str = "path.csv"
 
         self.list_of_coords = []
 
@@ -43,6 +44,7 @@ class Odometry:
 
             delta_x = s * (-1) * math.sin(self.local_orientation)
             delta_y = s * math.cos(self.local_orientation)
+
             self.local_x_coordinate += delta_x
             self.local_y_coordinate += delta_y
 
@@ -50,7 +52,8 @@ class Odometry:
 
         # print(f"x = {self.local_x_coordinate}, y = {self.local_y_coordinate}, a = {self.local_orientation}")
         # print(self.local_orientation)
-        with open('path.csv', 'w', newline='') as file:
+        print(motor_positions)
+        with open(self.file_str, 'w', newline='') as file:
             writer = csv.writer(file)
             # writer.writerow(['x', 'y'])
             writer.writerows(motor_positions)
@@ -72,6 +75,7 @@ class Odometry:
         self.local_y_coordinate = position[0][1] * 50
         self.local_orientation = (360 - position[1].value)%360 / 180 * math.pi
         print(f"setting coordinates in odo: {self.local_x_coordinate}, {self.local_y_coordinate}, ori: {self.local_orientation}")
+        self.file_str = f"{position[0][0]}-{position[0][1]}-{position[1].value}.csv"
 
 
     def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
