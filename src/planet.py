@@ -50,6 +50,7 @@ class Planet:
         """ Initializes the data structure """
         self.paths: path_list = {}
         self.nodes: Dict[Tuple[int, int], Color] = {}
+        self.possible_open_nodes: List[Tuple[int, int]] = []
         self.planet_name = ""
 
     # add unexplored path
@@ -92,12 +93,23 @@ class Planet:
             print("P-101:")
             print(start[0])
             self.paths[start[0]] = {}
+            if start[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(start[0])
+
         self.paths[start[0]][Direction(start[1])] = (target[0], target[1], weight)
         if target[0] not in self.paths:
             print("P-106:")
             print(target[0])
             self.paths[target[0]] = {}
+            if target[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(target[0])
         self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
+
+        if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
+            self.possible_open_nodes.remove(start[0])
+
+        if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
+            self.possible_open_nodes.remove(target[0])
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
@@ -106,6 +118,9 @@ class Planet:
             print("P-115:")
             print(coordinates)
             self.paths[coordinates] = {}
+
+        if coordinates in self.possible_open_nodes:
+            self.possible_open_nodes.remove(coordinates)
 
     # checks if the node color is the expected one
     def check_node(self, coordinates: Tuple[int, int], color: Color) -> bool:
@@ -231,6 +246,9 @@ class Planet:
                 if path[0] is None:
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
 
+        for node in self.possible_open_nodes:
+            unexplored_paths.append(DijkstraPath(None, -69420, node, None, None))
+
         return unexplored_paths
 
     def explore_next(self, distances: Dict[Tuple[int, int], DijkstraPath], current_position: Tuple[int, int],
@@ -247,9 +265,12 @@ class Planet:
         distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
-        for path in unexplored_paths:
+        for path in unexplored_paths.copy():
             if path.start not in distances.keys():
-                return None
+                unexplored_paths.remove(path)
+
+        if len(unexplored_paths) == 0:
+            return None
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
