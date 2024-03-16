@@ -53,7 +53,7 @@ class Driver:
                     self.is_first_node = False
                 break
 
-        self.motor_sensor.reset_position()
+        # self.motor_sensor.reset_position()
         return stop_reason
 
     def rotate_to_line(self, direction: Direction):
