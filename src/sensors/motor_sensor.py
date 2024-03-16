@@ -99,7 +99,6 @@ class MotorSensor:
         turn_speed = 100 * (1 if angle > 0 else -1)
 
         while abs(alpha) < abs(angle):
-            print(f"{alpha}")
             self.drive_with_speed(-turn_speed, turn_speed )
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
@@ -125,8 +124,8 @@ class MotorSensor:
         motor.command = "run-forever"
 
     def full_turn(self):
-        self.__update_speed_position_relative(self.motor_left, -760, 200)
-        self.__update_speed_position_relative(self.motor_right, 760, 200)
+        self.__update_speed_position_relative(self.motor_left, -710, 150)
+        self.__update_speed_position_relative(self.motor_right, 710, 150)
 
     def __update_speed_position_relative(self, motor, position, speed):
         motor.position_sp = position

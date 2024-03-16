@@ -174,7 +174,7 @@ class Robot:
                 self.wait_for_message()
                 break
 
-            self.__start_node = self.__next_node
+            # self.__start_node = self.__next_node
 
             # Send selected path
             self.communication.send_path_select(self.planet.planet_name, self.__next_node)
@@ -193,7 +193,8 @@ class Robot:
                 # self.motor_sensor.turn_angle(20)
                 turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
                 print(f"Turning: {turn_angle}")
-                self.motor_sensor.turn_angle(turn_angle)
+                # self.motor_sensor.turn_angle(turn_angle)
+                self.driver.rotate_to_line(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
                 self.__start_node = self.__next_node

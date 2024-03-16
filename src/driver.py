@@ -57,9 +57,15 @@ class Driver:
         self.motor_sensor.stop()
         return stop_reason
 
-    def rotate_to_line(self, direction: Direction):
-        self.motor_sensor.turn_angle(direction.value)
-        self.turn_find_line()
+    def rotate_to_line(self, direction:float): #direction: Direction
+        #turn less than full and find line only if more than 20 deg rotation
+        if direction > 0:
+            print(f"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]")
+            print(direction, direction-20)
+            self.motor_sensor.turn_angle(direction-20)
+            self.turn_find_line()
+        else:
+            self.turn_find_line()
 
     def angle_to_direction(self, angle):
         # angle = int(round(angle + 360)) % 360
@@ -104,7 +110,7 @@ class Driver:
                 # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
                 if direction not in directions:
                     directions.append(direction)
-                    # print("Detected node", direction)
+                    print("Detected node", direction)
 
         south = Direction.SOUTH
         if south in directions:
