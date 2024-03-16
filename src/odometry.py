@@ -64,6 +64,7 @@ class Odometry:
     def __clip_orientation(self, rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
 
+    # TODO: clipp to color
     def __clip_coordinat(self, x: float) -> int:
         return round(x / 50)
 
