@@ -93,14 +93,23 @@ class Planet:
             print("P-101:")
             print(start[0])
             self.paths[start[0]] = {}
-            self.possible_open_nodes.append(start[0])
+            if start[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(start[0])
+
         self.paths[start[0]][Direction(start[1])] = (target[0], target[1], weight)
         if target[0] not in self.paths:
             print("P-106:")
             print(target[0])
             self.paths[target[0]] = {}
-            self.possible_open_nodes.append(target[0])
+            if target[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(target[0])
         self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
+
+        if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
+            self.possible_open_nodes.remove(start[0])
+
+        if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
+            self.possible_open_nodes.remove(target[0])
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
