@@ -2,16 +2,17 @@ import time
 import logging
 from typing import Tuple, Optional
 
+import constants
+import music
 from odometry import Odometry
 from planet import Planet, Direction
+from driver import Driver
+from enums import StopReason, PathStatus, Color
 from sensors.touch_sensor import TouchSensor
 from sensors.speaker_sensor import SpeakerSensor
 from sensors.color_sensor import ColorSensor
-from enums import StopReason, PathStatus, Color
 from sensors.motor_sensor import MotorSensor
-from driver import Driver
 
-import music
 
 
 class Robot:
@@ -111,7 +112,7 @@ class Robot:
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
-                self.speaker_sensor.speaker.tone(music.duckys)
+                self.speaker_sensor.speaker.tone(music.imperial_march)
                 # Wait for done message
                 self.wait_for_message()
                 return True
@@ -130,6 +131,11 @@ class Robot:
             self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
             self.logger.debug(f"Scanned directions: {scanned_directions}")
+        else: 
+            while self.color_sensor.get_color_name():
+                self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
+            self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
+
 
     def robot(self):
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Ibem"
@@ -174,7 +180,7 @@ class Robot:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
                 self.communication.send_exploration_complete("Exploration Complete!")
-                self.speaker_sensor.speaker.tone(music.duckys)
+                self.speaker_sensor.speaker.tone(music.imperial_march)
                 self.wait_for_message()
                 break
 

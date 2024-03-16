@@ -61,8 +61,8 @@ class Driver:
         #turn less than full and find line only if more than 20 deg rotation
         if direction > 0:
             print(f"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]")
-            print(direction, direction-30)
-            self.motor_sensor.turn_angle(direction-30)
+            print(direction, direction-20)
+            self.motor_sensor.turn_angle(direction-20)
             self.turn_find_line()
         else:
             self.turn_find_line()

@@ -106,10 +106,12 @@ class Planet:
         self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
 
         if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
-            self.possible_open_nodes.remove(start[0])
+            if start[0] in self.possible_open_nodes:
+                self.possible_open_nodes.remove(start[0])
 
         if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
-            self.possible_open_nodes.remove(target[0])
+            if target[0] in self.possible_open_nodes:
+                self.possible_open_nodes.remove(target[0])
 
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
@@ -262,7 +264,7 @@ class Planet:
             return None
 
         # find closest (minimum weight) nodes with unexplored path
-        distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
+        distances[current_position] = DijkstraPath(current_position, 0, current_position, Direction.NORTH, Direction.NORTH)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
         for path in unexplored_paths.copy():
