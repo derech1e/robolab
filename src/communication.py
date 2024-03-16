@@ -72,7 +72,7 @@ class Communication:
                 self.robot.planet.planet_name = payload['planetName']
 
                 self.robot.set_start_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"])))
-                self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"] + 180 % 360)))
+                self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction((payload["startOrientation"] + 180) % 360)))
 
                 self.robot.__sleep_time = time.time() + 3
 

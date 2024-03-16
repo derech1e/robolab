@@ -66,7 +66,6 @@ class Robot:
 
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
                  weight: int):
-        self.planet.add_node(target[0], self.node_color)
         self.planet.add_path(start, target, weight)
 
     def play_tone(self):
@@ -104,8 +103,10 @@ class Robot:
 
             # waiting for path correction
             self.__sleep_time = time.time() + 3
+            start_time = time.time()
             while time.time() < self.__sleep_time:
                 pass
+            print(f"slept for {time.time() - start_time} seconds")
 
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
@@ -123,6 +124,7 @@ class Robot:
         # if stop_reason != StopReason.FIRST_NODE:
         #     incoming_direction = Direction((incoming_direction + 180) % 360)
 
+        print(self.__start_node[0],self.planet.nodes.keys(), self.__start_node[0] not in self.planet.nodes.keys())
         if self.__start_node[0] not in self.planet.nodes.keys():
             scanned_directions = self.driver.scan_node()
             # convert from relative to absolute orientation
