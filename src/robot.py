@@ -50,7 +50,7 @@ class Robot:
 
     def wait_for_message(self):
         while self.last_received_message + 3 * 1_000_000_000 > time.time_ns():
-            print(self.last_received_message, time.time_ns())
+            # print(self.last_received_message, time.time_ns())
             time.sleep(0.1)
 
     def set_target(self, target: Tuple[int, int]):
