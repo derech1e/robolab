@@ -7,7 +7,6 @@ from planet import Direction
 from sensors.color_sensor import ColorSensor
 from sensors.sonar_sensor import SonarSensor
 from sensors.motor_sensor import MotorSensor
-from sensors.speaker_sensor import SpeakerSensor
 from pid import PID
 import constants
 
@@ -17,7 +16,6 @@ class Driver:
         self.color_sensor = color_sensor
         self.motor_sensor = motor_sensor
         self.sonar_sensor = SonarSensor()
-        self.speaker_sensor = SpeakerSensor()
         self.pid = PID(color_sensor, motor_sensor)
 
         self.is_first_node = True
@@ -88,6 +86,7 @@ class Driver:
         print("scanning node...")
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
+        print(self.color_sensor.get_color_name())
 
         self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
         self.motor_sensor.turn_angle(-30)
@@ -107,7 +106,6 @@ class Driver:
             time.sleep(0.1)
             # print(luminance)
             if luminance < 85:
-                self.speaker_sensor.play_beep()
                 print("DETECTED")
                 direction = Direction(self.angle_to_direction(position))
                 # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)

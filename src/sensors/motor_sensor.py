@@ -124,8 +124,8 @@ class MotorSensor:
         motor.command = "run-forever"
 
     def full_turn(self):
-        self.__update_speed_position_relative(self.motor_left, -710, 150)
-        self.__update_speed_position_relative(self.motor_right, 710, 150)
+        self.__update_speed_position_relative(self.motor_left, -720, 150)
+        self.__update_speed_position_relative(self.motor_right, 720, 150)
 
     def __update_speed_position_relative(self, motor, position, speed):
         motor.position_sp = position
