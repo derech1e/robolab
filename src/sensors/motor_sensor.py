@@ -95,7 +95,7 @@ class MotorSensor:
         position_old = (self.motor_left.position, self.motor_right.position)
         
         alpha = 0
-        turn_speed = 100 * (1 if angle > 0 else -1)
+        turn_speed = 100 * (-1 if angle > 0 else 1)
         while abs(alpha) < abs(angle):
             self.drive_with_speed(turn_speed, -turn_speed )
             position_new = (self.motor_left.position, self.motor_right.position)
