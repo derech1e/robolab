@@ -105,6 +105,8 @@ class Robot:
             # send path message with last driven path
             self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
 
+            self.wait_for_message()
+
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
