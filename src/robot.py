@@ -123,13 +123,14 @@ class Robot:
         # if stop_reason != StopReason.FIRST_NODE:
         #     incoming_direction = Direction((incoming_direction + 180) % 360)
 
-        scanned_directions = self.driver.scan_node()
-        # convert from relative to absolute orientation
-        scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in scanned_directions]
-        print(f"scanned direction: {scanned_directions}")
-        self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
+        if self.__start_node[0] not in self.planet.nodes.keys():
+            scanned_directions = self.driver.scan_node()
+            # convert from relative to absolute orientation
+            scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in scanned_directions]
+            print(f"scanned direction: {scanned_directions}")
+            self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
-        self.logger.debug(f"Scanned directions: {scanned_directions}")
+            self.logger.debug(f"Scanned directions: {scanned_directions}")
 
     def robot(self):
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Ibem"
