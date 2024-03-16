@@ -52,7 +52,6 @@ class Odometry:
 
         # print(f"x = {self.local_x_coordinate}, y = {self.local_y_coordinate}, a = {self.local_orientation}")
         # print(self.local_orientation)
-        print(motor_positions)
         with open(self.file_str, 'w', newline='') as file:
             writer = csv.writer(file)
             # writer.writerow(['x', 'y'])
