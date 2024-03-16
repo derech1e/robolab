@@ -33,6 +33,7 @@ class Robot:
         self.communication.set_robot(self)
         self.odometry = Odometry(self.motor_sensor)
         self.driver = Driver(self.motor_sensor, self.color_sensor)
+        self.active = True
 
         # Exploration
         self.__start_node: Tuple[Tuple[int, int], Direction] = ((0, 0), Direction.NORTH)
@@ -149,7 +150,7 @@ class Robot:
         # time.sleep(5)
 
         self.logger.debug("Starting exploration...")
-        while True:
+        while self.active:
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
             if self.handle_node(stop_reason) is True:

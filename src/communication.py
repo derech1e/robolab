@@ -102,6 +102,7 @@ class Communication:
 
             elif msg_type == MessageType.DONE:
                 self.logger.debug("Finished mission")
+                self.robot.active = False
 
             self.logger.debug(json.dumps(response, indent=2))
             self.logger.debug("\n\n")
