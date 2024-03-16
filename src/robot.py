@@ -63,7 +63,6 @@ class Robot:
 
     def update_next_path(self, direction: Direction):
         self.__next_node = (self.__next_node[0][0], self.__next_node[0][1]), direction
-        self.__start_node = self.__next_node
 
     def is_node_current_target(self, current_position):
         if self.target is None:
@@ -192,13 +191,12 @@ class Robot:
             if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
                 # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
                 # self.motor_sensor.turn_angle(20)
-                turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
-                if stop_reason == StopReason.FIRST_NODE:
-                    turn_angle = ((self.__current_node[1].value + 180) % 360) - self.__start_node[1].value
+                turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
                 print(f"Turning: {turn_angle}")
                 self.motor_sensor.turn_angle(turn_angle)
                 # self.motor_sensor.drive_cm(5, 5, 100)
                 self.driver.turn_find_line()
+                self.__start_node = self.__next_node
                 print(f"setting Odometry to {self.__start_node}")
                 self.odometry.set_coordinates(self.__start_node)
 
