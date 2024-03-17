@@ -7,15 +7,17 @@ from planet import Direction
 from sensors.color_sensor import ColorSensor
 from sensors.sonar_sensor import SonarSensor
 from sensors.motor_sensor import MotorSensor
+from sensors.speaker_sensor import *
 from pid import PID
 import constants
 
 
 class Driver:
-    def __init__(self, motor_sensor: MotorSensor, color_sensor: ColorSensor):
+    def __init__(self, motor_sensor: MotorSensor, color_sensor: ColorSensor, speaker_sensor: SpeakerSensor):
         self.color_sensor = color_sensor
         self.motor_sensor = motor_sensor
         self.sonar_sensor = SonarSensor()
+        self.speaker_sensor = speaker_sensor
         self.pid = PID(color_sensor, motor_sensor)
 
         self.is_first_node = True
@@ -40,6 +42,7 @@ class Driver:
             if self.sonar_sensor.is_colliding():
                 print("Collision detected")
                 self.motor_sensor.stop()
+                self.speaker_sensor.play_tone()
 
                 # turn and find line
                 self.motor_sensor.turn_angle(30)
