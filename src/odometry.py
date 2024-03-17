@@ -20,7 +20,7 @@ class Odometry:
         self.local_x_coordinate = 0
         self.local_y_coordinate = 0
         self.local_orientation = 0
-        self.path = r'./data' 
+        self.path = r'data/' 
         self.file_str = "path.csv"
 
         #create folder for csv data files
