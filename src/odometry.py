@@ -2,6 +2,7 @@
 
 import math
 import csv
+import os, shutil
 from planet import *
 import constants
 
@@ -20,6 +21,13 @@ class Odometry:
         self.local_y_coordinate = 0
         self.local_orientation = 0
         self.file_str = "path.csv"
+
+        #create folder for csv data files
+        shutil.rmtree(r'./data')
+        newpath = r'./data' 
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
 
         self.list_of_coords = []
 
