@@ -108,7 +108,7 @@ class Robot:
                 planet_current_node = self.planet.paths[self.__start_node[0]][self.__start_node[1]]
                 if planet_current_node[0] is not None:
                     self.communication.send_path(self.planet.planet_name, self.__start_node,
-                                                 (planet_current_node[0], planet_current_node[1]))
+                                                 (planet_current_node[0], planet_current_node[1]), path_status)
                 else:
                     self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node,
                                                  path_status)
@@ -148,8 +148,9 @@ class Robot:
             self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
 
     def robot(self):
-        planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Ibem"
-        self.communication.send_test_planet(planet_name)
+        planet_name = input('Enter the test planet name and wait for response:')
+        if planet_name:
+            self.communication.send_test_planet(planet_name)
         # self.logger.debug("Press button to start exploration")
 
         # while not self.button.is_pressed():
