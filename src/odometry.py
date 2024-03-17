@@ -36,6 +36,12 @@ class Odometry:
         return left, right
 
     def update_position(self, motor_positions):
+        print("------------- UPDATIING POSITION ----------------")
+
+        print(f"Koordinates before: ({self.local_x_coordinate}, "
+              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
+
+
         for i in range(15, len(motor_positions) - 5):
             dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
@@ -57,16 +63,14 @@ class Odometry:
 
             self.list_of_coords.append((self.local_x_coordinate, self.local_y_coordinate))
 
-        # print(f"x = {self.local_x_coordinate}, y = {self.local_y_coordinate}, a = {self.local_orientation}")
-        # print(self.local_orientation)
+
+        print(f"Koordinates after: ({self.local_x_coordinate}, "
+              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
+
         with open(self.file_str, 'w', newline='') as file:
             writer = csv.writer(file)
-            # writer.writerow(['x', 'y'])
             writer.writerows(motor_positions)
-            # writer.writerows(self.list_of_coords)
 
-        print(f"Koordinates: ({self.local_x_coordinate}, "
-              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
 
     def __clip_orientation(self, rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
