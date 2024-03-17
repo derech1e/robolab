@@ -14,7 +14,6 @@ from sensors.color_sensor import ColorSensor
 from sensors.motor_sensor import MotorSensor
 
 
-
 class Robot:
 
     def __init__(self, communication, logger: logging.Logger):
@@ -60,7 +59,6 @@ class Robot:
 
     def set_start_node(self, start_node: Tuple[Tuple[int, int], Direction]):
         self.__start_node = start_node
-        self.odometry.set_coordinates(start_node)
 
     def set_current_node(self, current_node: Tuple[Tuple[int, int], Direction]):
         self.__current_node = current_node
@@ -112,7 +110,8 @@ class Robot:
                     self.communication.send_path(self.planet.planet_name, self.__start_node,
                                                  (planet_current_node[0], planet_current_node[1]))
                 else:
-                    self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
+                    self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node,
+                                                 path_status)
             else:
                 self.communication.send_path(self.planet.planet_name, self.__start_node, self.__start_node, path_status)
 
@@ -137,16 +136,16 @@ class Robot:
         if self.__start_node[0] not in self.planet.nodes.keys():
             scanned_directions = self.driver.scan_node()
             # convert from relative to absolute orientation
-            scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in scanned_directions]
+            scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in
+                                  scanned_directions]
             print(f"scanned direction: {scanned_directions}")
             self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
 
             self.logger.debug(f"Scanned directions: {scanned_directions}")
-        else: 
+        else:
             while self.color_sensor.get_color_name():
                 self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
             self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
-
 
     def robot(self):
         planet_name = input('Enter the test planet name and wait for response (default: Conway):') or "Ibem"

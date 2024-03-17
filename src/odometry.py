@@ -20,14 +20,13 @@ class Odometry:
         self.local_x_coordinate = 0
         self.local_y_coordinate = 0
         self.local_orientation = 0
-        self.path = r'data/' 
+        self.path = r'data/'
         self.file_str = "data/path.csv"
 
-        #create folder for csv data files
+        # create folder for csv data files
         shutil.rmtree(self.path, ignore_errors=True)
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-
 
         self.list_of_coords = []
 
@@ -66,7 +65,8 @@ class Odometry:
             writer.writerows(motor_positions)
             # writer.writerows(self.list_of_coords)
 
-        print(f"Koordinates: ({self.local_x_coordinate}, {self.local_y_coordinate}), Oriantation: {self.local_orientation}")
+        print(f"Koordinates: ({self.local_x_coordinate}, "
+              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
 
     def __clip_orientation(self, rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
@@ -81,10 +81,10 @@ class Odometry:
         """
         self.local_x_coordinate = position[0][0] * 50
         self.local_y_coordinate = position[0][1] * 50
-        self.local_orientation = (360 - position[1].value)%360 / 180 * math.pi
-        print(f"setting coordinates in odo: {self.local_x_coordinate}, {self.local_y_coordinate}, ori: {self.local_orientation}")
+        self.local_orientation = (360 - position[1].value) % 360 / 180 * math.pi
+        print(f"setting coordinates in odo: {self.local_x_coordinate},"
+              f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"../data/{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
-
 
     def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
         """
