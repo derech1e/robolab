@@ -60,12 +60,11 @@ class Driver:
     def rotate_to_line(self, direction:float): #direction: Direction
         #turn less than full and find line only if more than 20 deg rotation
         if direction > 0:
-            print(f"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]")
-            print(direction, direction-20)
             self.motor_sensor.turn_angle(direction-20)
             self.turn_find_line()
         else:
             self.turn_find_line()
+        self.motor_sensor.reset_position()
 
     def angle_to_direction(self, angle):
         # angle = int(round(angle + 360)) % 360
