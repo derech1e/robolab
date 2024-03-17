@@ -138,8 +138,8 @@ class Planet:
         check_key = list(self.nodes.keys())[0]
         check_color = self.nodes[check_key]
         opposite_color = Color.RED if check_color == Color.RED else Color.BLUE
-        check_sum = check_key[0] + check_key[1]
-        coordinates_sum = coordinates[0] + coordinates[1]
+        check_sum = (check_key[0] + check_key[1]) % 2
+        coordinates_sum = (coordinates[0] + coordinates[1]) % 2
         return check_color if coordinates_sum == check_sum else opposite_color
 
     # DO NOT EDIT THE METHOD SIGNATURE
