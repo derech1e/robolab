@@ -142,6 +142,10 @@ class Planet:
         coordinates_sum = (coordinates[0] + coordinates[1]) % 2
         return check_color if coordinates_sum == check_sum else opposite_color
 
+    # checks if given color should be at given coordinate
+    def check_node_color(self, coordinates: Tuple[int, int], color: Color) -> bool:
+        return color == self.get_node_color(coordinates)
+
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
