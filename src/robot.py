@@ -106,7 +106,10 @@ class Robot:
             self.logger.debug(self.__current_node)
 
             # send path message with last driven path
-            self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
+            if path_status == PathStatus.FREE:
+                self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
+            else:
+                self.communication.send_path(self.planet.planet_name, self.__start_node, self.__start_node, path_status)
 
             self.wait_for_message()
 
