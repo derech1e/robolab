@@ -158,9 +158,9 @@ class MotorSensor:
         self.motor_left.wait_until_not_moving()
     def drive_with_speed(self, speed_left, speed_right):
         # only append every 3rd time
-        self.counter += 1
-        if self.counter > 3:
-            self.motor_positions.append((self.motor_left.position, self.motor_right.position))
+        # self.counter += 1
+        # if self.counter > 3:
+        self.motor_positions.append((self.motor_left.position, self.motor_right.position))
 
         self.__update_speed(self.motor_left, speed_left)
         self.__update_speed(self.motor_right, speed_right)
