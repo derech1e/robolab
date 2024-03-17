@@ -21,10 +21,10 @@ class Odometry:
         self.local_y_coordinate = 0
         self.local_orientation = 0
         self.path = r'data/' 
-        self.file_str = "path.csv"
+        self.file_str = "data/path.csv"
 
         #create folder for csv data files
-        shutil.rmtree(self.path)
+        shutil.rmtree(self.path, ignore_errors=True)
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
