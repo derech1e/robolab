@@ -85,7 +85,6 @@ class Odometry:
         print(f"setting coordinates in odo: {self.local_x_coordinate},"
               f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"../data/{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
-        self.motor_sensor.reset_position()
 
     def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
         """
