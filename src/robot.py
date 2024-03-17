@@ -124,6 +124,8 @@ class Robot:
         # if stop_reason != StopReason.FIRST_NODE:
         #     incoming_direction = Direction((incoming_direction + 180) % 360)
 
+        print(f"Scan path?: {self.__start_node[0] not in self.planet.nodes.keys()}")
+        print(f"{self.__start_node[0]} in {self.planet.nodes.keys()}")
         if self.__start_node[0] not in self.planet.nodes.keys():
             scanned_directions = self.driver.scan_node()
             # convert from relative to absolute orientation

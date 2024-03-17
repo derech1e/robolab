@@ -116,6 +116,7 @@ class Planet:
     # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
         self.nodes[coordinates] = color
+        print(f"added node {coordinates} to known nodes")
         if coordinates not in self.paths:
             print("P-115:")
             print(coordinates)
