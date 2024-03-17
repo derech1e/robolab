@@ -67,7 +67,6 @@ class Driver:
             self.turn_find_line()
         else:
             self.turn_find_line()
-        self.motor_sensor.reset_position()
 
     def angle_to_direction(self, angle):
         # angle = int(round(angle + 360)) % 360
