@@ -31,8 +31,8 @@ class Odometry:
         self.list_of_coords = []
 
     def __get_diff_in_cm(self, tu1: Tuple[int, int], tu2: Tuple[int, int]) -> Tuple[float, float]:
-        left = (tu1[0] - tu2[0]) * constants.ROT_TO_CM * constants.MAGIC_VALUE
-        right = (tu1[1] - tu2[1]) * constants.ROT_TO_CM / constants.MAGIC_VALUE
+        left = (tu1[0] - tu2[0]) * constants.ROT_TO_CM
+        right = (tu1[1] - tu2[1]) * constants.ROT_TO_CM * constants.MAGIC_VALUE
         return left, right
 
     def update_position(self, motor_positions):
