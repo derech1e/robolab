@@ -209,18 +209,18 @@ class Robot:
             print("next_node: ", self.__next_node)
 
             # Handle direction alignment
-            if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
-                # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
-                # self.motor_sensor.turn_angle(20)
-                turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
-                print(f"Turning: {turn_angle}")
-                # self.motor_sensor.turn_angle(turn_angle)
-                self.driver.rotate_to_line(turn_angle)
-                # self.motor_sensor.drive_cm(5, 5, 100)
-                self.driver.turn_find_line()
-                self.__start_node = self.__next_node
-                print(f"setting Odometry to {self.__start_node}")
-                self.odometry.set_coordinates(self.__start_node)
+            # if not stop_reason == StopReason.COLLISION:  # TODO: Improve this remove
+            # self.motor_sensor.turn_angle_blocking(abs(self.__current_node[1].value - self.__next_node[1].value)) # Subtract angle to get relative rotation to current position
+            # self.motor_sensor.turn_angle(20)
+            turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
+            print(f"Turning: {turn_angle}")
+            # self.motor_sensor.turn_angle(turn_angle)
+            self.driver.rotate_to_line(turn_angle)
+            # self.motor_sensor.drive_cm(5, 5, 100)
+            self.driver.turn_find_line()
+            self.__start_node = self.__next_node
+            print(f"setting Odometry to {self.__start_node}")
+            self.odometry.set_coordinates(self.__start_node)
 
         # Mission done
         # TODO: CHECK WHEN WE NEED TO SEND EXPLOR_COMPL OR TARGET_REACHED
