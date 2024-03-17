@@ -36,7 +36,7 @@ class Odometry:
         return left, right
 
     def update_position(self, motor_positions):
-        for i in range(8, len(motor_positions) - 8):
+        for i in range(15, len(motor_positions) - 5):
             dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
             # update orientation

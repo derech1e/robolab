@@ -31,7 +31,7 @@ class Robot:
         self.communication = communication
         self.communication.set_robot(self)
         self.odometry = Odometry(self.motor_sensor)
-        self.driver = Driver(self.motor_sensor, self.color_sensor)
+        self.driver = Driver(self.motor_sensor, self.color_sensor, self.speaker_sensor)
         self.active = True
 
         # Exploration
