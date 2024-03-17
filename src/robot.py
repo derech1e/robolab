@@ -107,7 +107,12 @@ class Robot:
 
             # send path message with last driven path
             if path_status == PathStatus.FREE:
-                self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
+                planet_current_node = self.planet.paths[self.__start_node[0]][self.__start_node[1]]
+                if planet_current_node[0] is not None:
+                    self.communication.send_path(self.planet.planet_name, self.__start_node,
+                                                 (planet_current_node[0], planet_current_node[1]))
+                else:
+                    self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
             else:
                 self.communication.send_path(self.planet.planet_name, self.__start_node, self.__start_node, path_status)
 
