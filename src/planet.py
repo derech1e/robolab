@@ -106,10 +106,12 @@ class Planet:
         self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
 
         if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
+            self.add_node(start[0], self.get_node_color(start[0]))
             if start[0] in self.possible_open_nodes:
                 self.possible_open_nodes.remove(start[0])
 
         if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
+            self.add_node(target[0], self.get_node_color(target[0]))
             if target[0] in self.possible_open_nodes:
                 self.possible_open_nodes.remove(target[0])
 
@@ -128,6 +130,17 @@ class Planet:
     # checks if the node color is the expected one
     def check_node(self, coordinates: Tuple[int, int], color: Color) -> bool:
         return self.nodes[coordinates] and self.nodes[coordinates] == color
+
+    # calculates the color of the node based on collected data
+    def get_node_color(self, coordinates: Tuple[int, int]) -> Color:
+        if len(self.nodes.keys()) == 0:
+            return Color.RED
+        check_key = list(self.nodes.keys())[0]
+        check_color = self.nodes[check_key]
+        opposite_color = Color.RED if check_color == Color.RED else Color.BLUE
+        check_sum = check_key[0] + check_key[1]
+        coordinates_sum = coordinates[0] + coordinates[1]
+        return check_color if coordinates_sum == check_sum else opposite_color
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -265,7 +278,8 @@ class Planet:
             return None
 
         # find closest (minimum weight) nodes with unexplored path
-        distances[current_position] = DijkstraPath(current_position, 0, current_position, Direction.NORTH, Direction.NORTH)
+        distances[current_position] = DijkstraPath(current_position, 0, current_position, Direction.NORTH,
+                                                   Direction.NORTH)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
         for path in unexplored_paths.copy():
