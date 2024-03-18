@@ -69,15 +69,14 @@ class Driver:
             self.turn_find_line()
 
     def angle_to_direction(self, angle):
-        # angle = int(round(angle + 360)) % 360
-        if 0 <= angle <= 180:
+        if 0 <= angle <= 160:
             return 0
-        elif 180 <= angle <= 340:
-            return 270  # 90
-        elif 340 <= angle <= 520:
-            return 180  # 180
-        elif 520 <= angle < 700:
-            return 90  # 270
+        elif 160 <= angle <= 280:
+            return 270
+        elif 280 <= angle <= 390:
+            return 180
+        elif 390 <= angle < 510:
+            return 90
 
         return 0  # Default
 
