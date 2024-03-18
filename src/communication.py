@@ -5,6 +5,7 @@ import json
 import ssl
 import logging
 from typing import Tuple
+import time
 
 from builder import MessageBuilder, PayloadBuilder
 
@@ -12,7 +13,7 @@ import paho.mqtt.client as mqtt
 
 from enums import MessageType, MessageFrom, PathStatus
 from robot import Robot
-import Constatns
+import constants
 from planet import Direction
 
 
@@ -34,9 +35,9 @@ class Communication:
         self.client = mqtt_client
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
         self.client.on_message = self.safe_on_message_handler
-        self.client.username_pw_set(Constatns.GROUP_ID, password=Constatns.PASSWORD)
+        self.client.username_pw_set(constants.GROUP_ID, password=constants.PASSWORD)
         self.client.connect('mothership.inf.tu-dresden.de', port=8883)
-        self.client.subscribe(f'explorer/{Constatns.GROUP_ID}', qos=2)
+        self.client.subscribe(f'explorer/{constants.GROUP_ID}', qos=2)
         self.client.loop_start()
         self.logger = logger
         self.syntax_response = {}
@@ -62,50 +63,46 @@ class Communication:
         msg_from = MessageFrom(response["from"])
 
         if msg_from == MessageFrom.SERVER:
+            self.robot.reset_message_timer()
             self.logger.debug(f"Received on topic: {message.topic}")
             payload = response["payload"]
 
             if msg_type == MessageType.PLANET:
                 self.logger.debug("Received planet...")
-                self.client.subscribe(f"planet/{payload['planetName']}")
+                self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
-                self.robot.set_start_position(payload["startX"], payload["startY"], payload["startOrientation"])
+
+                self.robot.set_start_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"])))
+                self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction((payload["startOrientation"] + 180) % 360)))
 
             elif msg_type == MessageType.PATH:
-                self.logger.debug("Received current node...")
-                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
-                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                self.logger.debug("Received path correction...")
+                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
+                current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
 
-                comp_payload = payload
-                del comp_payload["pathWeight"]
-
-                if self.debug_path_comparison != payload:
-                    self.logger.warning(">>> Received path does not match sent path")
-                    self.logger.warning("******* SEND PATH ********")
-                    self.logger.warning(self.debug_path_comparison)
-                    self.logger.warning("******* RECEIVE PATH *********")
-                    self.logger.warning(comp_payload)
-
-                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
                 self.robot.play_tone()
-                self.robot.set_start_position(payload["endX"], payload["endY"], payload["endOrientation"])
+                self.robot.set_start_node((current_tuple[0], Direction((current_tuple[1].value + 180) % 360)))
+                self.robot.set_current_node(current_tuple)
 
             elif msg_type == MessageType.PATH_SELECT:
                 self.logger.debug(f"Received path select correction...")
-                self.robot.update_next_path(payload["startDirection"])
+                self.robot.update_next_path(Direction(payload["startDirection"]))
 
             elif msg_type == MessageType.PATH_UNVEILED:
-                start_tuple = ((payload["startX"], payload["startY"]), payload["startDirection"])
-                target_tuple = ((payload["endX"], payload["endY"]), payload["endDirection"])
+                start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
+                current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
                 self.logger.debug(f"Received new unveiled path...")
-                self.robot.add_path(start_tuple, target_tuple, payload["pathWeight"])
+                self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
+                # TODO: Set node color to none when the node is unknown
 
             elif msg_type == MessageType.TARGET:
                 self.logger.debug(f"Received new target...")
-                self.robot.set_current_target((payload["targetX"], payload["targetY"]))
+                self.robot.set_target((payload["targetX"], payload["targetY"]))
 
             elif msg_type == MessageType.DONE:
                 self.logger.debug("Finished mission")
+                self.robot.active = False
 
             self.logger.debug(json.dumps(response, indent=2))
             self.logger.debug("\n\n")
@@ -118,8 +115,6 @@ class Communication:
                 self.logger.error("******** Communication error *********")
                 self.logger.error(json.dumps(response, indent=2))
                 self.logger.error("**************************************")
-                if response["payload"]["message"].endsWith("does not exist"):
-                    raise ValueError(response["payload"]["message"])
 
     # DO NOT EDIT THE METHOD SIGNATURE
     #
@@ -132,6 +127,7 @@ class Communication:
         :param message: Object
         :return: void
         """
+        self.robot.reset_message_timer()
         self.logger.debug('Send to: ' + topic)
         self.logger.debug(json.dumps(message, indent=2) + "\n\n")
         self.client.publish(topic, json.dumps(message), qos=2)
@@ -142,7 +138,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending ready...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.READY)
                           .build())
@@ -154,7 +150,7 @@ class Communication:
         :return: void
         """
         self.logger.debug(f"Sending: Test planet...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TEST_PLANET)
                           .payload(
@@ -182,7 +178,7 @@ class Communication:
 
         # TODO: REMOVE debug_path_comparison
         self.logger.debug(f"Sending last driven path...")
-        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}", self.debug_path_comparison)
+        self.send_message(f"planet/{planet_name}/{constants.GROUP_ID}", self.debug_path_comparison)
 
     def send_path_select(self, planet_name: str, node: Tuple[Tuple[int, int], Direction]) -> None:
         """
@@ -192,7 +188,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Path select...")
-        self.send_message(f"planet/{planet_name}/{Constatns.GROUP_ID}",
+        self.send_message(f"planet/{planet_name}/{constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.PATH_SELECT)
                           .payload(
@@ -208,7 +204,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Target reached...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.TARGET_REACHED)
                           .payload(
@@ -224,7 +220,7 @@ class Communication:
         :return: void
         """
         self.logger.debug("Sending: Exploration complete...")
-        self.send_message(f"explorer/{Constatns.GROUP_ID}",
+        self.send_message(f"explorer/{constants.GROUP_ID}",
                           MessageBuilder()
                           .type(MessageType.EXPLORATION_COMPLETE)
                           .payload(
@@ -239,7 +235,7 @@ class Communication:
         :param message: String
         :return: void
         """
-        self.send_message(f"comtest/{Constatns.GROUP_ID}", message)
+        self.send_message(f"comtest/{constants.GROUP_ID}", message)
 
     def set_robot(self, robot: Robot) -> None:
         self.robot = robot
