@@ -1,4 +1,6 @@
 from enums import MessageType, MessageFrom, PathStatus
+from typing import Tuple
+from planet import Direction
 
 
 class PayloadBuilder:
@@ -10,27 +12,33 @@ class PayloadBuilder:
         self.json["planetName"] = name
         return self
 
-    def start_x(self, x_cor: int):
+    def start_node(self, node: Tuple[Tuple[int, int], Direction]):
+        return self.__start_x(node[0][0]).__start_y(node[0][1]).__start_direction(node[1])
+
+    def end_node(self, node: Tuple[Tuple[int, int], Direction]):
+        return self.__end_x(node[0][0]).__end_y(node[0][1]).__end_direction(node[1])
+
+    def __start_x(self, x_cor: int):
         self.json["startX"] = x_cor
         return self
 
-    def start_y(self, y_cor: int):
+    def __start_y(self, y_cor: int):
         self.json["startY"] = y_cor
         return self
 
-    def end_x(self, x_cor: int):
+    def __end_x(self, x_cor: int):
         self.json["endX"] = x_cor
         return self
 
-    def end_y(self, y_cor: int):
+    def __end_y(self, y_cor: int):
         self.json["endY"] = y_cor
         return self
 
-    def start_direction(self, direction: int):
+    def __start_direction(self, direction: int):
         self.json["startDirection"] = direction
         return self
 
-    def end_direction(self, direction: int):
+    def __end_direction(self, direction: int):
         self.json["endDirection"] = direction
         return self
 
