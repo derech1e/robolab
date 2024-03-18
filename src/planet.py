@@ -137,14 +137,25 @@ class Planet:
             return Color.RED
         check_key = list(self.nodes.keys())[0]
         check_color = self.nodes[check_key]
-        opposite_color = Color.RED if check_color == Color.RED else Color.BLUE
+        opposite_color = Color.BLUE if check_color == Color.RED else Color.RED
         check_sum = (check_key[0] + check_key[1]) % 2
         coordinates_sum = (coordinates[0] + coordinates[1]) % 2
         return check_color if coordinates_sum == check_sum else opposite_color
 
     # checks if given color should be at given coordinate
     def check_node_color(self, coordinates: Tuple[int, int], color: Color) -> bool:
-        return color == self.get_node_color(coordinates)
+        nc = self.get_node_color(coordinates)
+        print(f"predicted node color: {nc}")
+        return color == nc
+
+    def get_rotations(self, coordinates: Tuple[Tuple[int, int], Direction], direction: Direction) -> int:
+        current_dir = coordinates[1]
+        i: int = 1
+        while current_dir != direction:
+            current_dir = Direction((current_dir.value - 90) % 360)
+            if current_dir in self.paths[coordinates[0]].keys():
+                i += 1
+        return i
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:

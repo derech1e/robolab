@@ -71,11 +71,11 @@ class Driver:
     def angle_to_direction(self, angle):
         if 0 <= angle <= 160:
             return 0
-        elif 160 <= angle <= 280:
+        elif 160 <= angle <= 290:
             return 270
-        elif 280 <= angle <= 390:
+        elif 290 <= angle <= 420:
             return 180
-        elif 390 <= angle < 510:
+        elif 420 <= angle < 550:
             return 90
 
         return 0  # Default
@@ -107,6 +107,7 @@ class Driver:
             # print(luminance)
             if luminance < 85:
                 print("DETECTED")
+                print(f"pos: {position}")
                 direction = Direction(self.angle_to_direction(position))
                 # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
                 if direction not in directions:
