@@ -1,5 +1,4 @@
 # imports
-import math
 import time
 
 from enums import StopReason
@@ -60,15 +59,16 @@ class Driver:
         self.motor_sensor.stop()
         return stop_reason
 
-    def rotate_to_line(self, direction:float): #direction: Direction
-        #turn less than full and find line only if more than 20 deg rotation
+    def rotate_to_line(self, direction: float):  # direction: Direction
+        # turn less than full and find line only if more than 20 deg rotation
         if direction > 0:
-            self.motor_sensor.turn_angle(direction-20)
+            self.motor_sensor.turn_angle(direction - 20)
             self.turn_find_line()
         else:
             self.turn_find_line()
 
-    def angle_to_direction(self, angle):
+    @staticmethod
+    def angle_to_direction(angle):
         if 0 <= angle <= 160:
             return 0
         elif 160 <= angle <= 290:

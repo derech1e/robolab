@@ -5,7 +5,6 @@ import json
 import ssl
 import logging
 from typing import Tuple
-import time
 
 from builder import MessageBuilder, PayloadBuilder
 
@@ -72,8 +71,10 @@ class Communication:
                 self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
 
-                self.robot.set_start_node(((payload["startX"], payload["startY"]), Direction(payload["startOrientation"])))
-                self.robot.set_current_node(((payload["startX"], payload["startY"]), Direction((payload["startOrientation"] + 180) % 360)))
+                self.robot.set_start_node(((payload["startX"], payload["startY"]),
+                                           Direction(payload["startOrientation"])))
+                self.robot.set_current_node(((payload["startX"], payload["startY"]),
+                                             Direction((payload["startOrientation"] + 180) % 360)))
 
             elif msg_type == MessageType.PATH:
                 self.logger.debug("Received path correction...")
