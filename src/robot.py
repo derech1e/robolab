@@ -64,7 +64,7 @@ class Robot:
         self.__current_node = current_node
 
     def update_next_path(self, direction: Direction):
-        self.__next_node = (self.__next_node[0][0], self.__next_node[0][1]), direction
+        self.__next_node = ((self.__next_node[0][0], self.__next_node[0][1]), direction)
 
     def is_node_current_target(self, current_position):
         if self.target is None:
@@ -120,7 +120,7 @@ class Robot:
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
-                self.speaker_sensor.speaker.tone(music.imperial_march)
+                # self.speaker_sensor.speaker.tone(music.imperial_march)
                 # Wait for done message
                 self.wait_for_message()
                 return True
@@ -191,7 +191,7 @@ class Robot:
                 self.logger.debug("Ending mission")
                 # Break if target is reached or the whole planet is explored
                 self.communication.send_exploration_complete("Exploration Complete!")
-                self.speaker_sensor.speaker.tone(music.imperial_march)
+                # self.speaker_sensor.speaker.tone(music.imperial_march)
                 self.wait_for_message()
                 break
 
@@ -215,6 +215,16 @@ class Robot:
             turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
             print(f"Turning: {turn_angle}")
             # self.motor_sensor.turn_angle(turn_angle)
+            """turns = self.planet.get_rotations(self.__start_node, self.__next_node[1])
+            print(f"Turns: {turns}")
+            while turns > 0:
+                self.driver.turn_find_line()
+                col = self.color_sensor.get_color_name()
+                print(col)
+                if not col:
+                    if turns > 1:
+                        self.driver.motor_sensor.turn_angle(60)
+                    turns -= 1"""
             self.driver.rotate_to_line(turn_angle)
             # self.motor_sensor.drive_cm(5, 5, 100)
             self.driver.turn_find_line()
