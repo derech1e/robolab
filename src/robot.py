@@ -14,8 +14,14 @@ from sensors.motor_sensor import MotorSensor
 
 
 class Robot:
+    """
+    Class to primary control the robot.
+    """
 
     def __init__(self, communication, logger: logging.Logger):
+        """
+        Initialize the robot with all needed sensors and other classes.
+        """
         self.logger = logger
 
         # ******************************** #
@@ -46,38 +52,87 @@ class Robot:
         self.last_received_message = -1
 
     def reset_message_timer(self):
+        """
+        Reset the message timer to the current time
+        :return: void
+        """
         self.last_received_message = time.time_ns()
 
     def wait_for_message(self):
+        """
+        Wait three seconds for the next message and block during waiting
+        :return: void
+        """
         while self.last_received_message + 3 * 1_000_000_000 > time.time_ns():
             time.sleep(0.1)  # Sleep until next check
 
     def set_target(self, target: Tuple[int, int]):
+        """
+        Set the current target position
+        :param target: Tuple[int, int]
+        :return: void
+        """
         self.target = target
 
     def set_start_node(self, start_node: Tuple[Tuple[int, int], Direction]):
+        """
+        Set the start node used for the next node handling
+        :param start_node: Tuple[Tuple[int, int], Direction]
+        :return: void
+        """
         self.__start_node = start_node
 
     def set_current_node(self, current_node: Tuple[Tuple[int, int], Direction]):
+        """
+        Set the current node used for the next node handling
+        :param current_node: Tuple[Tuple[int, int], Direction]
+        :return: void
+        """
         self.__current_node = current_node
 
     def update_next_path(self, direction: Direction):
+        """
+        Update the direction of the next node
+        :param direction: Direction
+        :return: void
+        """
         self.__next_node = ((self.__next_node[0][0], self.__next_node[0][1]), direction)
 
     def is_node_current_target(self, current_position):
+        """
+        Check if the current node is the target
+        :param current_position: Tuple[Tuple[int, int], Direction]
+        :return: Bool
+        """
         if self.target is None:
             return False
 
         return current_position[0][0] == self.target[0] and current_position[0][1] == self.target[1]
 
-    def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
-                 weight: int):
+    def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction], weight: int):
+        """
+        Add a path to the planet
+        :param start: Tuple[Tuple[int, int], Direction]
+        :param target: Tuple[Tuple[int, int], Direction]
+        :param weight: int
+        :return: Void
+        """
         self.planet.add_path(start, target, weight)
 
     def play_tone(self):
+        """
+        Play a tone on the speaker sensor
+        :return: Void
+        """
         self.speaker_sensor.play_tone()
 
     def handle_node(self, stop_reason: StopReason) -> Optional[bool]:
+        """
+        Handle the node logic. Based on the stop reason the node handling differs from each other.
+        :param stop_reason: StopReason
+        :return: Optional[bool]
+        """
+
         self.node_counter += 1
         self.logger.debug(f"\n**************Node - {self.node_counter}****************\n")
         self.logger.debug("Start node handling...")
@@ -105,6 +160,7 @@ class Robot:
             else:
                 self.communication.send_path(self.planet.planet_name, self.__start_node, self.__start_node, path_status)
 
+            # Wait for response of path message
             self.wait_for_message()
 
             # Check if target is reached
@@ -113,11 +169,13 @@ class Robot:
                 self.wait_for_message()  # Wait for done message
                 return True
 
+        # Wait for path correction
         self.logger.debug("Wait for path correction...")
         self.wait_for_message()
 
         self.logger.debug(f"Should we scan path?: {self.__start_node[0] not in self.planet.nodes.keys()}")
 
+        # Check if we need to scan the node
         if self.__start_node[0] not in self.planet.nodes.keys():
             scanned_directions = self.driver.scan_node()
             # convert from relative to absolute orientation
@@ -130,6 +188,11 @@ class Robot:
             self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
 
     def handle_exploration(self) -> bool:
+        """
+        Handle the decision of the path selection. If the target is reached we end the mission. Otherwise, we send the path select message
+        and drive the next path.
+        :return: Bool
+        """
         self.__next_node = self.planet.get_next_node(self.__start_node, self.target)
 
         if self.__next_node is None:
@@ -141,28 +204,34 @@ class Robot:
 
         # Send selected path
         self.communication.send_path_select(self.planet.planet_name, self.__next_node)
-        self.logger.debug("Wait for path correction...")
-        self.wait_for_message()
+        self.logger.debug("Wait for path select correction...")
+        self.wait_for_message()  # Wait for path select correction
 
         # Handle direction alignment
         turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
         self.logger.debug(f"Turning to angle: {turn_angle}")
 
-        self.driver.rotate_to_line(turn_angle)
-        self.driver.turn_find_line()
+        self.driver.rotate_to_line(turn_angle)  # Turn approximately to the selected path
+        self.driver.turn_find_line() # Turn until we find a line and can continue following
         self.__start_node = self.__next_node
 
     def robot(self):
+        """
+        Handle the whole robot runtime logic.
+        :return: Void
+        """
         self.logger.debug("Press button to start")
         self.control_button.wait_for_input()
         self.logger.debug("Starting exploration...")
 
         while self.active:
+            # Follow line until we stop
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
 
+            # Handle node if we stop
             if self.handle_node(stop_reason):
-                print("Finished exploration")
+                self.logger.debug("Finished exploration")
                 break
 
             # Wait for path unveiled
@@ -177,7 +246,7 @@ class Robot:
             self.logger.debug(f"setting odometry to {self.__start_node}")
             self.odometry.set_coordinates(self.__start_node)
 
-            # play tone for successful tone
+            # play tone for successful communication
             self.play_tone()
 
         self.logger.info("Mission complete. Ending program...")

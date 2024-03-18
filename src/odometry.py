@@ -111,7 +111,7 @@ class Odometry:
         floored_x = math.floor(x / 50)
         floored_y = math.floor(y / 50)
 
-        print(f"node color: {color}, Planet check: {planet.check_node_color((floored_x, floored_y), color)}")
+        self.logger.debug(f"node color: {color}, Planet check: {planet.check_node_color((floored_x, floored_y), color)}")
 
         # check if sanped to right color
         if planet.check_node_color((floored_x, floored_y), color):
