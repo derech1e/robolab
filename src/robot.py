@@ -120,7 +120,7 @@ class Robot:
             # Check if target is reached
             if self.is_node_current_target(self.__start_node):
                 self.communication.send_target_reached("Target reached!")
-                self.speaker_sensor.speaker.tone(music.imperial_march)
+                # self.speaker_sensor.speaker.tone(music.imperial_march)
                 # Wait for done message
                 self.wait_for_message()
                 return True

@@ -82,7 +82,7 @@ class Odometry:
         return round(x / 50)
     
     def get_norm(self, v1:Tuple[float, float], v2: Tuple[float,float]):
-        return(math.sqrt((v1[0]-v2[0])**2)-(v1[1]-v2[1])**2)
+        return math.sqrt((v1[0]-v2[0])**2+(v1[1]-v2[1])**2)
 
     def clip(self, x:float, y:float, color: Color, planet: Planet) -> Tuple[int,int]:
         floored_x = math.floor(x/50)
@@ -150,7 +150,7 @@ class Odometry:
         """
         Get the position of the robot in coordinates from mother ship
         """
-        # return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
+        return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
         # return ((self.__clip_coordinat(self.local_x_coordinate), self.__clip_coordinat(self.local_y_coordinate)),
-                # Direction(self.__clip_orientation(self.local_orientation)))
-        return (self.clip(self.local_x_coordinate, self.local_y_coordinate, color, planet), Direction(self.__clip_orientation(self.local_orientation)))
+        #         Direction(self.__clip_orientation(self.local_orientation)))
+        # return (self.clip(self.local_x_coordinate, self.local_y_coordinate, color, planet), Direction(self.__clip_orientation(self.local_orientation)))

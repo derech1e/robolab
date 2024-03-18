@@ -102,7 +102,7 @@ class MotorSensor:
             self.drive_with_speed(-turn_speed, turn_speed )
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
-            alpha = alpha + (delta_pos[1] - delta_pos[0]) / constants.AXLE_LENGTH * constants.ROT_TO_CM
+            alpha = alpha + (delta_pos[1] - delta_pos[0]) / 9.5 * 0.05
             position_old = position_new
         self.stop()
 
