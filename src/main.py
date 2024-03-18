@@ -13,7 +13,7 @@ from planet import *
 
 from robot import Robot
 from communication import Communication
-from src import constants
+import constants
 
 client = None  # DO NOT EDIT
 

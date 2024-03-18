@@ -153,8 +153,7 @@ class Robot:
         self.__start_node = self.__next_node
 
     def robot(self):
-        self.logger.info("Press button to start exploration")
-        # self.control_button.wait_for_input() # TODO: Continue implementation
+        self.control_button.wait_for_input()
         self.logger.debug("Starting exploration...")
 
         while self.active:
