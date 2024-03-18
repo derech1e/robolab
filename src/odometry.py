@@ -1,5 +1,5 @@
 # !/usr/bin/env python3
-
+import logging
 import math
 import csv
 import os
@@ -13,11 +13,12 @@ from sensors.motor_sensor import MotorSensor
 
 
 class Odometry:
-    def __init__(self, motor_sensor: MotorSensor):
+    def __init__(self, motor_sensor: MotorSensor, logger: logging.Logger):
         """
         Initializes odometry module
         """
         self.motor_sensor = motor_sensor
+        self.logger = logger
         self.motor_positions = motor_sensor.get_motor_positions()
 
         self.local_x_coordinate = 0
@@ -40,11 +41,6 @@ class Odometry:
         return left, right
 
     def update_position(self, motor_positions):
-        print("------------- UPDATIING POSITION ----------------")
-
-        print(f"Koordinates before: ({self.local_x_coordinate}, "
-              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
-
         for i in range(15, len(motor_positions) - 5):
             dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
@@ -65,9 +61,6 @@ class Odometry:
             self.local_y_coordinate += delta_y
 
             self.list_of_coords.append((self.local_x_coordinate, self.local_y_coordinate))
-
-        print(f"Koordinates after: ({self.local_x_coordinate}, "
-              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
 
         with open(self.file_str, 'w', newline='') as file:
             writer = csv.writer(file)
@@ -146,7 +139,7 @@ class Odometry:
         self.local_x_coordinate = position[0][0] * 50
         self.local_y_coordinate = position[0][1] * 50
         self.local_orientation = (360 - position[1].value) % 360 / 180 * math.pi
-        print(f"setting coordinates in odo: {self.local_x_coordinate},"
+        self.logger.debug(f"setting coordinates in odo: {self.local_x_coordinate},"
               f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"{self.path}{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
 

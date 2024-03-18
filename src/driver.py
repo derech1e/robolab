@@ -1,4 +1,5 @@
 # imports
+import logging
 import time
 
 from enums import StopReason
@@ -12,12 +13,13 @@ import constants
 
 
 class Driver:
-    def __init__(self, motor_sensor: MotorSensor, color_sensor: ColorSensor, speaker_sensor: SpeakerSensor):
-        self.color_sensor = color_sensor
+    def __init__(self, motor_sensor: MotorSensor, color_sensor: ColorSensor, speaker_sensor: SpeakerSensor, logger: logging.Logger):
         self.motor_sensor = motor_sensor
-        self.sonar_sensor = SonarSensor()
+        self.color_sensor = color_sensor
         self.speaker_sensor = speaker_sensor
         self.pid = PID(color_sensor, motor_sensor)
+        self.sonar_sensor = SonarSensor()
+        self.logger = logger
 
         self.is_first_node = True
 
@@ -25,7 +27,7 @@ class Driver:
         while self.color_sensor.get_luminance() > self.color_sensor.AVR_LIGHTNESS:
             self.motor_sensor.drive_with_speed(-100, 100)
         self.motor_sensor.stop()
-        print("Line found")
+        self.logger.debug("Line found")
 
         # TODO: if the robot is not on the line, add code for slower turning in opposite direction
 
@@ -39,7 +41,7 @@ class Driver:
 
             # check for collision
             if self.sonar_sensor.is_colliding():
-                print("Collision detected")
+                self.logger.debug("Collision detected")
                 self.motor_sensor.stop()
                 self.speaker_sensor.play_tone()
 
@@ -49,7 +51,7 @@ class Driver:
                 stop_reason = StopReason.COLLISION
 
             if self.color_sensor.is_node():
-                print("Node detected")
+                self.logger.debug("Node detected")
                 if self.is_first_node:
                     stop_reason = StopReason.FIRST_NODE
                     self.is_first_node = False
@@ -67,8 +69,7 @@ class Driver:
         else:
             self.turn_find_line()
 
-    @staticmethod
-    def angle_to_direction(angle):
+    def __angle_to_direction(self, angle):
         if 0 <= angle <= 160:
             return 0
         elif 160 <= angle <= 290:
@@ -81,41 +82,34 @@ class Driver:
         return 0  # Default
 
     def scan_node(self) -> list[Direction]:
-        # incoming_direction = Direction((180 + incoming_direction.value) % 360)
         self.motor_sensor.stop()
-        print("scanning node...")
+        self.logger.debug("Scanning node...")
+
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
-        print(self.color_sensor.get_color_name())
+        self.logger.debug(f"Stopped driving: Detected {self.color_sensor.get_color_name()}")
 
-        self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
+        self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)  # Driving a tick further to get the perfect alignment
         self.motor_sensor.turn_angle(-30)
 
-        self.motor_sensor.reset_position()
-
-        time.sleep(0.3)
-
+        self.motor_sensor.stop()  # Reset motor positions for perfect rotation
         directions = []
-
-        self.motor_sensor.full_turn()
+        self.motor_sensor.full_turn()  # Do a 360 turn
 
         while self.motor_sensor.is_running():
             position = self.motor_sensor.get_position()
             luminance = self.color_sensor.get_luminance()
-            # print(position)
+
             time.sleep(0.1)
-            # print(luminance)
-            if luminance < 85:
-                print("DETECTED")
-                print(f"pos: {position}")
-                direction = Direction(self.angle_to_direction(position))
-                # direction = Direction((self.angle_to_direction(position) + incoming_direction.value) % 360)
+
+            if luminance < 100:  # Check if the luminance value of the color sensor is lower than 100 and therefor black
+                self.logger.debug(f"Detected line at position: {position}")
+                direction = Direction(self.__angle_to_direction(position))
                 if direction not in directions:
                     directions.append(direction)
-                    print("Detected node", direction)
 
-        south = Direction.SOUTH
+        south = Direction.SOUTH  # Default direction is entrance direction
         if south in directions:
             directions.remove(south)
-        self.motor_sensor.stop()
+        self.motor_sensor.stop()  # Stop scan maneuver
         return directions

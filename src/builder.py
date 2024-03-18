@@ -2,6 +2,7 @@ from enums import MessageType, MessageFrom, PathStatus
 from typing import Tuple
 from planet import Direction
 
+
 class PayloadBuilder:
 
     def __init__(self):
