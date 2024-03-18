@@ -1,5 +1,5 @@
 from enums import MessageType, MessageFrom, PathStatus
-from typing import Tuple, Self, Dict, Any
+from typing import Tuple, Dict, Any
 from planet import Direction
 
 
@@ -14,7 +14,7 @@ class PayloadBuilder:
         """
         self.json = {}
 
-    def planet_name(self, name) -> Self:
+    def planet_name(self, name):
         """
         add the planet name to the payload
         :param name: String
@@ -23,7 +23,7 @@ class PayloadBuilder:
         self.json["planetName"] = name
         return self
 
-    def start_node(self, node: Tuple[Tuple[int, int], Direction]) -> Self:
+    def start_node(self, node: Tuple[Tuple[int, int], Direction]):
         """
         add the start node to the payload
         :param node: Tuple[Tuple[int, int], Direction]
@@ -31,7 +31,7 @@ class PayloadBuilder:
         """
         return self.__start_x(node[0][0]).__start_y(node[0][1]).__start_direction(node[1])
 
-    def end_node(self, node: Tuple[Tuple[int, int], Direction]) -> Self:
+    def end_node(self, node: Tuple[Tuple[int, int], Direction]):
         """
         add the end node to the payload
         :param node: Tuple[Tuple[int, int], Direction]
@@ -39,31 +39,31 @@ class PayloadBuilder:
         """
         return self.__end_x(node[0][0]).__end_y(node[0][1]).__end_direction(node[1])
 
-    def __start_x(self, x_cor: int) -> Self:
+    def __start_x(self, x_cor: int):
         self.json["startX"] = x_cor
         return self
 
-    def __start_y(self, y_cor: int) -> Self:
+    def __start_y(self, y_cor: int):
         self.json["startY"] = y_cor
         return self
 
-    def __end_x(self, x_cor: int) -> Self:
+    def __end_x(self, x_cor: int):
         self.json["endX"] = x_cor
         return self
 
-    def __end_y(self, y_cor: int) -> Self:
+    def __end_y(self, y_cor: int):
         self.json["endY"] = y_cor
         return self
 
-    def __start_direction(self, direction: int) -> Self:
+    def __start_direction(self, direction: int):
         self.json["startDirection"] = direction
         return self
 
-    def __end_direction(self, direction: int) -> Self:
+    def __end_direction(self, direction: int):
         self.json["endDirection"] = direction
         return self
 
-    def path_status(self, status: PathStatus) -> Self:
+    def path_status(self, status: PathStatus):
         """
         add a path status to the payload
         :param status: PathStatus
@@ -101,7 +101,7 @@ class MessageBuilder:
         """
         self.json = {"from": MessageFrom.CLIENT.value}
 
-    def type(self, message_type: MessageType) -> Self:
+    def type(self, message_type: MessageType):
         """
         set the message type of the message
         :param message_type: MessageType
@@ -110,7 +110,7 @@ class MessageBuilder:
         self.json["type"] = message_type.value
         return self
 
-    def payload(self, payload: PayloadBuilder) -> Self:
+    def payload(self, payload: PayloadBuilder):
         """
         add a payload to the message (see PayloadBuilder for more information)
         :param payload: PayloadBuilder
