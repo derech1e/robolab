@@ -3,7 +3,7 @@ PASSWORD = "PYuoI4T4Mv"
 
 # Odometry
 AXLE_LENGTH = 11.3
-ROT_TO_CM = 0.04884
+ROT_TO_CM = 0.05
 MAGIC_VALUE = 0.1
 
 # Follow

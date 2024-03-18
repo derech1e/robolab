@@ -3,8 +3,10 @@
 import math
 import csv
 import os, shutil
-from planet import *
+from planet import Direction, Planet
 import constants
+from typing import Tuple, List
+from enums import Color
 
 from sensors.motor_sensor import MotorSensor
 
@@ -79,6 +81,42 @@ class Odometry:
     def __clip_coordinat(self, x: float) -> int:
         return round(x / 50)
 
+    def fclip(self, x: float, y: float, rad: float, color: Color, planet: Planet) -> Tuple[Tuple[int, int], Direction]:
+        round_x: int = round(x / 50)
+        round_y: int = round(y / 50)
+        coords: List[Tuple[int, int]] = []
+        if planet.check_node_color((round_x, round_y), color):
+            return (round_x, round_y), Direction(self.__clip_orientation(rad))
+        else:
+            x_diff = abs(x - round_x)
+            y_diff = abs(y - round_y)
+            coords.append(self.round_other_way(x, y, x_diff > y_diff))
+            coords.append(self.round_other_way(x, y, not (x_diff > y_diff)))
+
+        c1: bool = coords[0] in planet.paths.keys()
+        c2: bool = coords[1] in planet.paths.keys()
+
+        if c2 and not c1:
+            return coords[1], Direction(self.__clip_orientation(rad))
+        else:
+            return coords[0], Direction(self.__clip_orientation(rad))
+
+    @staticmethod
+    def round_other_way(x: float, y: float, rounding_x: bool) -> Tuple[int, int]:
+        round_x: int = round(x / 50)
+        round_y: int = round(y / 50)
+        if rounding_x:
+            if round_x > x:
+                return math.floor(x / 50), round_y
+            else:
+                return math.ceil(x / 50), round_y
+
+        else:
+            if round_y > y:
+                return round_x, math.floor(y / 50)
+            else:
+                return round_x, math.ceil(y / 50)
+
     def set_coordinates(self, position: Tuple[Tuple[int, int], Direction]):
         """
         Set the position of the robot in coordinates from mother ship
@@ -90,10 +128,10 @@ class Odometry:
               f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"{self.path}{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
 
-    def get_coordinates(self) -> Tuple[Tuple[int, int], Direction]:
+    def get_coordinates(self, planet: Planet, color: Color) -> Tuple[Tuple[int, int], Direction]:
         """
         Get the position of the robot in coordinates from mother ship
         """
-        return ((self.__clip_coordinat(self.local_x_coordinate),
-                 self.__clip_coordinat(self.local_y_coordinate)),
-                Direction(self.__clip_orientation(self.local_orientation)))
+        return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
+        # return ((self.__clip_coordinat(self.local_x_coordinate), self.__clip_coordinat(self.local_y_coordinate)),
+                # Direction(self.__clip_orientation(self.local_orientation)))
