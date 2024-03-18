@@ -177,4 +177,7 @@ class Robot:
             self.logger.debug(f"setting odometry to {self.__start_node}")
             self.odometry.set_coordinates(self.__start_node)
 
+            # play tone for successful tone
+            self.play_tone()
+
         self.logger.info("Mission complete. Ending program...")
