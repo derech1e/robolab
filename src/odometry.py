@@ -80,6 +80,24 @@ class Odometry:
     # TODO: clipp to color
     def __clip_coordinat(self, x: float) -> int:
         return round(x / 50)
+    
+    def get_norm(self, v1:Tuple[float, float], v2: Tuple[float,float]):
+        return(math.sqrt((v1[0]-v2[0])**2)-(v1[1]-v2[1])**2)
+
+    def clip(self, x:float, y:float, color: Color, planet: Planet):
+        floored_x = math.floor(x/50)
+        floored_y = math.floor(y/50)
+
+        if(planet.check_node_color((floored_x,floored_y), color)):
+            if self.get_norm((floored_x*50, floored_y*50), (x,y)) < self.get_norm((floored_x*50 +50, floored_y*50+50),(x,y)):
+                return(floored_x, floored_y)
+            else:
+                return(floored_x+1, floored_y+1)
+        else:
+            if self.get_norm((floored_x*50+50, floored_y*50), (x,y)) < self.get_norm((floored_x, floored_y*50+50),(x,y)):
+                return(floored_x+1, floored_y)
+            else:
+                return(floored_x, floored_y+1)
 
     def fclip(self, x: float, y: float, rad: float, color: Color, planet: Planet) -> Tuple[Tuple[int, int], Direction]:
         round_x: int = round(x / 50)
