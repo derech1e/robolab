@@ -14,7 +14,7 @@ class MotorSensor:
     def __init__(self, logger: logging.Logger):
         """
         Initializes motor sensor module and init motors
-        :param logger: The logger of the programm
+        :param logger: The logger of the program
         """
         self.logger = logger
         self.motor_left = ev3.LargeMotor("outB")
