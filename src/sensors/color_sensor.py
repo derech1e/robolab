@@ -78,7 +78,6 @@ class ColorSensor:
 
         return False
 
-
     def is_color(self):
         pass
 

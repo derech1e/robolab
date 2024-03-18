@@ -227,7 +227,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         start_direction = Direction.SOUTH
         distances = self.p4.dijkstra_final_paths(start_node)
         self.assertIn(self.p4.explore_next(distances, start_node, start_direction), [((0, 0), Direction.WEST),
-                                                                      ((0, 0), Direction.WEST)])
+                                                                                     ((0, 0), Direction.WEST)])
 
 
 if __name__ == "__main__":

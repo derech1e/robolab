@@ -64,7 +64,9 @@ def run():
     #     }
     # }
     # next_node ((0,1), Direction.West)
-    # {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1): {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2), <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0):
+    # {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1):
+    # {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2),
+    # <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0):
     # {<Direction.SOUTH: 180>: ((0, 0), <Direction.SOUTH: 180>, -1)}}
     # planet.paths = data
     # next_node_1 = planet.get_next_node(current_node, None)

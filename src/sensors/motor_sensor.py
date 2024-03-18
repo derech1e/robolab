@@ -30,7 +30,8 @@ class MotorSensor:
 
     # Battery level: cat /sys/devices/platform/battery/power_supply/lego-ev3-battery/voltage_now
 
-    def __angle_multiplier(self, angle):
+    @staticmethod
+    def __angle_multiplier(angle):
         angle = int(round(angle + 360)) % 360
         # 155 = 90° => 1.722222
         # 150 = 90° ONLY on full charge  => 1.66667
@@ -49,7 +50,8 @@ class MotorSensor:
         else:
             return 1.62
 
-    def position_to_angle(self, position):
+    @staticmethod
+    def position_to_angle(position):
         return position / 1.694
 
     def turn_angle_blocking(self, angle, speed=50):
@@ -99,7 +101,7 @@ class MotorSensor:
         turn_speed = 100 * (1 if angle > 0 else -1)
 
         while abs(alpha) < abs(angle):
-            self.drive_with_speed(-turn_speed, turn_speed )
+            self.drive_with_speed(-turn_speed, turn_speed)
             position_new = (self.motor_left.position, self.motor_right.position)
             delta_pos = (position_new[0] - position_old[0], position_new[1] - position_old[1])
             alpha = alpha + (delta_pos[1] - delta_pos[0]) / 9.5 * 0.05
@@ -145,7 +147,7 @@ class MotorSensor:
         self.motor_left.wait_until_not_moving()
         self.motor_right.wait_until_not_moving()
 
-    def drive_cm(self, cm_left,cm_right, speed):
+    def drive_cm(self, cm_left, cm_right, speed):
         self.motor_right.position_sp = cm_right / constants.ROT_TO_CM
         self.motor_left.position_sp = cm_left / constants.ROT_TO_CM
 
@@ -156,6 +158,7 @@ class MotorSensor:
         self.motor_left.command = "run-to-rel-pos"
 
         self.motor_left.wait_until_not_moving()
+
     def drive_with_speed(self, speed_left, speed_right):
         # only append every 3rd time
         # self.counter += 1
