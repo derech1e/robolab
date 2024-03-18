@@ -99,11 +99,9 @@ class Robot:
             if path_status == PathStatus.FREE:
                 planet_current_node = self.planet.paths[self.__start_node[0]][self.__start_node[1]]
                 if planet_current_node[0] is not None:
-                    self.communication.send_path(self.planet.planet_name, self.__start_node,
-                                                 (planet_current_node[0], planet_current_node[1]), path_status)
+                    self.communication.send_path(self.planet.planet_name, self.__start_node, (planet_current_node[0], planet_current_node[1]), path_status)
                 else:
-                    self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node,
-                                                 path_status)
+                    self.communication.send_path(self.planet.planet_name, self.__start_node, self.__current_node, path_status)
             else:
                 self.communication.send_path(self.planet.planet_name, self.__start_node, self.__start_node, path_status)
 
@@ -123,14 +121,36 @@ class Robot:
         if self.__start_node[0] not in self.planet.nodes.keys():
             scanned_directions = self.driver.scan_node()
             # convert from relative to absolute orientation
-            scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in
-                                  scanned_directions]
+            scanned_directions = [Direction((direction + self.__start_node[1]) % 360) for direction in scanned_directions]
             self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
             self.logger.debug(f"Scanned direction: {scanned_directions}")
         else:
             while self.color_sensor.get_color_name():
                 self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
             self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
+
+    def handle_exploration(self) -> bool:
+        self.__next_node = self.planet.get_next_node(self.__start_node, self.target)
+
+        if self.__next_node is None:
+            self.logger.debug("Ending mission")
+            # Break if target is reached or the whole planet is explored
+            self.communication.send_exploration_complete("Exploration Complete!")
+            self.wait_for_message()
+            return True
+
+        # Send selected path
+        self.communication.send_path_select(self.planet.planet_name, self.__next_node)
+        self.logger.debug("Wait for path correction...")
+        self.wait_for_message()
+
+        # Handle direction alignment
+        turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
+        self.logger.debug(f"Turning to angle: {turn_angle}")
+
+        self.driver.rotate_to_line(turn_angle)
+        self.driver.turn_find_line()
+        self.__start_node = self.__next_node
 
     def robot(self):
         self.logger.info("Press button to start exploration")
@@ -141,7 +161,7 @@ class Robot:
             stop_reason = self.driver.follow_line()
             self.logger.debug(f"Stop reason: {stop_reason}")
 
-            if self.handle_node(stop_reason) is True:
+            if self.handle_node(stop_reason):
                 print("Finished exploration")
                 break
 
@@ -150,28 +170,10 @@ class Robot:
             self.wait_for_message()
 
             # Handle exploration
-            self.__next_node = self.planet.get_next_node(self.__start_node, self.target)
-
-            if self.__next_node is None:
-                self.logger.debug("Ending mission")
-                # Break if target is reached or the whole planet is explored
-                self.communication.send_exploration_complete("Exploration Complete!")
-                self.wait_for_message()
+            if self.handle_exploration():
                 break
 
-            # Send selected path
-            self.communication.send_path_select(self.planet.planet_name, self.__next_node)
-            self.logger.debug("Wait for path correction...")
-            self.wait_for_message()
-
-            # Handle direction alignment
-            turn_angle = (self.__start_node[1].value - self.__next_node[1].value) % 360
-            self.logger.debug(f"Turning to angle: {turn_angle}")
-
-            self.driver.rotate_to_line(turn_angle)
-            self.driver.turn_find_line()
-            self.__start_node = self.__next_node
-
+            # Updating odometry
             self.logger.debug(f"setting odometry to {self.__start_node}")
             self.odometry.set_coordinates(self.__start_node)
 
