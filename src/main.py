@@ -9,10 +9,14 @@ import uuid
 import signal
 import time
 
-from planet import *
-
 from robot import Robot
 from communication import Communication
+from odometry import Odometry
+from planet import Direction, Planet
+from follow import *
+
+from sensors.color_sensor import *
+from sensors.motor_sensor import MotorSensor
 
 client = None  # DO NOT EDIT
 
@@ -48,27 +52,6 @@ def run():
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     print("***** RoboLab started *****")
-    # planet = Planet()
-    # start_node = ((-1, 0), Direction.NORTH)
-    # current_node = ((0, 1), Direction.WEST)
-    # data = {
-    #     (-1, 0): {
-    #         Direction.NORTH: ((0, 1), Direction.WEST, 2)
-    #     },
-    #     (0, 1): {
-    #         Direction.WEST: ((-1, 0), Direction.NORTH, 2),
-    #         Direction.EAST: (None, Direction.NORTH, -69420)
-    #     },
-    #     (0, 0): {
-    #         Direction.SOUTH: ((0, 0), Direction.SOUTH, -1)
-    #     }
-    # }
-    # next_node ((0,1), Direction.West)
-    # {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1): {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2), <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0):
-    # {<Direction.SOUTH: 180>: ((0, 0), <Direction.SOUTH: 180>, -1)}}
-    # planet.paths = data
-    # next_node_1 = planet.get_next_node(current_node, None)
-    # print(next_node_1)
     communication = Communication(client, logger)
     robot = Robot(communication, logger)
     robot.robot()
