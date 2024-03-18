@@ -24,6 +24,9 @@ class Driver:
         self.is_first_node = True
 
     def turn_find_line(self):
+        """
+        turns the rover until it finds a line
+        """
         while self.color_sensor.get_luminance() > self.color_sensor.AVR_LIGHTNESS:
             self.motor_sensor.drive_with_speed(-100, 100)
         self.motor_sensor.stop()
@@ -32,6 +35,10 @@ class Driver:
         # TODO: if the robot is not on the line, add code for slower turning in opposite direction
 
     def follow_line(self) -> StopReason:
+        """
+        function for line following, uses the PID class to follow a line. Returns if an obstical is found
+        :return: StopReason
+        """
         self.motor_sensor.reset_position()
         stop_reason = StopReason.NODE
 
@@ -57,12 +64,15 @@ class Driver:
                     self.is_first_node = False
                 break
 
-        # self.motor_sensor.reset_position()
         self.motor_sensor.stop()
         return stop_reason
 
     def rotate_to_line(self, direction: float):  # direction: Direction
-        # turn less than full and find line only if more than 20 deg rotation
+        """
+        function to rotade to a direction and finds the line
+        :param direction: float
+        """
+
         if direction > 0:
             self.motor_sensor.turn_angle(direction - 20)
             self.turn_find_line()
@@ -70,6 +80,11 @@ class Driver:
             self.turn_find_line()
 
     def __angle_to_direction(self, angle):
+        """
+        converts motor positions to an angle
+        :param angle: int
+        :return: int
+        """
         if 0 <= angle <= 160:
             return 0
         elif 160 <= angle <= 290:
@@ -82,15 +97,20 @@ class Driver:
         return 0  # Default
 
     def scan_node(self) -> list[Direction]:
+        """
+        turns the rover 360 deg and scans vor paths
+        :return: list[Direction]
+        """
         self.motor_sensor.stop()
         self.logger.debug("Scanning node...")
 
+        #drive straight to position over the node
         while self.color_sensor.get_color_name():
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
         self.logger.debug(f"Stopped driving: Detected {self.color_sensor.get_color_name()}")
 
         self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)  # Driving a tick further to get the perfect alignment
-        self.motor_sensor.turn_angle(-30)
+        self.motor_sensor.turn_angle(-30) # turn -30 deg to scan first path
 
         self.motor_sensor.stop()  # Reset motor positions for perfect rotation
         directions = []
