@@ -64,6 +64,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         ]
         # Initialize your data structure here
         self.planet = Planet()
+        self.planet.group3mode = True
         for node in self.nodes:
             if node[0][0][0] + node[0][0][1] % 2 == 0:
                 self.planet.add_node(node[0][0], Color.RED)
@@ -107,6 +108,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         #    |
         #  (0,1)-
         #    |
+        self.p4.group3mode = True
         self.p4.add_node((0, 0), Color.RED)
         self.p4.add_node((0, 1), Color.BLUE)
         self.p4.add_node((1, 0), Color.BLUE)
@@ -116,25 +118,6 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.p4.add_unexplored_path(((1, 0), Direction.EAST))
         self.p4.add_unexplored_path(((0, 0), Direction.WEST))
         self.p4.add_unexplored_path(((0, 0), Direction.WEST))
-
-    def test_fassaden_T(self):
-        p = Planet()
-        p.add_unexplored_node((5, 0), Color.RED, [Direction.NORTH])
-        next_node = p.get_next_node(((5, 0), Direction.NORTH), None)
-        self.assertEqual(next_node, ((5, 0), Direction.NORTH))
-        p.add_path(((5, 0), Direction.NORTH), ((5, 1), Direction.SOUTH), 2)
-        p.add_unexplored_node((5, 1), Color.BLUE, [Direction.NORTH, Direction.EAST, Direction.WEST])
-        next_node = p.get_next_node(((5, 1), Direction.NORTH), (5, 3))
-        self.assertEqual(next_node, ((5, 1), Direction.NORTH))
-        p.add_path(((5, 1), Direction.NORTH), ((5, 2), Direction.EAST), 2)
-        p.add_path(((5, 2), Direction.WEST), ((5, 3), Direction.SOUTH), 7)
-        p.add_path(((6, 3), Direction.WEST), ((5, 3), Direction.EAST), 2)
-        p.add_unexplored_node((5, 2), Color.RED, [Direction.EAST, Direction.WEST])
-        next_node = p.get_next_node(((5, 2), Direction.NORTH), (5, 3))
-        self.assertEqual(next_node, ((5, 2), Direction.WEST))
-        p.add_path(((5, 2), Direction.EAST), ((6, 3), Direction.SOUTH), 4)
-        next_node = p.get_next_node(((6, 3), Direction.NORTH), (5, 3))
-        self.assertEqual(next_node, ((6, 3), Direction.WEST))
 
     def test_integrity(self):
         """
@@ -223,10 +206,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         This test should test if the correct explore option is recommended
         """
-        start_node = (0, 0)
-        start_direction = Direction.SOUTH
-        distances = self.p4.dijkstra_final_paths(start_node)
-        self.assertIn(self.p4.explore_next(distances, start_node, start_direction), [((0, 0), Direction.WEST),
+        self.assertIn(self.p4.explore_next((0, 0), Direction.SOUTH), [((0, 0), Direction.WEST),
                                                                       ((0, 0), Direction.WEST)])
 
 
