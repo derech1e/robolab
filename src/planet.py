@@ -53,8 +53,16 @@ class Planet:
         self.possible_open_nodes: List[Tuple[int, int]] = []
         self.planet_name = ""
 
-    # add unexplored path
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
+        """
+        Add an unexplored path
+
+        Example:
+            add_unexplored_path((7, 3), Direction.NORTH)
+
+        :param start: 2-Tuple
+        :return: void
+        """
         # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
             self.paths[start[0]] = {}
@@ -62,8 +70,19 @@ class Planet:
         if start[1] not in self.paths[start[0]]:
             self.paths[start[0]][Direction(start[1])] = (None, Direction.NORTH, -69420)
 
-    # adds unexplored paths from a list
     def add_unexplored_node(self, position: Tuple[int, int], color: Color, directions: [Direction]):
+        """
+        Adds unexplored paths from a list
+
+        Example:
+            add_unexplored_node((3, 4), Color.RED, [Direction.NORTH, Direction.SOUTH])
+
+        :param position: 2-Tuple
+        :param color: color of the node
+        :param directions: list of outgoing directions
+
+        :return: void
+        """
 
         self.add_node(position, color)
 
@@ -86,33 +105,45 @@ class Planet:
 
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
-            print("P-101:")
-            print(start[0])
             self.paths[start[0]] = {}
             if start[0] not in self.possible_open_nodes:
                 self.possible_open_nodes.append(start[0])
 
+        # add path into the dictionary
         self.paths[start[0]][Direction(start[1])] = (target[0], target[1], weight)
+
+        # same as above, but for target
         if target[0] not in self.paths:
-            print("P-106:")
-            print(target[0])
             self.paths[target[0]] = {}
             if target[0] not in self.possible_open_nodes:
                 self.possible_open_nodes.append(target[0])
+
         self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
 
+        # remove node from unvisited nodes if all 4 paths are added
         if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
             self.add_node(start[0], self.get_node_color(start[0]))
             if start[0] in self.possible_open_nodes:
                 self.possible_open_nodes.remove(start[0])
 
+        # same as above, but for target
         if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
             self.add_node(target[0], self.get_node_color(target[0]))
             if target[0] in self.possible_open_nodes:
                 self.possible_open_nodes.remove(target[0])
 
-    # stores a node with its color
     def add_node(self, coordinates: Tuple[int, int], color: Color):
+        """
+        Stores a node with its color
+
+        Example:
+            add_node((0, 0), Color.RED)
+
+        :param coordinates: 2-Tuple
+        :param color: Color of the node
+
+        :return: void
+        """
         self.nodes[coordinates] = color
         if coordinates not in self.paths:
             self.paths[coordinates] = {}
@@ -120,8 +151,18 @@ class Planet:
         if coordinates in self.possible_open_nodes:
             self.possible_open_nodes.remove(coordinates)
 
-    # calculates the color of the node based on collected data
     def get_node_color(self, coordinates: Tuple[int, int]) -> Color:
+        """
+        Calculates the color of the node based on collected data
+
+        Example:
+            get_node_color((0, 0)) -> Color.RED
+
+        :param coordinates: 2-Tuple
+
+        :return: Color
+        """
+
         if len(self.nodes.keys()) == 0:
             return Color.RED
 
@@ -136,12 +177,29 @@ class Planet:
 
         return check_color if coordinates_sum == check_sum else opposite_color
 
-    # checks if given color should be at given coordinate
     def check_node_color(self, coordinates: Tuple[int, int], color: Color) -> bool:
+        """
+        Checks if given color should be at given coordinate
+
+        Example:
+            check_node_color((0, 0), Color.Blue) -> False
+
+        :param coordinates: 2-Tuple
+        :param color: Color to be checked
+
+        :return: bool
+        """
+
         return color == self.get_node_color(coordinates)
 
-    # returns n where the n-th outgoing path in turning direction is the desired one
     def get_rotations(self, coordinates: Tuple[Tuple[int, int], Direction], direction: Direction) -> int:
+        """
+        Returns n where the n-th outgoing path in turning direction is the desired one
+
+        Example:
+            get_rotations(((0, 0), Direction.NORTH), Direction.SOUTH) -> 3
+        """
+
         current_dir = coordinates[1]
         i: int = 1
         while current_dir != direction:
@@ -202,11 +260,20 @@ class Planet:
 
         return self.extract_path_from_dijkstra(final_paths, start, target)
 
-    # reconstruct most efficient path from given dijkstra results
     @staticmethod
     def extract_path_from_dijkstra(distances: Dict[Tuple[int, int], DijkstraPath],
                                    start: Tuple[int, int], target: Tuple[int, int]) -> List[
                                     Tuple[Tuple[int, int], Direction]]:
+        """
+        Reconstruct most efficient path from given dijkstra results
+
+        :param distances: Dictionary of Coordinates to saved path from Dijkstra
+        :param start: 2-Tuple
+        :param target: 2-Tuple
+
+        :return: List of instructions to target
+        """
+
         # reconstruct most efficient path to destination
         return_path: List[Tuple[Tuple[int, int], Direction]] = []
         return_path.insert(0, (distances[target].start, distances[target].direction_start))
@@ -219,8 +286,18 @@ class Planet:
 
         return return_path
 
-    # Dijkstra algorithm for known map
     def dijkstra_final_paths(self, start: Tuple[int, int]) -> Dict[Tuple[int, int], DijkstraPath]:
+        """
+        Dijkstra algorithm for known map
+
+        Example:
+            dijkstra_final_paths((0, 0)) -> {(1, 0): DijkstraPath), (0, 1): DijkstraPath}
+
+        :param start: 2-Tuple
+
+        :return: Dictionary of nodes to DijkstraPaths
+        """
+
         # {destination_node: path_to_node}
         final_paths: Dict[Tuple[int, int], DijkstraPath] = {}
         options: List[DijkstraPath] = []
@@ -264,8 +341,17 @@ class Planet:
 
         return final_paths
 
-    # returns a list of unexplored paths
     def get_unexplored_paths(self) -> List[DijkstraPath]:
+        """
+        Returns a list of unexplored paths
+
+        Example:
+            get_unexplored_paths() -> [DijkstraPath...]
+
+        :return: list of unexplored DijkstraPaths
+        """
+
+        # add unexplored paths from known map
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
@@ -279,9 +365,20 @@ class Planet:
 
         return unexplored_paths
 
-    # returns a node and direction to explore next
     def explore_next(self, distances: Dict[Tuple[int, int], DijkstraPath], current_position: Tuple[int, int],
                      current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
+        """
+        Returns a node and direction to explore next
+
+        Example:
+            explore_next(dijkstra_final_paths((0, 0)), (0, 0), Direction.NORTH) -> ((0, 0), Direction.WEST)
+
+        :param distances: dictionary of DijstraPaths
+        :param current_position: Coordinates of the Robot
+        :param current_direction: Direction of the Robot
+
+        :return: None or Tuple(Coordinates, Direction)
+        """
 
         # find unexplored paths
         unexplored_paths: List[DijkstraPath] = self.get_unexplored_paths()
@@ -340,9 +437,20 @@ class Planet:
         """
         return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
-    # returns first step towards target or next exploration decision
     def get_next_node(self, current_position: tuple[tuple[int, int], Direction],
                       target: Optional[tuple[int, int]]) -> Optional[tuple[tuple[int, int], Direction]]:
+        """
+        Returns first step towards target or next exploration decision
+
+        Example:
+            get_next_node(((0, 0), Direction.NORTH), None) -> ((0, 0), Direction.NORTH)
+
+        :param current_position: Current Position of the Robot
+        :param target: Position of the Target if available
+
+        :return: (Node, Direction)
+        """
+
         # calculate distance to all nodes from current_position
         distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position[0])
 
@@ -372,9 +480,24 @@ class Planet:
             return next_path[0]
 
 
-# get all outgoing paths from point with current weight added
-def extract_options(point: Tuple[int, int], current_weight,
+def extract_options(point: Tuple[int, int], current_weight: Weight,
                     out_paths: Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]) -> List[DijkstraPath]:
+    """
+    Filters outgoing paths and returns them as DijkstraPaths
+
+    Example:
+        extract_options((0, 0), 3, {
+                Direction.WEST: ((1, 0), Direction.EAST, 1),
+                Direction.NORTH: (None, Direction.North, -69420)
+                }) -> [DijkstraPath((1, 0), 4, (0, 0), Direction.EAST, Direction.WEST)]
+
+    :param point: Coordinates of a Node
+    :param current_weight: Weight of path so far
+    :param out_paths: All outgoing paths
+
+    :return: List of drivable outgoing paths
+    """
+
     paths: List[DijkstraPath] = []
     for orientation, path in out_paths.items():
         if path[2] < 0:
@@ -383,15 +506,26 @@ def extract_options(point: Tuple[int, int], current_weight,
     return paths
 
 
-# update all dependent paths recursively if new, faster path is found
 def update_paths(new_path: DijkstraPath, difference: int,
                  paths: Dict[Tuple[int, int], DijkstraPath]) -> Dict[Tuple[int, int], DijkstraPath]:
+    """
+    Update all dependent paths recursively if new, faster path is found
+
+    :param new_path: DijkstraPath
+    :param difference: Difference of weight and new weight
+    :param paths: All current shortest paths
+
+    :return: Updated paths
+    """
+
     for path_destination in paths:
         path = paths[path_destination]
         if path.start != new_path.destination:
             continue
 
+        # update weight of path dependent on given path
         paths[path_destination].update_weight(path.weight - difference)
+        # update all paths, depending on above updated path
         paths = update_paths(paths[path_destination], difference, paths)
 
     return paths
