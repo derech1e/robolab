@@ -33,6 +33,7 @@ class PathStatus(Enum):
 class StopReason(Enum):
     COLLISION = "collision"
     NODE = "node"
+    FIRST_NODE = "first_node"
 
 
 class Color(Enum):
