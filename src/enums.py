@@ -41,3 +41,4 @@ class Color(Enum):
     WHITE = "white"
     BLUE = "blue"
     RED = "red"
+    NONE = "none"

@@ -12,8 +12,16 @@ class PID:
         self.integral_value = 0
         self.last_error = 0
 
+    def __get_brightness_error(self) -> float:
+        """
+        Returns the brightness error of the current following path
+        :return: float
+        """
+        average_lightness = (self.color_sensor.color_data["white"][1] + self.color_sensor.color_data["black"][1]) / 2  # calc the average lightness
+        return average_lightness - self.color_sensor.get_luminance()
+
     def calc_error(self) -> tuple[float, float]:
-        error = self.color_sensor.get_brightness_error()
+        error = self.__get_brightness_error()
         self.integral_value = constants.INTEGRAL_FACTOR * self.integral_value + error
         delta_error = error - self.last_error
         self.last_error = error
@@ -26,5 +34,5 @@ class PID:
     def calc_speed(self) -> Tuple[int, int]:
         return constants.SPEED + self.calc_turn(), constants.SPEED - self.calc_turn()
 
-    def stop(self):
+    def stop(self) -> None:
         self.motor_sensor.stop()

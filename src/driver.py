@@ -2,7 +2,7 @@
 import logging
 import time
 
-from enums import StopReason
+from enums import StopReason, Color
 from planet import Direction
 from sensors.color_sensor import ColorSensor
 from sensors.sonar_sensor import SonarSensor
@@ -104,13 +104,13 @@ class Driver:
         self.motor_sensor.stop()
         self.logger.debug("Scanning node...")
 
-        #drive straight to position over the node
-        while self.color_sensor.get_color_name():
+        # drive straight to position over the node
+        while self.color_sensor.get_color_name() is not Color.NONE:
             self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
         self.logger.debug(f"Stopped driving: Detected {self.color_sensor.get_color_name()}")
 
         self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)  # Driving a tick further to get the perfect alignment
-        self.motor_sensor.turn_angle(-30) # turn -30 deg to scan first path
+        self.motor_sensor.turn_angle(-30)  # turn -30 deg to scan first path
 
         self.motor_sensor.stop()  # Reset motor positions for perfect rotation
         directions = []

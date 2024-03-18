@@ -82,7 +82,7 @@ class Robot:
         self.logger.debug(f"\n**************Node - {self.node_counter}****************\n")
         self.logger.debug("Start node handling...")
 
-        self.node_color = Color(self.color_sensor.get_color_name())
+        self.node_color = self.color_sensor.get_color_name()
         self.odometry.update_position(self.motor_sensor.motor_positions)
         self.__current_node = self.odometry.get_coordinates(self.node_color, self.planet)
         # odometry sends current looking direction, current node is entry direction
@@ -125,7 +125,7 @@ class Robot:
             self.planet.add_unexplored_node(self.__current_node[0], self.node_color, scanned_directions)
             self.logger.debug(f"Scanned direction: {scanned_directions}")
         else:
-            while self.color_sensor.get_color_name():
+            while self.color_sensor.get_color_name() is not Color.NONE:
                 self.motor_sensor.drive_with_speed(constants.SPEED, constants.SPEED)
             self.motor_sensor.drive_cm(1.5, 1.5, constants.SPEED)
 

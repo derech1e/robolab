@@ -5,102 +5,83 @@ import time
 
 import ev3dev.ev3 as ev3
 
+from src.enums import Color
+
 
 class ColorSensor:
+    """
+    This class is used to control the color sensor. It contains several utility functions get more information about the obtained data.
+    """
+
     def __init__(self):
-        self.cs = ev3.ColorSensor()
-        self.cs.mode = "RGB-RAW"
+        """
+        Initializes the color sensor and set the measure mode to 'RGB-RAW'.
+        Also load default color calibration of a config file.
+        """
+        self.color_sensor = ev3.ColorSensor()
+        self.color_sensor.mode = "RGB-RAW"
         self.color_data = {}
         self.load_color_data()
 
         # Delay
-        self.last_check = -1
-        self.prev_value = math.inf
+        self.last_check: int = -1
+        self.prev_value: float = math.inf
 
-        # set the range in which the read value is accepted as a color
-        # TODO: das passt so nicht, der wert muss noch veraendert werden
-        self.ACCEPTANCE_RANGE_COLOR = 0.08  # smaler if accept color wrongly
-        self.ACCEPTANCE_RANGE_NOT_COLOR = 0.05
-        self.NO_COLOR = (self.color_data["white"][0] + self.color_data["black"][0]) / 2
-        self.AVR_LIGHTNESS = (self.color_data["white"][1] + self.color_data["black"][1]) / 2
-
-    def __get_raw(self):
-        if self.last_check < time.time_ns() + 50:  # Add execution delay
-            self.prev_value = self.cs.raw
+    def __get_raw(self) -> tuple[float, float, float]:
+        """
+        Get the raw color of the color sensor with a fixed delay of 25ms
+        :return: tuple[float, float, float]
+        """
+        if self.last_check < time.time_ns() + 25_000_000:  # Add execution delay of 25ms
+            self.prev_value = self.color_sensor.raw
             self.last_check = time.time_ns()
         return self.prev_value
 
-    # if we want to use hls
     def get_color_hls(self) -> tuple[float, float, float]:
+        """
+        Returns the color of the color sensor in HLS format
+        :return: tuple[float, float, float]
+        """
         color = self.__get_raw()
         try:
-            color_hls = colorsys.rgb_to_hls(color[0], color[1], color[2])
+            return colorsys.rgb_to_hls(color[0], color[1], color[2])
         except ZeroDivisionError:
-            color_hls = (0, 0.1, 0.1)
-        return color_hls
+            return 0, 0, 0
 
-    def get_luminance(self):
+    def get_luminance(self) -> float:
+        """
+        Returns luminance of the sensor by calling get_color_hls function to get the luminance
+        :return: float
+        """
         return self.get_color_hls()[1]
 
-    def get_brightness_error(self):
-        return self.AVR_LIGHTNESS - self.get_luminance()
-
-    # needs to be rewritten
-    def get_color_name_old(self):
-        raw_color = self.get_color_hls()
-        if 0.288 < raw_color[0] < 0.322: 
-            if self.AVR_LIGHTNESS > raw_color[1]:
-                return "black"
-            else:
-                return "white"
-        else:
-            value = self.color_data["blue"]
-            if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
-                return "blue"
-
-            value = self.color_data["red"]
-            if value[0] - self.ACCEPTANCE_RANGE_COLOR < raw_color[0] < value[0] + self.ACCEPTANCE_RANGE_COLOR:
-                return "red"
-
-            if self.AVR_LIGHTNESS > raw_color[1]:
-                return "white"
-            else:
-                return "black"
-
-    def get_color_name(self):
+    def get_color_name(self) -> Color:
+        """
+        Returns the color of a node. If no node is detected it returns a NONE color
+        :return: Color
+        """
         raw_color = self.__get_raw()
 
         if raw_color[0] > raw_color[1] + raw_color[2]:
-            return "red"
-        
+            return Color.RED
+
         if raw_color[0] * 1.6 < raw_color[1] and raw_color[0] * 1.6 < raw_color[2] and raw_color[0] < 70:
-            return "blue"
+            return Color.BLUE
 
-        return False
+        return Color.NONE
 
-    def is_color(self):
-        pass
-
-    def is_node(self):
+    def is_node(self) -> bool:
+        """
+        Returns a boolean indicating whether the sensor is detecting a node
+        :return: Bool
+        """
         color = self.get_color_name()
-        return color == "blue" or color == "red"
+        return color == Color.BLUE or color == Color.RED
 
-    # save color Data to file
-    def calibrate_hls(self):
-        # read white, read black, read blue, read red
-        print("calibrating...")
-
-        for color, _ in self.color_data.items():
-            input(f"put the rover on {color}")
-            self.color_data[color] = self.get_color_hls()
-            print(self.get_color_hls())
-
-        with open("sensors/color_data.json", "w") as dataFile:
-            json.dump(self.color_data, dataFile)
-
-        print("calibration completed")
-
-    # read color Data from file
     def load_color_data(self):
+        """
+        Load the color data into the color_data variable
+        :return: Void
+        """
         with open("sensors/color_data.json", "r") as data:
             self.color_data = json.load(data)
