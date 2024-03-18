@@ -1,5 +1,5 @@
 # !/usr/bin/env python3
-
+import logging
 import math
 import csv
 import os
@@ -13,11 +13,12 @@ from sensors.motor_sensor import MotorSensor
 
 
 class Odometry:
-    def __init__(self, motor_sensor: MotorSensor):
+    def __init__(self, motor_sensor: MotorSensor, logger: logging.Logger):
         """
         Initializes odometry module
         """
         self.motor_sensor = motor_sensor
+        self.logger = logger
         self.motor_positions = motor_sensor.get_motor_positions()
 
         self.local_x_coordinate = 0
@@ -40,11 +41,6 @@ class Odometry:
         return left, right
 
     def update_position(self, motor_positions):
-        print("------------- UPDATIING POSITION ----------------")
-
-        print(f"Koordinates before: ({self.local_x_coordinate}, "
-              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
-
         for i in range(15, len(motor_positions) - 5):
             dl, dr = self.__get_diff_in_cm(motor_positions[i + 1], motor_positions[i])
 
@@ -66,9 +62,6 @@ class Odometry:
 
             self.list_of_coords.append((self.local_x_coordinate, self.local_y_coordinate))
 
-        print(f"Koordinates after: ({self.local_x_coordinate}, "
-              f"{self.local_y_coordinate}), Oriantation: {self.local_orientation}")
-
         with open(self.file_str, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(motor_positions)
@@ -77,23 +70,20 @@ class Odometry:
     def __clip_orientation(rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
 
-    # TODO: clipp to color
-    @staticmethod
-    def __clip_coordinat(x: float) -> int:
-        return round(x / 50)
+    def get_norm(self, v1:Tuple[float, float], v2: Tuple[float,float]):
+        return abs(v2[0]-v1[0]) + abs(v2[1]-v1[1])
 
-    @staticmethod
-    def get_norm(v1: Tuple[float, float], v2: Tuple[float, float]):
-        return math.sqrt((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2)
+    def __clip_coordinat(self, x:float, y:float, color: Color, planet: Planet) -> Tuple[int,int]:
+        """
+        Function that return the coordinates in the global coordinates. Takes planet and color to snap the coordinates to right colored node.
+        """
+        floored_x = math.floor(x/50)
+        floored_y = math.floor(y/50)
 
-    def clip(self, x: float, y: float, color: Color, planet: Planet) -> Tuple[int, int]:
-        floored_x = math.floor(x / 50)
-        floored_y = math.floor(y / 50)
-
-        if planet.check_node_color((floored_x, floored_y), color):
-            if self.get_norm((floored_x * 50, floored_y * 50), (x, y)) < self.get_norm(
-                    (floored_x * 50 + 50, floored_y * 50 + 50), (x, y)):
-                return floored_x, floored_y
+        # check if 
+        if(planet.check_node_color((floored_x,floored_y), color)):
+            if self.get_norm((floored_x*50, floored_y*50), (x,y)) < self.get_norm((floored_x*50 +50, floored_y*50+50),(x,y)):
+                return(floored_x, floored_y)
             else:
                 return floored_x + 1, floored_y + 1
         else:
@@ -103,42 +93,6 @@ class Odometry:
             else:
                 return floored_x, floored_y + 1
 
-    def fclip(self, x: float, y: float, rad: float, color: Color, planet: Planet) -> Tuple[Tuple[int, int], Direction]:
-        round_x: int = round(x / 50)
-        round_y: int = round(y / 50)
-        coords: List[Tuple[int, int]] = []
-        if planet.check_node_color((round_x, round_y), color):
-            return (round_x, round_y), Direction(self.__clip_orientation(rad))
-        else:
-            x_diff = abs(x - round_x)
-            y_diff = abs(y - round_y)
-            coords.append(self.round_other_way(x, y, x_diff > y_diff))
-            coords.append(self.round_other_way(x, y, not (x_diff > y_diff)))
-
-        c1: bool = coords[0] in planet.paths.keys()
-        c2: bool = coords[1] in planet.paths.keys()
-
-        if c2 and not c1:
-            return coords[1], Direction(self.__clip_orientation(rad))
-        else:
-            return coords[0], Direction(self.__clip_orientation(rad))
-
-    @staticmethod
-    def round_other_way(x: float, y: float, rounding_x: bool) -> Tuple[int, int]:
-        round_x: int = round(x / 50)
-        round_y: int = round(y / 50)
-        if rounding_x:
-            if round_x > x:
-                return math.floor(x / 50), round_y
-            else:
-                return math.ceil(x / 50), round_y
-
-        else:
-            if round_y > y:
-                return round_x, math.floor(y / 50)
-            else:
-                return round_x, math.ceil(y / 50)
-
     def set_coordinates(self, position: Tuple[Tuple[int, int], Direction]):
         """
         Set the position of the robot in coordinates from mother ship
@@ -146,7 +100,7 @@ class Odometry:
         self.local_x_coordinate = position[0][0] * 50
         self.local_y_coordinate = position[0][1] * 50
         self.local_orientation = (360 - position[1].value) % 360 / 180 * math.pi
-        print(f"setting coordinates in odo: {self.local_x_coordinate},"
+        self.logger.debug(f"setting coordinates in odo: {self.local_x_coordinate},"
               f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"{self.path}{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
 
@@ -157,5 +111,4 @@ class Odometry:
         # return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
         # return ((self.__clip_coordinat(self.local_x_coordinate), self.__clip_coordinat(self.local_y_coordinate)),
         #         Direction(self.__clip_orientation(self.local_orientation)))
-        return (self.clip(self.local_x_coordinate, self.local_y_coordinate, color, planet),
-                Direction(self.__clip_orientation(self.local_orientation)))
+        return (self.__clip_coordinat(self.local_x_coordinate, self.local_y_coordinate, color, planet), Direction(self.__clip_orientation(self.local_orientation)))

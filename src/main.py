@@ -13,6 +13,7 @@ from planet import *
 
 from robot import Robot
 from communication import Communication
+from src import constants
 
 client = None  # DO NOT EDIT
 
@@ -24,7 +25,7 @@ def run():
     # Your script isn't able to close the client after crashing.
     global client
 
-    client_id = '003-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
+    client_id = constants.GROUP_ID + '-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
     client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program
                          clean_session=True,  # We want a clean session after disconnect or abort/crash
                          protocol=mqtt.MQTTv311  # Define MQTT protocol version
@@ -40,37 +41,15 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
-    console_handler = logging.StreamHandler()
+    # log logger to console
+    console_handler = logging.StreamHandler() #
     console_handler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
     logger.addHandler(console_handler)
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    print("***** RoboLab started *****")
-    # planet = Planet()
-    # start_node = ((-1, 0), Direction.NORTH)
-    # current_node = ((0, 1), Direction.WEST)
-    # data = {
-    #     (-1, 0): {
-    #         Direction.NORTH: ((0, 1), Direction.WEST, 2)
-    #     },
-    #     (0, 1): {
-    #         Direction.WEST: ((-1, 0), Direction.NORTH, 2),
-    #         Direction.EAST: (None, Direction.NORTH, -69420)
-    #     },
-    #     (0, 0): {
-    #         Direction.SOUTH: ((0, 0), Direction.SOUTH, -1)
-    #     }
-    # }
-    # next_node ((0,1), Direction.West)
-    # {(-1, 0): {<Direction.NORTH: 0>: ((0, 1), <Direction.WEST: 270>, 2)}, (0, 1):
-    # {<Direction.WEST: 270>: ((-1, 0), <Direction.NORTH: 0>, 2),
-    # <Direction.EAST: 90>: (None, <Direction.NORTH: 0>, -69420)}, (0, 0):
-    # {<Direction.SOUTH: 180>: ((0, 0), <Direction.SOUTH: 180>, -1)}}
-    # planet.paths = data
-    # next_node_1 = planet.get_next_node(current_node, None)
-    # print(next_node_1)
+    logger.info("***** RoboLab started *****")
     communication = Communication(client, logger)
     robot = Robot(communication, logger)
     robot.robot()
