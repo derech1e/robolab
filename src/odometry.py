@@ -77,17 +77,17 @@ class Odometry:
     def __clip_orientation(self, rad) -> int:
         return (360 - round(math.degrees(rad) / 90) * 90) % 360
 
-    # TODO: clipp to color
-    def __clip_coordinat(self, x: float) -> int:
-        return round(x / 50)
-    
     def get_norm(self, v1:Tuple[float, float], v2: Tuple[float,float]):
-        return math.sqrt((v1[0]-v2[0])**2+(v1[1]-v2[1])**2)
+        return abs(v2[0]-v1[0]) + abs(v2[1]-v1[1])
 
-    def clip(self, x:float, y:float, color: Color, planet: Planet) -> Tuple[int,int]:
+    def __clip_coordinat(self, x:float, y:float, color: Color, planet: Planet) -> Tuple[int,int]:
+        """
+        Function that return the coordinates in the global coordinates. Takes planet and color to snap the coordinates to right colored node.
+        """
         floored_x = math.floor(x/50)
         floored_y = math.floor(y/50)
 
+        # check if 
         if(planet.check_node_color((floored_x,floored_y), color)):
             if self.get_norm((floored_x*50, floored_y*50), (x,y)) < self.get_norm((floored_x*50 +50, floored_y*50+50),(x,y)):
                 return(floored_x, floored_y)
@@ -98,42 +98,6 @@ class Odometry:
                 return(floored_x+1, floored_y)
             else:
                 return(floored_x, floored_y+1)
-
-    def fclip(self, x: float, y: float, rad: float, color: Color, planet: Planet) -> Tuple[Tuple[int, int], Direction]:
-        round_x: int = round(x / 50)
-        round_y: int = round(y / 50)
-        coords: List[Tuple[int, int]] = []
-        if planet.check_node_color((round_x, round_y), color):
-            return (round_x, round_y), Direction(self.__clip_orientation(rad))
-        else:
-            x_diff = abs(x - round_x)
-            y_diff = abs(y - round_y)
-            coords.append(self.round_other_way(x, y, x_diff > y_diff))
-            coords.append(self.round_other_way(x, y, not (x_diff > y_diff)))
-
-        c1: bool = coords[0] in planet.paths.keys()
-        c2: bool = coords[1] in planet.paths.keys()
-
-        if c2 and not c1:
-            return coords[1], Direction(self.__clip_orientation(rad))
-        else:
-            return coords[0], Direction(self.__clip_orientation(rad))
-
-    @staticmethod
-    def round_other_way(x: float, y: float, rounding_x: bool) -> Tuple[int, int]:
-        round_x: int = round(x / 50)
-        round_y: int = round(y / 50)
-        if rounding_x:
-            if round_x > x:
-                return math.floor(x / 50), round_y
-            else:
-                return math.ceil(x / 50), round_y
-
-        else:
-            if round_y > y:
-                return round_x, math.floor(y / 50)
-            else:
-                return round_x, math.ceil(y / 50)
 
     def set_coordinates(self, position: Tuple[Tuple[int, int], Direction]):
         """
@@ -150,7 +114,7 @@ class Odometry:
         """
         Get the position of the robot in coordinates from mother ship
         """
-        return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
+        # return self.fclip(self.local_x_coordinate, self.local_y_coordinate, self.local_orientation, color, planet)
         # return ((self.__clip_coordinat(self.local_x_coordinate), self.__clip_coordinat(self.local_y_coordinate)),
         #         Direction(self.__clip_orientation(self.local_orientation)))
-        # return (self.clip(self.local_x_coordinate, self.local_y_coordinate, color, planet), Direction(self.__clip_orientation(self.local_orientation)))
+        return (self.__clip_coordinat(self.local_x_coordinate, self.local_y_coordinate, color, planet), Direction(self.__clip_orientation(self.local_orientation)))
