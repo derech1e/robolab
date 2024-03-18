@@ -67,7 +67,7 @@ class Communication:
             payload = response["payload"]
 
             if msg_type == MessageType.PLANET:
-                self.logger.debug("Received planet...")
+                self.logger.info("Received planet...")
                 self.client.subscribe(f"planet/{payload['planetName']}/{constants.GROUP_ID}")
                 self.robot.planet.planet_name = payload['planetName']
 
@@ -77,7 +77,7 @@ class Communication:
                                              Direction((payload["startOrientation"] + 180) % 360)))
 
             elif msg_type == MessageType.PATH:
-                self.logger.debug("Received path correction...")
+                self.logger.info("Received path correction...")
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
                 current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
 
@@ -87,22 +87,21 @@ class Communication:
                 self.robot.set_current_node(current_tuple)
 
             elif msg_type == MessageType.PATH_SELECT:
-                self.logger.debug(f"Received path select correction...")
+                self.logger.info(f"Received path select correction...")
                 self.robot.update_next_path(Direction(payload["startDirection"]))
 
             elif msg_type == MessageType.PATH_UNVEILED:
+                self.logger.info(f"Received new unveiled path...")
                 start_tuple = ((payload["startX"], payload["startY"]), Direction(payload["startDirection"]))
                 current_tuple = ((payload["endX"], payload["endY"]), Direction(payload["endDirection"]))
-                self.logger.debug(f"Received new unveiled path...")
                 self.robot.add_path(start_tuple, current_tuple, payload["pathWeight"])
-                # TODO: Set node color to none when the node is unknown
 
             elif msg_type == MessageType.TARGET:
-                self.logger.debug(f"Received new target...")
+                self.logger.info(f"Received new target...")
                 self.robot.set_target((payload["targetX"], payload["targetY"]))
 
             elif msg_type == MessageType.DONE:
-                self.logger.debug("Finished mission")
+                self.logger.info("Finished mission")
                 self.robot.active = False
 
             self.logger.debug(json.dumps(response, indent=2))
@@ -170,16 +169,14 @@ class Communication:
         :param path_status: PathStatus
         :return: void
         """
-        self.debug_path_comparison = MessageBuilder().type(MessageType.PATH).payload(
-            PayloadBuilder()
-            .start_node(start_node)
-            .end_node(end_node)
-            .path_status(path_status)
-            .build()).build()
-
-        # TODO: REMOVE debug_path_comparison
         self.logger.debug(f"Sending last driven path...")
-        self.send_message(f"planet/{planet_name}/{constants.GROUP_ID}", self.debug_path_comparison)
+        self.send_message(f"planet/{planet_name}/{constants.GROUP_ID}",
+                          MessageBuilder().type(MessageType.PATH).payload(
+                              PayloadBuilder()
+                              .start_node(start_node)
+                              .end_node(end_node)
+                              .path_status(path_status)
+                              .build()).build())
 
     def send_path_select(self, planet_name: str, node: Tuple[Tuple[int, int], Direction]) -> None:
         """
