@@ -24,7 +24,7 @@ class Robot:
         self.control_button = ControlButton()
         self.speaker_sensor = SpeakerSensor()
         self.color_sensor = ColorSensor()
-        self.motor_sensor = MotorSensor()
+        self.motor_sensor = MotorSensor(logger)
 
         self.planet = Planet()
         self.communication = communication

@@ -19,7 +19,7 @@ class Odometry:
         """
         self.motor_sensor = motor_sensor
         self.logger = logger
-        self.motor_positions = motor_sensor.get_motor_positions()
+        self.motor_positions = motor_sensor.motor_positions
 
         self.local_x_coordinate = 0
         self.local_y_coordinate = 0
