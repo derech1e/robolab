@@ -128,7 +128,7 @@ class Odometry:
               f"{self.local_y_coordinate}, ori: {self.local_orientation}")
         self.file_str = f"{self.path}{position[0][0]}+{position[0][1]}+{position[1].value}.csv"
 
-    def get_coordinates(self, planet: Planet, color: Color) -> Tuple[Tuple[int, int], Direction]:
+    def get_coordinates(self, color: Color, planet: Planet) -> Tuple[Tuple[int, int], Direction]:
         """
         Get the position of the robot in coordinates from mother ship
         """

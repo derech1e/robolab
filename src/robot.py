@@ -89,7 +89,7 @@ class Robot:
 
         self.node_color = Color(self.color_sensor.get_color_name())
         self.odometry.update_position(self.motor_sensor.motor_positions)
-        self.__current_node = self.odometry.get_coordinates()
+        self.__current_node = self.odometry.get_coordinates(self.node_color, self.planet)
         # odometry sends current looking direction, current node is entry direction
         self.__current_node = (self.__current_node[0], Direction((self.__current_node[1] + 180) % 360))
 
