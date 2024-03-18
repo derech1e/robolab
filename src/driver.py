@@ -13,7 +13,14 @@ import constants
 
 
 class Driver:
+    """
+    This class is responsible the line following and node detection of the robot.
+    """
+
     def __init__(self, motor_sensor: MotorSensor, color_sensor: ColorSensor, speaker_sensor: SpeakerSensor, logger: logging.Logger):
+        """
+        Initialize the Driver class as well as the pid controller
+        """
         self.motor_sensor = motor_sensor
         self.color_sensor = color_sensor
         self.speaker_sensor = speaker_sensor
@@ -23,11 +30,12 @@ class Driver:
 
         self.is_first_node = True
 
-    def turn_find_line(self):
+    def turn_find_line(self) -> None:
         """
-        turns the rover until it finds a line
+        Rotate the robot until a line is detected
+        :return: void
         """
-        while self.color_sensor.get_luminance() > self.color_sensor.AVR_LIGHTNESS:
+        while self.color_sensor.get_luminance() > self.color_sensor.average_lightness:
             self.motor_sensor.drive_with_speed(-100, 100)
         self.motor_sensor.stop()
         self.logger.debug("Line found")
@@ -36,7 +44,7 @@ class Driver:
 
     def follow_line(self) -> StopReason:
         """
-        function for line following, uses the PID class to follow a line. Returns if an obstical is found
+        function for line following, uses the PID class to follow a line. Returns if an obstacle is found
         :return: StopReason
         """
         self.motor_sensor.reset_position()
@@ -67,10 +75,11 @@ class Driver:
         self.motor_sensor.stop()
         return stop_reason
 
-    def rotate_to_line(self, direction: float):  # direction: Direction
+    def rotate_to_line(self, direction: int) -> None:
         """
-        function to rotade to a direction and finds the line
-        :param direction: float
+        Rotate to a direction and finds the line
+        :param direction: int
+        :return: void
         """
 
         if direction > 0:
@@ -79,7 +88,7 @@ class Driver:
         else:
             self.turn_find_line()
 
-    def __angle_to_direction(self, angle):
+    def __angle_to_direction(self, angle: int) -> int:
         """
         converts motor positions to an angle
         :param angle: int

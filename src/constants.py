@@ -1,3 +1,7 @@
+"""
+This file contains all the constants used by the robot
+"""
+
 GROUP_ID = "003"
 PASSWORD = "PYuoI4T4Mv"
 

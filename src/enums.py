@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class MessageType(Enum):
+    """
+    This class contains all possible message types
+    """
     TEST_PLANET = "testPlanet"
     READY = "ready"
     PLANET = "planet"
@@ -19,6 +22,9 @@ class MessageType(Enum):
 
 
 class MessageFrom(Enum):
+    """
+    This class contains all possible options where a message can be from
+    """
     CLIENT = "client"
     SERVER = "server"
     DEBUG = "debug"
@@ -26,17 +32,26 @@ class MessageFrom(Enum):
 
 
 class PathStatus(Enum):
+    """
+    This class contains all possible path status
+    """
     FREE = "free"
     BLOCKED = "blocked"
 
 
 class StopReason(Enum):
+    """
+    This class contains all possible stop reasons of the robot
+    """
     COLLISION = "collision"
     NODE = "node"
     FIRST_NODE = "first_node"
 
 
 class Color(Enum):
+    """
+    This class contains all processed colors
+    """
     BLACK = "black"
     WHITE = "white"
     BLUE = "blue"
