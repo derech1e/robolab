@@ -2,7 +2,7 @@
 
 # Attention: Do not import the ev3dev.ev3 module in this file
 from enum import IntEnum, unique
-from enums import NodeColor
+from enums import Color
 from typing import Optional, List, Tuple, Dict
 
 
@@ -24,7 +24,7 @@ Value:  -1 if blocked path
         never 0
 """
 
-path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]
+path_list = Dict[Tuple[int, int], Dict[Direction, Tuple[Optional[Tuple[int, int]], Direction, Weight]]]
 
 
 class DijkstraPath:
@@ -49,40 +49,30 @@ class Planet:
     def __init__(self):
         """ Initializes the data structure """
         self.paths: path_list = {}
-        self.nodes: Dict[Tuple[int, int], NodeColor] = {}
-        self.group3mode: bool = False
+        self.nodes: Dict[Tuple[int, int], Color] = {}
+        self.possible_open_nodes: List[Tuple[int, int]] = []
         self.planet_name = ""
 
     # add unexplored path
     def add_unexplored_path(self, start: Tuple[Tuple[int, int], Direction]):
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
-
-        # Store unexplored path with end coordinates as (-1, -1)
+        # Store unexplored path with end coordinates as None
         if start[0] not in self.paths:
+            print("P-59:")
+            print(start[0])
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = ((-1, -1), Direction.NORTH, -69420)
-        print("add_unexplored_path executed")
+
+        if start[1] not in self.paths[start[0]]:
+            self.paths[start[0]][Direction(start[1])] = (None, Direction.NORTH, -69420)
+            print("add_unexplored_path executed")
 
     # adds unexplored paths from a list
-    def add_unexplored_node(self, position: Tuple[int, int], color: NodeColor, directions: [Direction]):
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
+    def add_unexplored_node(self, position: Tuple[int, int], color: Color, directions: [Direction]):
 
         self.add_node(position, color)
 
         for direction in directions:
             print(f"Added direction: {direction}")
             self.add_unexplored_path((position, direction))
-
-    def add_new_node_and_decide(self, position: Tuple[int, int], current_direction: Direction,
-                                color: NodeColor, directions: List[Direction]) -> Optional[Direction]:
-        self.add_unexplored_node(position, color, directions)
-        explore_decision = self.explore_next(position, current_direction)
-        if explore_decision is None:
-            return None
-        return explore_decision[1]
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
@@ -98,35 +88,74 @@ class Planet:
         :return: void
         """
 
-        if self.group3mode:
-            if start[0] not in self.paths:
-                raise KeyError(f'Node {start[0]} was not initialized with add_node')
-            if target[0] not in self.paths:
-                raise KeyError(f'Node {target[0]} was not initialized with add_node')
-
         # Initialize dict if node is not registered
         if start[0] not in self.paths:
+            print("P-101:")
+            print(start[0])
             self.paths[start[0]] = {}
-        self.paths[start[0]][start[1]] = (target[0], target[1], weight)
+            if start[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(start[0])
+
+        self.paths[start[0]][Direction(start[1])] = (target[0], target[1], weight)
         if target[0] not in self.paths:
+            print("P-106:")
+            print(target[0])
             self.paths[target[0]] = {}
-        self.paths[target[0]][target[1]] = (start[0], start[1], weight)
+            if target[0] not in self.possible_open_nodes:
+                self.possible_open_nodes.append(target[0])
+        self.paths[target[0]][Direction(target[1])] = (start[0], start[1], weight)
+
+        if start[0] in self.paths.keys() and len(self.paths[start[0]].keys()) == 4:
+            self.add_node(start[0], self.get_node_color(start[0]))
+            if start[0] in self.possible_open_nodes:
+                self.possible_open_nodes.remove(start[0])
+
+        if target[0] in self.paths.keys() and len(self.paths[target[0]].keys()) == 4:
+            self.add_node(target[0], self.get_node_color(target[0]))
+            if target[0] in self.possible_open_nodes:
+                self.possible_open_nodes.remove(target[0])
 
     # stores a node with its color
-    def add_node(self, coordinates: Tuple[int, int], color: NodeColor):
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
+    def add_node(self, coordinates: Tuple[int, int], color: Color):
         self.nodes[coordinates] = color
-        if coordinates not in self.paths.keys():
+        print(f"added node {coordinates} to known nodes")
+        if coordinates not in self.paths:
+            print("P-115:")
+            print(coordinates)
             self.paths[coordinates] = {}
 
+        if coordinates in self.possible_open_nodes:
+            self.possible_open_nodes.remove(coordinates)
+
     # checks if the node color is the expected one
-    def check_node(self, coordinates: Tuple[int, int], color: NodeColor) -> bool:
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
+    def check_node(self, coordinates: Tuple[int, int], color: Color) -> bool:
         return self.nodes[coordinates] and self.nodes[coordinates] == color
+
+    # calculates the color of the node based on collected data
+    def get_node_color(self, coordinates: Tuple[int, int]) -> Color:
+        if len(self.nodes.keys()) == 0:
+            return Color.RED
+        check_key = list(self.nodes.keys())[0]
+        check_color = self.nodes[check_key]
+        opposite_color = Color.BLUE if check_color == Color.RED else Color.RED
+        check_sum = (check_key[0] + check_key[1]) % 2
+        coordinates_sum = (coordinates[0] + coordinates[1]) % 2
+        return check_color if coordinates_sum == check_sum else opposite_color
+
+    # checks if given color should be at given coordinate
+    def check_node_color(self, coordinates: Tuple[int, int], color: Color) -> bool:
+        nc = self.get_node_color(coordinates)
+        print(f"predicted node color: {nc}")
+        return color == nc
+
+    def get_rotations(self, coordinates: Tuple[Tuple[int, int], Direction], direction: Direction) -> int:
+        current_dir = coordinates[1]
+        i: int = 1
+        while current_dir != direction:
+            current_dir = Direction((current_dir.value - 90) % 360)
+            if current_dir in self.paths[coordinates[0]].keys():
+                i += 1
+        return i
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -153,7 +182,7 @@ class Planet:
 
     # DO NOT EDIT THE METHOD SIGNATURE
     def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
-        List[Tuple[Tuple[int, int], Direction]]]:
+            List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -165,8 +194,11 @@ class Planet:
         :return: None, List[] or List[Tuple[Tuple[int, int], Direction]]
         """
 
+        if start == target:
+            return []
+
         # return none if start or target are not nodes or if start is target
-        if start not in self.paths or target not in self.paths or start is target:
+        if start not in self.paths or target not in self.paths:
             return None
 
         # get most efficient paths to every node
@@ -175,15 +207,21 @@ class Planet:
         if target not in final_paths:
             return None
 
+        return self.extract_path_from_dijkstra(final_paths, start, target)
+
+    @staticmethod
+    def extract_path_from_dijkstra(distances: Dict[Tuple[int, int], DijkstraPath],
+                                   start: Tuple[int, int], target: Tuple[int, int]) -> List[
+                                    Tuple[Tuple[int, int], Direction]]:
         # reconstruct most efficient path to destination
-        return_path = []
-        return_path.insert(0, (final_paths[target].start, final_paths[target].direction_start))
+        return_path: List[Tuple[Tuple[int, int], Direction]] = []
+        return_path.insert(0, (distances[target].start, distances[target].direction_start))
 
         # backtrack from target to start in finial paths
         while return_path[0][0] != start:
             last_element = return_path[0][0]
-            return_path.insert(0, (final_paths[last_element].start,
-                                   final_paths[last_element].direction_start))
+            return_path.insert(0, (distances[last_element].start,
+                                   distances[last_element].direction_start))
 
         return return_path
 
@@ -232,29 +270,39 @@ class Planet:
 
         return final_paths
 
-    def explore_next(self, current_position: Tuple[int, int],
-                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
-        # enforce group3mode
-        if not self.group3mode:
-            raise SystemError("Custom functions are not available without the group3mode flag being set")
-
-        # find unexplored paths
+    def get_unexplored_paths(self) -> List[DijkstraPath]:
         unexplored_paths: List[DijkstraPath] = []
         for node_position, node_directions in self.paths.items():
             for direction, path in node_directions.items():
-                if path[0] == (-1, -1):
+                if path[0] is None:
                     unexplored_paths.append(DijkstraPath(path[0], path[2], node_position, path[1], direction))
+
+        for node in self.possible_open_nodes:
+            unexplored_paths.append(DijkstraPath(None, -69420, node, None, None))
+
+        return unexplored_paths
+
+    def explore_next(self, distances: Dict[Tuple[int, int], DijkstraPath], current_position: Tuple[int, int],
+                     current_direction: Direction) -> Optional[Tuple[Tuple[int, int], Direction]]:
+
+        # find unexplored paths
+        unexplored_paths: List[DijkstraPath] = self.get_unexplored_paths()
 
         # return None if no unexplored paths are found
         if len(unexplored_paths) == 0:
             return None
 
         # find closest (minimum weight) nodes with unexplored path
-        distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position)
-        distances[current_position] = DijkstraPath(current_position, 0, current_position, None, None)
+        distances[current_position] = DijkstraPath(current_position, 0, current_position, Direction.NORTH,
+                                                   Direction.NORTH)
         min_distance_paths: List[tuple[int, DijkstraPath]] = []
 
-        print(distances)
+        for path in unexplored_paths.copy():
+            if path.start not in distances.keys():
+                unexplored_paths.remove(path)
+
+        if len(unexplored_paths) == 0:
+            return None
 
         for path in unexplored_paths:
             if len(min_distance_paths) == 0:
@@ -273,8 +321,10 @@ class Planet:
             minimum_rotation = 360
             selected_path = min_distance_paths[0][1]
             for weight, path in min_distance_paths:
-                if abs(path.direction_start - current_direction) < minimum_rotation:
+                rotation = abs(path.direction_start - current_direction)
+                if rotation < minimum_rotation:
                     selected_path = path
+                    minimum_rotation = rotation
 
             return selected_path.start, selected_path.direction_start
 
@@ -288,13 +338,36 @@ class Planet:
         return min_distance_paths[0][1].start, min_distance_paths[0][1].direction_start
 
     # returns first step towards target
-    def get_to_target(self, current_position: tuple[tuple[int, int], Direction],
-                      target: tuple[int, int]) -> tuple[tuple[int, int], Direction]:
-        path = self.shortest_path(current_position[0], target)
-        if path is not None:
-            return path[0]
+    def get_next_node(self, current_position: tuple[tuple[int, int], Direction],
+                      target: Optional[tuple[int, int]]) -> Optional[tuple[tuple[int, int], Direction]]:
+        # calculate distance to all nodes from current_position
+        distances: Dict[Tuple[int, int], DijkstraPath] = self.dijkstra_final_paths(current_position[0])
+
+        if target is not None and target in distances:
+            # calculate path to target
+            path = self.extract_path_from_dijkstra(distances, current_position[0], target)
+
+            # return first step of path if path exists
+            if path is not None:
+                return path[0]
+
+        # get next node to explore
+        explore_node = self.explore_next(distances, current_position[0], current_position[1])
+        print(f"explore_node: {explore_node}")
+
+        if explore_node is None:
+            return None
+
+        if explore_node[0] == current_position[0]:
+            return explore_node
+
+        # get path to  explore_node
+        next_path = self.extract_path_from_dijkstra(distances, current_position[0], explore_node[0])
+
+        if next_path is None:
+            return None
         else:
-            return self.explore_next(current_position[0], current_position[1])
+            return next_path[0]
 
 
 # get all outgoing paths from point with current weight added
