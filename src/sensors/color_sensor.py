@@ -5,7 +5,7 @@ import time
 
 import ev3dev.ev3 as ev3
 
-from src.enums import Color
+from enums import Color
 
 
 class ColorSensor:
@@ -22,7 +22,7 @@ class ColorSensor:
         self.color_sensor.mode = "RGB-RAW"
         self.color_data = {}
         self.load_color_data()
-        self.average_lightness = (self.color_sensor.color_data["white"][1] + self.color_sensor.color_data["black"][1]) / 2  # calc the average lightness
+        self.average_lightness = (self.color_data["white"][1] + self.color_data["black"][1]) / 2  # calc the average lightness
 
         # Delay
         self.last_check: int = -1

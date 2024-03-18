@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from src.planet import Direction, Planet, Color
+from planet import Direction, Planet, Color
 import random
 
 

@@ -3,7 +3,7 @@ import math
 
 import ev3dev.ev3 as ev3
 
-from src import constants
+import constants
 
 
 class MotorSensor:
